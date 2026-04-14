@@ -134,9 +134,8 @@ function processNextBatch() {
   const startTime  = Date.now();
   const TIME_LIMIT = 4 * 60 * 1000; // 4 min — leaves 2 min buffer before the 6-min hard kill
 
-  // In-session caches — avoids duplicate AI calls for size variants
+  // In-session cache — avoids duplicate AI calls for size variants
   const descCache = {};
-  const catCache  = {};
 
   for (let row = 2; row <= totalRows; row++) {
 
@@ -176,20 +175,15 @@ function processNextBatch() {
         continue;
       }
 
-      Utilities.sleep(2000);
-      const cat = callGemini_(baseTitle, 'category');
-
       descCache[baseTitle] = desc;
-      catCache[baseTitle]  = cat || '';
     }
 
     // ── Write to Sheet ───────────────────────────────────────
+    // Column D (google_product_category) is formula-driven via =SHOPPING_CATEGORY(B2)
     const desc      = descCache[baseTitle];
-    const cat       = catCache[baseTitle];
     const timestamp = new Date().toLocaleString('en-GB', { timeZone: 'Europe/Amsterdam' });
 
     sheet.getRange(row, 3).setValue(desc);
-    sheet.getRange(row, 4).setValue(cat);
     sheet.getRange(row, 5).setValue('trained_algorithmic_media');
     sheet.getRange(row, 6).setValue(timestamp);
     sheet.getRange(row, 7).setValue(desc.length);
@@ -367,4 +361,161 @@ function findPendingRows_(sheet, totalRows) {
 
 function isUiAvailable_() {
   try { SpreadsheetApp.getUi(); return true; } catch (e) { return false; }
+}
+
+
+// ── CATEGORY LOOKUP ──────────────────────────────────────────
+
+/**
+ * Returns the Google Shopping category for a product title by looking it up
+ * in the 'Categories' sheet tab. Size/variant suffixes are stripped before
+ * matching (e.g. "Nike Air Force 1 White / US 11" → "Nike Air Force 1 White").
+ *
+ * Usage in a cell: =SHOPPING_CATEGORY(B2)
+ *
+ * @param {string} title The product title to look up.
+ * @return {string} The Google Shopping category, or "" if not yet mapped.
+ * @customfunction
+ */
+function SHOPPING_CATEGORY(title) {
+  if (!title || !String(title).trim()) return '';
+
+  const base      = getBaseTitle_(String(title).trim()).toLowerCase();
+  const ss        = SpreadsheetApp.getActiveSpreadsheet();
+  const catSheet  = ss.getSheetByName('Categories');
+  if (!catSheet) return '';
+
+  const lastRow = catSheet.getLastRow();
+  if (lastRow < 2) return '';
+
+  const data = catSheet.getRange(2, 1, lastRow - 1, 2).getValues();
+  for (let i = 0; i < data.length; i++) {
+    if (String(data[i][0]).trim().toLowerCase() === base) {
+      return String(data[i][1]).trim();
+    }
+  }
+  return '';
+}
+
+/**
+ * Creates the 'Categories' sheet tab if it doesn't already exist,
+ * and writes the column headers in row 1.
+ */
+function ensureCategoriesSheet_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let catSheet = ss.getSheetByName('Categories');
+  if (!catSheet) {
+    catSheet = ss.insertSheet('Categories');
+  }
+  // Write headers only if row 1 col A is blank
+  if (!catSheet.getRange(1, 1).getValue()) {
+    catSheet.getRange(1, 1, 1, 2).setValues([['base_title', 'google_product_category']]);
+    catSheet.getRange(1, 1, 1, 2).setFontWeight('bold');
+  }
+  return catSheet;
+}
+
+
+// ── DAILY SYNC ───────────────────────────────────────────────
+
+/**
+ * Pulls all products from Merchant Center and:
+ *   1. Adds any new product rows (id + title) to the main sheet.
+ *   2. Adds any new unique base titles to the 'Categories' sheet
+ *      with a blank category column, ready for manual entry.
+ *
+ * Run setupDailySync() once to schedule this automatically every day.
+ */
+function dailySyncFromGMC() {
+  const ss         = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet      = ss.getActiveSheet();
+  const catSheet   = ensureCategoriesSheet_();
+  const parent     = 'accounts/' + MERCHANT_ID;
+
+  setSheetHeaders_();
+
+  // Build sets of existing product IDs and existing base titles
+  const lastMainRow = sheet.getLastRow();
+  const existingIds = new Set(
+    lastMainRow > 1
+      ? sheet.getRange(2, 1, lastMainRow - 1, 1).getValues().flat().map(String)
+      : []
+  );
+
+  const lastCatRow = catSheet.getLastRow();
+  const existingBaseTitles = new Set(
+    lastCatRow > 1
+      ? catSheet.getRange(2, 1, lastCatRow - 1, 1).getValues().flat()
+          .map(v => String(v).trim().toLowerCase())
+      : []
+  );
+
+  let pageToken;
+  let addedProducts  = 0;
+  let addedBaseTitles = 0;
+
+  try {
+    do {
+      const res = MerchantApiProducts.Accounts.Products.list(parent, {
+        pageToken,
+        pageSize: 250,
+      });
+
+      if (res && res.products) {
+        res.products.forEach(p => {
+          const id        = String(p.offerId);
+          const title     = p.title || '';
+          const baseTitle = getBaseTitle_(title);
+          const baseKey   = baseTitle.toLowerCase();
+
+          // Add new product row to main sheet
+          if (!existingIds.has(id)) {
+            sheet.appendRow([id, title, '', '', 'trained_algorithmic_media', '', '']);
+            existingIds.add(id);
+            addedProducts++;
+          }
+
+          // Add new base title to Categories sheet (blank category)
+          if (baseTitle && !existingBaseTitles.has(baseKey)) {
+            catSheet.appendRow([baseTitle, '']);
+            existingBaseTitles.add(baseKey);
+            addedBaseTitles++;
+          }
+        });
+      }
+      pageToken = res.nextPageToken;
+    } while (pageToken);
+
+    SpreadsheetApp.flush();
+    const msg = `Daily sync complete — ${addedProducts} new products, ${addedBaseTitles} new base titles added to Categories sheet.`;
+    console.log(msg);
+    if (isUiAvailable_()) SpreadsheetApp.getUi().alert(msg);
+
+  } catch (e) {
+    console.error('dailySyncFromGMC error: ' + e.message);
+  }
+}
+
+/**
+ * One-time setup: creates the Categories sheet and schedules
+ * dailySyncFromGMC() to run automatically every day at ~02:00.
+ * Run this once from the Apps Script editor.
+ */
+function setupDailySync() {
+  ensureCategoriesSheet_();
+
+  // Remove any existing dailySyncFromGMC triggers to avoid duplicates
+  ScriptApp.getProjectTriggers()
+    .filter(t => t.getHandlerFunction() === 'dailySyncFromGMC')
+    .forEach(t => ScriptApp.deleteTrigger(t));
+
+  ScriptApp.newTrigger('dailySyncFromGMC')
+    .timeBased()
+    .everyDays(1)
+    .atHour(2)
+    .create();
+
+  const msg = 'Daily sync scheduled. dailySyncFromGMC() will run every day at ~02:00.';
+  console.log(msg);
+  if (isUiAvailable_()) SpreadsheetApp.getUi().alert(msg);
 }
