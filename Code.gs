@@ -129,15 +129,25 @@ function registerGCPProject() {
  * cannot trigger private (underscore-suffixed) functions.
  */
 function processNextBatch() {
-  const sheet     = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  const totalRows = sheet.getLastRow();          // last row with any data
-  const startTime = Date.now();
+  const sheet      = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  const totalRows  = sheet.getLastRow();
+  const startTime  = Date.now();
+  const TIME_LIMIT = 4 * 60 * 1000; // 4 min — leaves 2 min buffer before the 6-min hard kill
 
   // In-session caches — avoids duplicate AI calls for size variants
   const descCache = {};
   const catCache  = {};
 
   for (let row = 2; row <= totalRows; row++) {
+
+    // ── Time check FIRST — before any API call ───────────────
+    // This guarantees scheduleResume_() always has time to run.
+    if (Date.now() - startTime > TIME_LIMIT) {
+      console.log(`4-min limit reached at row ${row}. Scheduling resume…`);
+      SpreadsheetApp.flush();
+      scheduleResume_();
+      return;
+    }
 
     // Read ID, Title, existing Description
     const rowData   = sheet.getRange(row, 1, 1, 3).getValues()[0];
@@ -148,8 +158,8 @@ function processNextBatch() {
     // Skip blank IDs
     if (!id) continue;
 
-    // Skip rows that already have a valid description
-    if (existDesc && !existDesc.startsWith('Error')) continue;
+    // Skip rows that already have a valid description (but retry PENDING)
+    if (existDesc && existDesc !== 'PENDING' && !existDesc.startsWith('Error')) continue;
 
     const baseTitle = getBaseTitle_(fullTitle || id);
 
@@ -157,18 +167,16 @@ function processNextBatch() {
     if (!descCache[baseTitle]) {
       console.log(`Row ${row}: generating for "${baseTitle}"`);
 
-      Utilities.sleep(4000); // respect rate limits
-
+      Utilities.sleep(3000);
       const desc = callGemini_(baseTitle, 'description');
+
       if (!desc || desc.startsWith('Error') || desc.includes('busy')) {
-        console.warn(`Row ${row}: model busy — will retry next run.`);
-        // Write a temporary placeholder so we can track progress
+        console.warn(`Row ${row}: model busy — marking PENDING for retry.`);
         sheet.getRange(row, 3).setValue('PENDING');
         continue;
       }
 
-      Utilities.sleep(3000);
-
+      Utilities.sleep(2000);
       const cat = callGemini_(baseTitle, 'category');
 
       descCache[baseTitle] = desc;
@@ -179,27 +187,18 @@ function processNextBatch() {
     const desc      = descCache[baseTitle];
     const cat       = catCache[baseTitle];
     const timestamp = new Date().toLocaleString('en-GB', { timeZone: 'Europe/Amsterdam' });
-    const charCount = desc.length;
 
     sheet.getRange(row, 3).setValue(desc);
     sheet.getRange(row, 4).setValue(cat);
     sheet.getRange(row, 5).setValue('trained_algorithmic_media');
     sheet.getRange(row, 6).setValue(timestamp);
-    sheet.getRange(row, 7).setValue(charCount);
-
-    // ── Time Safety Check ────────────────────────────────────
-    if (Date.now() - startTime > 300000) {  // 5-minute wall
-      console.log(`Time limit at row ${row}. Scheduling resume…`);
-      SpreadsheetApp.flush();
-      scheduleResume_();
-      return;
-    }
+    sheet.getRange(row, 7).setValue(desc.length);
   }
 
-  // Re-scan for any PENDING rows left by busy-model skips
+  // ── Final pass: any PENDING rows left? ──────────────────────
   const pendingRows = findPendingRows_(sheet, totalRows);
   if (pendingRows > 0) {
-    console.log(`${pendingRows} rows still PENDING. Scheduling another pass…`);
+    console.log(`${pendingRows} PENDING rows remain. Scheduling another pass…`);
     SpreadsheetApp.flush();
     scheduleResume_();
   } else {
