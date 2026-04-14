@@ -347,9 +347,7 @@ function setSheetHeaders_() {
 }
 
 function clearAllTriggers_() {
-  ScriptApp.getProjectTriggers()
-    .filter(t => ['processNextBatch', 'startProcessing'].includes(t.getHandlerFunction()))
-    .forEach(t => ScriptApp.deleteTrigger(t));
+  ScriptApp.getProjectTriggers().forEach(t => ScriptApp.deleteTrigger(t));
 }
 
 function scheduleResume_() {
