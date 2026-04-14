@@ -1,0 +1,63 @@
+
+<h1 class="page-header">{{ page.title }}</h1>
+
+<div class="page page-wrapper grid">
+  <main class="grid-item-66">
+    <div class="rich-text">
+      {{ page.content }}
+    </div>
+
+    {% form 'contact', class: 'form page-contact-form grid' %}
+      {% if form.posted_successfully? %}
+        <div class="grid-item-100">
+          <p class="form-success">{{ 'page.contact.success' | t }}</p>
+        </div>
+      {% endif %}
+
+      {% if form.errors %}
+        <div class="grid-item-100">
+          <span class="form-error">{{ form.errors | default_errors }}</span>
+        </div>
+      {% endif %}
+
+      <div class="form-field grid-item-50">
+        {% assign name_attr = 'page.contact.name' | t | handle %}
+        <label for="ContactFormName" class="form-label" aria-label="{{ 'page.contact.name' | t }}">
+          <span class="form-field-title">{{ 'page.contact.name' | t }}</span>
+          <input type="text" id="ContactFormName" class="form-input form-full" name="contact[{{ name_attr }}]" placeholder="{{ 'page.contact.name_placeholder' | t }}" autocapitalize="words" value="{% if form[name_attr] %}{{ form[name_attr] }}{% elsif customer %}{{ customer.name }}{% endif %}">
+        </label>
+      </div>
+
+      <div class="form-field grid-item-50">
+        <label for="ContactFormEmail" class="form-label" aria-label="{{ 'page.contact.email' | t }}">
+          <span class="form-field-title">{{ 'page.contact.email' | t }}</span>
+          <input type="email" id="ContactFormEmail" class="form-input form-full" name="contact[email]" placeholder="{{ 'page.contact.email_placeholder' | t }}" autocorrect="off" autocapitalize="off" value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}">
+        </label>
+      </div>
+
+      <div class="form-field grid-item-50">
+        {% assign name_attr = 'page.contact.phone' | t | handle %}
+        <label for="ContactFormPhone" class="form-label" aria-label="{{ 'page.contact.phone' | t }}">
+          <span class="form-field-title">{{ 'page.contact.phone' | t }}</span>
+          <input type="tel" id="ContactFormPhone" class="form-input form-full" name="contact[{{ name_attr }}]" placeholder="{{ 'page.contact.phone_placeholder' | t }}" value="{% if form[name_attr] %}{{ form[name_attr] }}{% elsif customer %}{{ customer.phone }}{% endif %}">
+        </label>
+      </div>
+
+      <div class="form-field form-field-textarea grid-item-100">
+        <label for="ContactFormMessage" class="form-label" aria-label="{{ 'page.contact.message' | t }}">
+          <span class="form-field-title">{{ 'page.contact.message' | t }}</span>
+          <textarea rows="10" id="ContactFormMessage" class="form-input form-full" name="contact[body]" placeholder="{{ 'page.contact.message_placeholder' | t }}">{% if form.body %}{{ form.body }}{% endif %}</textarea>
+        </label>
+      </div>
+
+      {{ 'shopify.online_store.spam_detection.disclaimer_html' | t }}
+      
+      <div class="form-actions grid-item-100">
+        <button type="submit" class="button hover-animation" value="{{ 'page.contact.submit' | t }}" aria-label="{{ 'page.contact.submit' | t }}"><span class="button-text">{{ 'page.contact.submit' | t }}</span></button>
+      </div>
+
+      
+
+    {% endform %}
+  </main>
+</div>

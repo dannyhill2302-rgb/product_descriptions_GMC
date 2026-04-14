@@ -1,0 +1,22 @@
+{% assign onSale = false %}
+{% unless item.price_varies %}
+  {% if item.compare_at_price_min > item.price_min %}
+    {% assign onSale = true %}
+  {% endif %}
+{% endunless %}
+
+<span class="money {% if onSale %}is-sale{% endif %}">
+  {{ item.price_min | money }}
+</span>
+{% if item.price_varies %}
+  {{ 'products.product.and_up' | t }}
+{% else %}
+  {% if onSale %}
+    <span class="money rrp">
+      {{ item.compare_at_price_min | money }}
+    </span>
+  {% endif %}
+{% endif %}
+
+{% assign current_variant = item.selected_or_first_available_variant %}
+{% render 'unit-price-measurement-variant', variant: current_variant %}

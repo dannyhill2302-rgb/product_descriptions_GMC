@@ -1,0 +1,96 @@
+{% comment %}
+Badges and banners
+{% endcomment %}
+{% assign hasBanner = false %}
+{% assign onSale = false %}
+{% assign lowStock = false %}
+{% assign bestSelling = false %}
+{% assign newProduct = false %}
+{% assign customBadges = false %}
+
+{%- capture badge_tags -%}
+  {%- for tag in item.tags -%}
+    {%- assign thistag = tag | prepend: '' -%}
+    {%- if thistag contains 'badge__' -%}
+      {{ thistag | replace: 'badge__', '' }}||
+    {%- endif -%}
+  {%- endfor -%}
+{%- endcapture -%}
+
+{% if badge_tags.size > 0 %}
+  {% assign customBadges = true %}
+  {% assign hasBanner = true %}
+{% endif %}
+
+{% unless item.price_varies %}
+  {% if item.compare_at_price_min > item.price_min %}
+    {% assign onSale = true %}
+    {% assign hasBanner = true %}
+    {% assign ratio = item.price_min | append: ".0" | times: 1 | divided_by: item.compare_at_price_min %}
+    {% assign percent = 1 | minus: ratio | times: 100 | round | append: "%" %}
+    {% assign banner = 'products.product.percent_off' | t: percent: percent %}
+  {% endif %}
+{% endunless %}
+
+{% if settings.productStockLevel != blank %}
+  {% assign infinity = false %}
+  {% assign inventory = '' %}
+  {% for variant in item.variants %}
+    {% if variant.inventory_management == null or variant.inventory_management == '' or variant.inventory_management == 'shopify' and variant.inventory_policy == 'continue' %}
+      {% assign infinity = true %}
+    {% else %}
+      {% assign inventory = inventory | plus: variant.inventory_quantity %}
+    {% endif %}
+  {% endfor %}
+
+  {% assign threshold = settings.productStockLevel | times: 1 %}
+  {% if infinity == false and inventory > 0 and inventory < threshold %}
+    {% assign lowStock = true %}
+    {% assign hasBanner = true %}
+    {% assign banner = 'products.product.low_stock' | t: stock: inventory %}
+  {% endif %}
+{% endif %}
+
+{% unless item.available %}
+  {% assign hasBanner = true %}
+  {% assign banner = 'products.product.sold_out' | t %}
+{% endunless %}
+
+{% if collection.sort_by %}
+  {% if collection.sort_by == "best-selling" %}
+    {% assign bestSelling = true %}
+    {% assign hasBanner = true %}
+    {% assign banner = 'products.product.popular' | t %}
+  {% elsif collection.sort_by == "created-descending" %}
+    {% assign newProduct = true %}
+    {% assign hasBanner = true %}
+    {% assign banner = 'products.product.new' | t %}
+  {% endif %}
+{% endif %}
+
+{% unless item %}
+  {% assign hasBanner = false %}
+{% endunless %}
+
+{%- if hasBanner -%}
+{% if wrapper %}<div class="product-banners-wrapper{% if settings.productAnimateBadges %} contains-animated{% endif %}">{% endif %}
+<div class="product-item-banners{% if settings.productAnimateBadges %} animated{% endif %}" id="banners-{{ item.id }}">
+  {%- if settings.productAnimateBadges -%}
+    <div class="badges-wrapper">
+  {%- endif -%}
+    {%- if item.available != true -%}
+      <span class="product-item-banner out-of-stock">{{ banner }}</span>
+    {%- elsif customBadges -%}
+      {% assign custom_badges = badge_tags | split: '||' %}
+      {%- for custom_badge in custom_badges -%}
+        <span class="product-item-banner custom-badge">{{ custom_badge }}</span>
+      {%- endfor -%}
+    {%- else -%}
+      <span class="product-item-banner{% if lowStock %} low-stock{% elsif onSale %} on-sale{% elsif bestSelling %} best-selling{% elsif newProduct %} new-product{% endif %}">{{ banner }}</span>
+    {%- endif -%}
+  {%- if settings.productAnimateBadges -%}
+    </div>
+  {%- endif -%}
+</div>
+{% if wrapper %}</div>{% endif %}
+{%- endif -%}

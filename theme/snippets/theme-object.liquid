@@ -1,0 +1,67 @@
+
+<script>
+  window.Theme = {};
+  Theme = {{ settings | json }};
+  Theme.moneyFormat = {{ shop.money_format | json }};
+
+  {% if shop.customer_accounts_enabled and customer %}
+    Theme.hasCustomer = true;
+  {% endif %}
+
+  Theme.localization = {};
+
+  Theme.localization.account = {
+    addressConfirmDelete: {{ "customer.addresses.confirm_delete" | t | json }},
+    addressSelectProvince: {{ "customer.addresses.select_state" | t | json }}
+  };
+
+  Theme.localization.header = {
+    percentOff: {{ "layout.header.percent_off" | t: percent: "*percent*" | json }}
+  };
+
+  Theme.localization.collection = {
+    brand: {{ "collection.sidebar.brand" | t | json }},
+    type: {{ "collection.sidebar.type" | t | json }}
+  };
+
+  Theme.localization.product = {
+    addToCart: {{ "products.product.add_to_cart" | t | json }},
+    soldOut: {{ "products.product.sold_out" | t | json }},
+    onSale: {{ "products.product.on_sale" | t | json }},
+    unavailable: {{ "products.product.unavailable" | t | json }},
+    added: {{ "products.product.added" | t: item: "*item*" | json }},
+    and_up: {{ "products.product.and_up" | t | json }},
+    lowStock: {{ "products.product.low_stock" | t: stock: "*stock*" | json }},
+    viewProduct: {{ "products.product.view_product" | t | json }},
+    percentOff: {{ "products.product.percent_off" | t: percent: "*percent*" | json }}
+  };
+
+  Theme.localization.cart = {
+    itemRemoved: {{ "cart.content.item_removed" | t | json }},
+    shipping: {
+      submit: {{ "cart.shipping.submit" | t | json }},
+      calculating: {{ "cart.shipping.calculating" | t | json }},
+      rate: {{ "cart.shipping.rate" | t: address: "*address*" | json }},
+      rateMultiple: {{ "cart.shipping.rate_html" | t: number_of_rates: "*number_of_rates*", address: "*address*", rate: "*rate*" | json }},
+      rateEmpty: {{ "cart.shipping.rate_empty" | t | json }},
+      rateValues: {{ "cart.shipping.rate_values_html" | t: rate_title: "*rate_title*", rate: "*rate*" | json }}
+    },
+    cart_item: {{ 'cart.general.item' | t | json }},
+    added_to_cart: {{ 'cart.general.added_to' | t | json }},
+    removed_from_cart: {{ 'cart.general.removed_from' | t | json }},
+    saving: {{ 'products.general.saving' | t | json }},
+    cart_title: {{ 'cart.general.title' | t | json }},
+    cart_subtotal: {{ 'cart.totals.subtotal' | t | json }}
+  };
+
+  Theme.localization.search = {
+    empty: {{ "search.header.empty" | t | json }},
+    viewAll: {{ "search.header.view_all" | t | json }},
+    close: {{ "search.general.close" | t | json }},
+    clear: {{ "search.general.clear" | t | json }},
+    products: {{ "search.general.products" | t | json }},
+    pages: {{ "search.general.pages" | t | json }},
+    articles: {{ "search.general.articles" | t | json }},
+    collections: {{ "search.general.collections" | t | json }}
+  };
+</script>

@@ -1,0 +1,238 @@
+{%- capture textSize -%}
+    {% case section.settings.text--scrolling-text--text-size %}
+    {% when 'small' %}
+        index-sliding-text__wrapper--small
+    {% when 'medium' %}
+        index-sliding-text__wrapper--medium
+    {% when 'large' %}
+        index-sliding-text__wrapper--large
+    {% endcase %}
+{%- endcapture -%}
+
+{%- capture fontFamily -%}{% case section.settings.text--scrolling-text--font %}{% when 'bodyFont' %}index-sliding-text__wrapper--body{% when 'headingFont' %}index-sliding-text__wrapper--heading{% endcase %}{%- endcapture -%}
+
+{% if section.settings.text--scrolling--link %}
+    <a href="{{ section.settings.text--scrolling--link }}">
+{% endif %}
+<section
+  class="index-sliding-text"
+  data-section-id="{{ section.id }}"
+  data-section-type="home"
+  data-section-child="sliding-text"
+>
+
+    <div class="index-sliding-text__wrapper {{ textSize }} {{ fontFamily }}">
+
+      <div class="index-sliding-text__wrapper__block">
+        <div class="index-sliding-text__wrapper__block__inner">
+          {% for block in section.blocks %}
+            <span class="index-sliding-text__item">{{ block.settings.text--scrolling-text_text }}</span>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+</section>
+
+{% if section.settings.text--scrolling--link %}
+    </a>
+{% endif %}
+
+<style type="text/css">
+    #shopify-section-{{ section.id }} .index-sliding-text {
+      background-color: {{ section.settings.text--scrolling--background-color }};
+      color: {{ section.settings.text--scrolling-text--text-color }};
+    }
+</style>
+
+{% schema %}
+{
+    "name": {
+        "en": "Scrolling text",
+        "de": "Lauftext",
+        "es": "Desplazamiento de texto",
+        "fr": "Texte défilant",
+        "pt-PT": "Deslocar texto"
+    },
+    "class": "section-index-slidingText",
+    "settings": [
+        {
+            "type": "radio",
+            "id": "text--scrolling-text--text-size",
+            "label":{
+                "en": "Text size",
+                "fr": "Taille de texte",
+                "de": "Textgröße",
+                "es": "Tamaño del texto",
+                "pt-PT": "Tamanho do texto"
+            },
+            "options": [
+            {
+                "value": "small",
+                "label": {
+                    "en": "Small",
+                    "de": "Klein",
+                    "es": "Pequeño",
+                    "fr": "Petite",
+                    "pt-PT": "Pequeno"
+                }
+            },
+            {
+                "value": "medium",
+                "label": {
+                    "en": "Medium",
+                    "de": "Mittel",
+                    "es": "Mediano",
+                    "fr": "Moyenne",
+                    "pt-PT": "Médio"
+                }
+            },
+            {
+                "value": "large",
+                "label": {
+                    "en": "Large",
+                    "de": "Groß",
+                    "es": "Grande",
+                    "fr": "Grande",
+                    "pt-PT": "Grande"
+                }
+            }
+            ],
+            "default": "small"
+        },
+        {
+            "type": "radio",
+            "id": "text--scrolling-text--font",
+            "label":{
+                "en": "Font",
+                "fr": "Police",
+                "de": "Schriftart",
+                "es": "Tipografía",
+                "pt-PT": "Tipo de letra"
+            },
+            "options": [
+                {
+                    "value": "bodyFont",
+                    "label": {
+                        "en": "Body font",
+                        "de": "Schrift für den Textkörper",
+                        "es": "Fuente del cuerpo",
+                        "fr": "Police du corps",
+                        "pt-PT": "Tipo de letra do corpo"
+                    }
+                },
+                {
+                    "value": "headingFont",
+                    "label": {
+                        "en": "Heading font",
+                        "de": "Schrift für Überschriften",
+                        "es": "Fuente del encabezado",
+                        "fr": "Police de titre",
+                        "pt-PT": "Tipo de letra do cabeçalho"
+                    }
+                }
+            ],
+            "default": "headingFont"
+        },
+        {
+            "type": "color",
+            "id": "text--scrolling-text--text-color",
+            "label": {
+                "en": "Text color",
+                "de": "Textfarbe",
+                "es": "Color del texto",
+                "fr": "Couleur du texte",
+                "pt-PT": "Cor do texto"
+            },
+            "default": "#333333"
+        },
+        {
+            "type": "color",
+            "id": "text--scrolling--background-color",
+            "label": {
+                "en": "Background color",
+                "de": "Hintergrundfarbe",
+                "es": "Color de fondo",
+                "fr": "Couleur d'arrière-plan",
+                "pt-PT": "Cor de fundo"
+            },
+            "default": "#F5F5F5"
+        },
+        {
+            "type": "url",
+            "id": "text--scrolling--link",
+            "label": {
+                "en": "Link",
+                "de": "Link",
+                "es": "Enlace",
+                "fr": "Lien",
+                "pt-PT": "Ligação"
+            },
+            "info": {
+                "en": "Optional",
+                "de": "Optional",
+                "es": "Opcional",
+                "fr": "Facultatif",
+                "pt-PT": "Opcional"
+            }
+        }
+    ],
+    "blocks": [
+      {
+        "type": "text",
+        "name": {
+          "en": "Text",
+          "de": "Rich Text",
+          "es": "Texto enriquecido",
+          "fr": "Texte riche",
+          "pt-PT": "Texto rico"
+        },
+        "settings": [
+          {
+             "type": "text",
+             "id": "text--scrolling-text_text",
+             "label": {
+               "en": "Text",
+               "de": "Rich Text",
+               "es": "Texto enriquecido",
+               "fr": "Texte riche",
+               "pt-PT": "Texto rico"
+             },
+             "default": {
+               "en": "PROMOTE AN OFFER",
+               "de": "EIN ANGEBOT BEWERBEN",
+               "es": "PROMOCIONAR UNA OFERTA",
+               "fr": "PROMOUVOIR UNE OFFRE",
+               "pt-PT": "PROMOVER UMA OFERTA"
+             }
+          }
+        ]
+      }
+    ],
+    "max_blocks": 3,
+    "presets": [
+        {
+            "name": {
+                "en": "Scrolling text",
+                "de": "Lauftext",
+                "es": "Desplazamiento de texto",
+                "fr": "Texte défilant",
+                "pt-PT": "Deslocar texto"
+            },
+            "category": {
+                "en": "Promotional",
+                "de": "für Werbezwecke",
+                "es": "Promocional",
+                "fr": "Promotionnel",
+                "pt-PT": "Promocional"
+            },
+            "blocks": [
+              {
+                  "type": "text"
+              }
+            ]
+        }
+    ]
+}
+{% endschema %}

@@ -1,0 +1,68 @@
+{%- capture search_types -%}
+  {%- if settings.predictive_search_products -%}product,{%- endif -%}
+  {%- if settings.predictive_search_pages -%}page,{%- endif -%}
+  {%- if settings.predictive_search_articles -%}article,{%- endif -%}
+  {%- if settings.predictive_search_collections -%}collection{%- endif -%}
+{%- endcapture -%}
+
+{% assign buttonCount = 1 %}
+
+{% if shop.customer_accounts_enabled %}
+  {% assign buttonCount = buttonCount | plus: 1 %}
+{% endif %}
+
+<div class="footer-tapbar" data-footer-tapbar>
+  <ul class="footer-tapbar-icons has-{{ buttonCount }}-buttons">
+    {% if shop.customer_accounts_enabled %}
+      <li class="footer-account">
+        <a
+          class="footer-account-toggle"
+          href="{{ routes.account_url }}"
+          data-footer-account-toggle
+        >
+          <svg><use xlink:href="#icon-account-2"></use></svg>
+        </a>
+      </li>
+    {% endif %}
+
+    <li class="footer-search">
+      <a href="{{ routes.search_url }}" data-footer-search-toggle><svg><use xlink:href="#icon-search"></use></svg></a>
+    </li>
+  </ul>
+
+  <div class="footer-tapbar-content" data-footer-content>
+    {% if shop.customer_accounts_enabled %}
+      <div class="footer-account-dropdown" data-footer-content-item="account" data-footer-account></div>
+    {% endif %}
+
+    <form class="footer-search-form" action="{{ routes.search_url }}" method="get" data-footer-content-item="search" data-footer-search>
+      <div class="form-field">
+        <label for="footer-search" aria-label="{{ 'layout.header.search_placeholder' | t }}">
+          <input class="form-input {% if settings.predictive_search_enabled %}is-predictive{% else %}not-predictive{% endif %}"
+          data-search-types="{{ search_types }}"
+          data-show-prices="{{ settings.predictive_search_show_price }}"
+          data-show-vendor="{{ settings.predictive_search_show_vendor }}"
+          id="footer-search"
+          name="q"
+          type="text"
+          placeholder="{{ 'layout.header.search_placeholder' | t }}"
+          value=""
+          aria-hidden="true"
+          tabindex="0"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+          />
+          <span class="footer-search-clear" aria-label="{{ "search.general.clear" | t }}" tabindex="0"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>
+        </label>
+        <button class="button" aria-label="{{ 'layout.header.search' | t }}" type="submit">{{ 'layout.header.search' | t }}</button>
+      </div>
+      <div class="footer-search-results-wrapper" data-footer-search-results-wrapper>
+        <div class="close-icon" aria-label="{{ "search.general.close" | t }}" tabindex="0" data-footer-search-results-close><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
+        <div class="footer-search-results" data-footer-search-results>
+        </div>
+      </div>
+    </form>
+
+  </div>
+</div>

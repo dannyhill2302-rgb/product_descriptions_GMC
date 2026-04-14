@@ -1,0 +1,557 @@
+<script
+  type="application/json"
+  data-section-type="header"
+  data-section-id="{{ section.id }}"
+  data-section-data
+>
+  {
+    "isFullBleed": {{ section.settings.fullBleed | json }}
+  }
+</script>
+
+<div
+  class="header-wrapper"
+  data-header-inner
+>
+  <div class="header{% if section.settings.logo_placement == 'center' %} header--logo-center{% endif %}{% if section.settings.full-width %} header--full-width{% endif %}">
+
+    <div class="navigation-toggle" style="{% if section.settings.navigationMainMenu == blank %}visibility: hidden{% endif %}">
+      <button data-navigation-toggle data-open type="button">
+        <span class="navigation-toggle-inner">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+      </button>
+    </div>
+
+    {% if section.settings.logo_placement == 'center' %}
+    <div class="header--logo-center-search">
+      {% render 'search' %}
+    </div>
+    {% endif %}
+
+    <div class="header-logo{% if section.settings.fullBleed and section.settings.fullBleedLogo and template == 'index' %} overlay-logo--enabled{% endif %}">
+      {% if section.settings.logo %}
+        <h2 data-header-logo>
+          <a href="{{ routes.root_url }}" itemprop="url">
+            {% assign logoWidth = section.settings.logoWidth | append: 'x' | escape %}
+            <img class="header-logo-original"
+                 src="{{ section.settings.logo | img_url: logoWidth }}"
+                 srcset="{{ section.settings.logo | img_url: logoWidth }} 1x, {{ section.settings.logo | img_url: logoWidth, scale: 2 }} 2x"
+                 alt="{{ shop.name }}"
+                 itemprop="logo">
+
+            {% if section.settings.fullBleed %}
+              {% if section.settings.fullBleedLogo and template == 'index' %}
+                <img class="header-logo-fullbleed"
+                     src="{{ section.settings.fullBleedLogo | img_url: logoWidth }}"
+                     srcset="{{ section.settings.fullBleedLogo | img_url: logoWidth }} 1x, {{ section.settings.fullBleedLogo | img_url: logoWidth, scale: 2 }} 2x"
+                     alt="{{ shop.name }}">
+              {% endif %}
+            {% endif %}
+          </a>
+        </h2>
+      {% else %}
+        <h2{% if section.settings.logo_placement == 'left' %} class="logo--left-align"{% endif %} data-header-logo><a href="{{ routes.root_url }}" itemprop="url">{{ shop.name }}</a></h2>
+      {% endif %}
+    </div>
+
+    <div class="header--logo-left-search">
+        {% if section.settings.logo_placement == 'left' %}
+            {% render 'search' %}
+        {% endif %}
+    </div>
+
+    <div class="header-tools header-tools--style-{{ section.settings.icon_style }}" data-header-tools>
+      <div class="header-localization">
+        {% render 'localization-selectors', showLocaleSelector: section.settings.showLocaleSelector, showCurrencySelector: section.settings.showCurrencySelector %}
+      </div>
+      <ul>
+        {% if shop.customer_accounts_enabled %}
+          <li class="header-account" data-header-account>
+            <a
+              href="{{ routes.account_url }}"
+              aria-label="{{ 'layout.header.account' | t | escape }}"
+            >
+              {% if section.settings.icon_style == '0' %}
+                {{- 'layout.header.account' | t -}}
+              {% else %}
+                <svg><use xlink:href="#icon-account-{{ section.settings.icon_style }}"></use></svg>
+              {% endif %}
+            </a>
+            {% render "header-account-dropdown", customer: customer, section: section %}
+          </li>
+        {% endif %}
+
+        <li class="header-cart{% if cart.item_count > 0 %} header-cart--active{% endif %}">
+          <a
+            href="{{ routes.cart_url }}"
+            aria-label="{{ 'layout.header.cart' | t | escape }}"
+            {%- if settings.ajax_cart_method == 'drawer' -%}
+              aria-controls="cartSlideoutAside"
+              class="slide-menu-cart"
+            {%- endif -%}
+          >
+            {% if section.settings.icon_style == '0' %}
+                {{- 'layout.header.cart' | t -}}
+            {% else %}
+              <svg><use xlink:href="#icon-cart-{{ section.settings.icon_style }}"></use></svg>
+            {% endif %}
+            <span class="header-cart-count" data-header-cart-count>
+              {%- if cart.item_count > 0 %}{{ cart.item_count }}{% endif -%}
+            </span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+  {% render 'navigation', section: section %}
+
+<style type="text/css">
+  {% if section.settings.fullBleed %}
+    {%- capture rgb -%}
+      {{ settings.fullBleedColor | color_extract: 'red' }},
+      {{ settings.fullBleedColor | color_extract: 'green' }},
+      {{ settings.fullBleedColor | color_extract: 'blue' }}
+    {%- endcapture -%}
+
+    @media screen and (min-width: 721px) {
+      .main-header.is-fullbleed:not(:hover):not(.search-open) .header-logo a,
+      .main-header.is-fullbleed:not(:hover):not(.search-open) .navigation-list-item a,
+      .main-header.is-fullbleed:not(:hover):not(.search-open) .header-search-form-style-minimal .form-input,
+      .main-header.is-fullbleed:not(:hover):not(.search-open) .header-search-form-style-minimal .header-search-text,
+      .main-header.is-fullbleed:not(:hover):not(.search-open) .header-search-form-style-minimal svg,
+      .main-header.is-fullbleed:not(:hover):not(.search-open) .localization-selector button,
+      .main-header.is-fullbleed:not(:hover):not(.search-open) .header-tools .header-account>a,
+      .main-header.is-fullbleed:not(:hover):not(.search-open) .header-tools .header-cart>a,
+      .main-header.is-fullbleed:not(:hover):not(.search-open) .scroll-left::before,
+      .main-header.is-fullbleed:not(:hover):not(.search-open) .scroll-right::before
+      {
+        color: {{ settings.fullBleedColor }};
+        -moz-osx-font-smoothing: grayscale;
+        -moz-font-smoothing: antialiased;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .main-header.is-fullbleed:not(:hover):not(.search-open) .header-search-form-style-minimal .form-input::-webkit-input-placeholder { color: {{ settings.fullBleedColor }}; }
+      .main-header.is-fullbleed:not(:hover):not(.search-open) .header-search-form-style-minimal .form-input::-moz-placeholder { color: {{ settings.fullBleedColor }}; }
+      .main-header.is-fullbleed:not(:hover):not(.search-open) .header-search-form-style-minimal .form-input::-ms-placeholder { color: {{ settings.fullBleedColor }}; }
+      .main-header.is-fullbleed:not(:hover):not(.search-open) .header-search-form-style-minimal .form-input::placeholder { color: {{ settings.fullBleedColor }}; }
+
+      .main-header.is-fullbleed:not(:hover):not(.search-open) .header-search-submit,
+      .main-header.is-fullbleed:not(:hover):not(.search-open) .localization-selector button,
+      .main-header.is-fullbleed:not(:hover):not(.search-open) .header-search-form .form-input {
+        border-color: {{ settings.fullBleedColor }};
+      }
+    }
+  {% endif %}
+</style>
+
+{% schema %}
+{
+    "name": {
+        "en": "Header",
+        "de": "Überschrift",
+        "es": "Encabezado",
+        "fr": "En-tête",
+        "pt-PT": "Cabeçalho"
+    },
+    "settings": [
+        {
+            "type": "checkbox",
+            "id": "full-width",
+            "label": {
+                "en": "Enable full width",
+                "de": "Volle Breite aktivieren",
+                "es": "Habilitar a todo lo ancho",
+                "fr": "Activer la pleine largeur",
+                "pt-PT": "Ativar largura total"
+            }
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Logo",
+                "de": "Logo",
+                "es": "Logotipo",
+                "fr": "Logo",
+                "pt-PT": "Logótipo"
+            }
+        },
+        {
+            "type": "image_picker",
+            "id": "logo",
+            "label": {
+                "en": "Image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            },
+            "info": {
+                "en": "250 x 130px recommended",
+                "de": "Empfohlen: 250 x 130 Pixel",
+                "es": "250 x 130 píxeles recomendados",
+                "fr": "250 x 130 pixels recommandés",
+                "pt-PT": "250 x 130 px, recomendado"
+            }
+        },
+        {
+            "type": "range",
+            "id": "logoWidth",
+            "label": {
+                "en": "Width",
+                "de": "Breite",
+                "es": "Ancho",
+                "fr": "Largeur",
+                "pt-PT": "Largura"
+            },
+            "min": 50,
+            "max": 290,
+            "step": 5,
+            "default": 250,
+            "unit": {
+                "en": "px",
+                "de": "px",
+                "es": "px",
+                "fr": "px",
+                "pt-PT": "px"
+            }
+        },
+        {
+            "type": "select",
+            "id": "logo_placement",
+            "label": {
+                "en": "Placement",
+                "de": "Platzierung",
+                "es": "Colocación",
+                "fr": "Placement",
+                "pt-PT": "Posicionamento"
+            },
+            "default": "center",
+            "options": [
+                {
+                    "value": "left",
+                    "label": {
+                        "en": "Left",
+                        "de": "Links",
+                        "es": "Izquierda",
+                        "fr": "Gauche",
+                        "pt-PT": "Esquerda"
+                    }
+                },
+                {
+                    "value": "center",
+                    "label": {
+                        "en": "Center",
+                        "de": "Mitte",
+                        "es": "Centro",
+                        "fr": "Centre",
+                        "pt-PT": "Centro"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Account/Cart",
+                "de": "Account/Einkaufswagen",
+                "es": "Cuenta/Carro",
+                "fr": "Compte/panier",
+                "pt-PT": "Conta / Carrinho de compras"
+            }
+        },
+        {
+            "type": "select",
+            "id": "icon_style",
+            "label": {
+                "en": "Account/Cart icon style",
+                "de": "Stil der Account- und Einkaufswagen-Symbole",
+                "es": "Estilo de icono de cuenta/carro",
+                "fr": "Style de l'icône du compte/du panier",
+                "pt-PT": "Conta / Estilo do ícone do carrinho de compras"
+            },
+            "default": "0",
+            "options": [
+                {
+                    "value": "0",
+                    "label": {
+                        "en": "Text",
+                        "de": "Text",
+                        "es": "Texto",
+                        "fr": "Texte",
+                        "pt-PT": "Texto"
+                    }
+                },
+                {
+                    "value": "1",
+                    "label": {
+                        "en": "Modern",
+                        "de": "Modern",
+                        "es": "Moderno",
+                        "fr": "Moderne",
+                        "pt-PT": "Moderno"
+                    }
+                },
+                {
+                    "value": "2",
+                    "label": {
+                        "en": "Classic",
+                        "de": "Klassisch",
+                        "es": "Clásico",
+                        "fr": "Classique",
+                        "pt-PT": "Clássico"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Account dropdown",
+                "de": "Account-Drop-down-Menü",
+                "es": "Despliegue de la cuenta",
+                "fr": "Déroulement du compte",
+                "pt-PT": "Lista pendente da conta"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "headerAccountContact",
+            "label": {
+                "en": "Show contact info",
+                "de": "Kontaktdaten anzeigen",
+                "es": "Mostrar información de contacto",
+                "fr": "Afficher les coordonnées",
+                "pt-PT": "Mostrar informações de contacto"
+            }
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Language Selector",
+                "de": "Sprachauswahl",
+                "es": "Selector de idioma",
+                "fr": "Sélecteur de langue",
+                "pt-PT": "Seletor de Idioma"
+            },
+            "info": {
+                "en": "To add a language, go to your [language settings.](/admin/settings/languages)",
+                "de": "Gehen Sie zu Ihren [Spracheinstellungen](/admin/settings/languages), um eine Sprache hinzuzufügen.",
+                "es": "Para agregar un idioma, ve a tu[configuración de idioma](/admin/settings/languages)",
+                "fr": "Pour ajouter une langue, allez dans vos [paramètres de langue.](/admin/settings/languages).",
+                "pt-PT": "Para adicionar um idioma, aceda a [definições de idioma.](/admin/settings/languages)"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "showLocaleSelector",
+            "label": {
+                "en": "Show language selector",
+                "de": "Sprachauswahl anzeigen",
+                "es": "Mostrar el selector de idioma",
+                "fr": "Afficher le sélecteur de langue",
+                "pt-PT": "Mostrar seletor de idioma"
+            },
+            "default": true
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Currency Selector",
+                "de": "Währungsauswahl",
+                "es": "Selector de moneda",
+                "fr": "Sélecteur de devise",
+                "pt-PT": "Seletor de Moeda"
+            },
+            "info": {
+                "en": "To add a currency, go to your [payment settings.](/admin/settings/payments)",
+                "de": "Rufen Sie Ihre [Zahlungseinstellungen](/admin/settings/payments) auf, um eine Währung hinzuzufügen",
+                "es": "Para añadir una moneda, vaya a su [configuración de pago](/admin/settings/payments)",
+                "fr": "Pour ajouter une devise, accédez à vos [paramètres de paiement](/admin/settings/payments)",
+                "pt-PT": "Para adicionar uma divisa, vá às suas [definições de pagamento](/admin/settings/payments)"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "showCurrencySelector",
+            "label": {
+                "en": "Show currency selector",
+                "de": "Währungsauswahl anzeigen",
+                "es": "Mostrar el selector de moneda",
+                "fr": "Afficher le sélecteur de devise",
+                "pt-PT": "Mostrar seletor de moeda"
+            },
+            "default": true
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Navigation",
+                "fr": "Navigation",
+                "de": "Navigation",
+                "es": "Navegación",
+                "pt-PT": "Navegação"
+            }
+        },
+        {
+            "type": "link_list",
+            "id": "navigationMainMenu",
+            "label": {
+                "en": "Main navigation menu",
+                "de": "Hauptnavigationsmenü",
+                "es": "Menú principal de navegación",
+                "fr": "Menu de navigation principal",
+                "pt-PT": "Menu de navegação principal"
+            },
+            "default": "main-menu",
+            "info": {
+                "en": "Required menu",
+                "de": "Erforderliches Menü",
+                "es": "Menú necesario",
+                "fr": "Menu requis",
+                "pt-PT": "Menu obrigatório"
+            }
+        },
+        {
+            "type": "select",
+            "id": "navigation_placement",
+            "label": {
+                "en": "Placement",
+                "de": "Platzierung",
+                "es": "Colocación",
+                "fr": "Placement",
+                "pt-PT": "Posicionamento"
+            },
+            "default": "center",
+            "options": [
+                {
+                    "value": "left",
+                    "label": {
+                        "en": "Left",
+                        "de": "Links",
+                        "es": "Izquierda",
+                        "fr": "Gauche",
+                        "pt-PT": "Esquerda"
+                    }
+                },
+                {
+                    "value": "center",
+                    "label": {
+                        "en": "Center",
+                        "de": "Mitte",
+                        "es": "Centro",
+                        "fr": "Centre",
+                        "pt-PT": "Centro"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Overlay header",
+                "de": "Überlagerungs-Header",
+                "es": "Superponer encabezado",
+                "fr": "En-tête en surimpression",
+                "pt-PT": "Cabeçalho de sobreposição"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "fullBleed",
+            "label": {
+                "en": "Overlay homepage content",
+                "de": "Homepage-Inhalt überlagern",
+                "es": "Superponer el contenido de la página de inicio",
+                "fr": "Superposer le contenu de la page d'accueil",
+                "pt-PT": "Sobrepor o conteúdo da página inicial"
+            }
+        },
+        {
+            "type": "image_picker",
+            "id": "fullBleedLogo",
+            "label": {
+                "en": "Logo image",
+                "de": "Logobild",
+                "es": "Imagen del logotipo",
+                "fr": "Image du logo",
+                "pt-PT": "Imagem do logótipo"
+            },
+            "info": {
+                "en": "250 x 130px recommended",
+                "de": "Empfohlen: 250 x 130 Pixel",
+                "es": "250 x 130 píxeles recomendados",
+                "fr": "250 x 130 pixels recommandés",
+                "pt-PT": "250 x 130 px, recomendado"
+            }
+        }
+    ],
+    "blocks": [
+        {
+            "name": {
+                "en": "Mega-menu",
+                "de": "Megamenü",
+                "es": "Mega-menú",
+                "fr": "Méga-menu",
+                "pt-PT": "Menu mega"
+            },
+            "type": "menu",
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "navigationItem",
+                    "label": {
+                        "en": "Main menu item",
+                        "de": "Hauptmenü-Element",
+                        "es": "Elemento del menú principal",
+                        "fr": "Élément du menu principal",
+                        "pt-PT": "Artigo do menu principal"
+                    },
+                    "info": {
+                        "en": "Enter menu item to apply a mega menu drop-down",
+                        "de": "Geben Sie ein Menü-Element ein, um ein Mega-Drop-down-Menü anzuwenden",
+                        "es": "Introduzca el elemento del menú para aplicar un mega-menú desplegable",
+                        "fr": "Entrez l'élément du menu pour appliquer un déroulement du méga-menu",
+                        "pt-PT": "Introduza um artigo do menu para aplicar uma lista pendente de menu mega"
+                    }
+                },
+                {
+                    "type": "image_picker",
+                    "id": "navigationMegaImage",
+                    "label": {
+                        "en": "Enable mega-menu image",
+                        "de": "Megamenü-Bild aktivieren",
+                        "es": "Habilitar la imagen del mega-menú",
+                        "fr": "Activer l'image du méga-menu",
+                        "pt-PT": "Ativar imagem de menu mega"
+                    },
+                    "info": {
+                        "en": "800 x 300px recommended",
+                        "de": "Empfohlen: 800 x 300 Pixel",
+                        "es": "800 x 300 píxeles recomendados",
+                        "fr": "800 x 300 pixels recommandés",
+                        "pt-PT": "800 x 300 px, recomendado"
+                    }
+                },
+                {
+                    "type": "url",
+                    "id": "navigationMegaImageLink",
+                    "label": {
+                        "en": "Image link",
+                        "de": "Bildlink",
+                        "es": "Enlace de la imagen",
+                        "fr": "Lien vers l'image",
+                        "pt-PT": "Link da imagem"
+                    }
+                }
+            ]
+        }
+    ]
+}
+{% endschema %}

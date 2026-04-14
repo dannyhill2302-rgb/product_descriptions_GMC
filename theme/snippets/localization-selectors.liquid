@@ -1,0 +1,32 @@
+{%- form 'localization', class: 'localization-selector-form' -%}
+  {%- if showLocaleSelector and shop.published_locales.size > 1 -%}
+    <div class="localization-selector localization-selector__locale">
+      <wetheme-dropdown fit="current" direction="{{ direction | default: "down" }}">
+        <h2 class="hidden" id="lang-heading">
+          {{ 'layout.header.language' | t }}
+        </h2>
+
+        <select name="locale_code">
+          {% for locale in form.available_locales %}
+            <option value="{{ locale.iso_code }}" {%- if locale.iso_code == form.current_locale.iso_code -%}selected{% endif %}>{{ locale.endonym_name }}</option>
+          {% endfor %}
+        </select>
+      </wetheme-dropdown>
+    </div>
+  {%- endif -%}
+
+  {%- if showCurrencySelector and shop.enabled_currencies.size > 1 -%}
+    <div class="localization-selector localization-selector__currency">
+      <wetheme-dropdown fit="current" direction="{{ direction | default: "down" }}">
+        <h2 class="hidden" id="currency-heading">
+          {{ 'layout.header.currency' | t }}
+        </h2>
+        <select name="currency_code">
+          {% for currency in form.available_currencies %}
+            <option value="{{ currency.iso_code }}" {%- if currency.iso_code == form.current_currency.iso_code -%}selected{%- endif -%}>{{ currency.iso_code }} {%- if currency.symbol -%}{{ currency.symbol }}{%- endif -%}</option>
+          {% endfor %}
+        </select>
+      </wetheme-dropdown>
+    </div>
+  {%- endif -%}
+{%- endform -%}

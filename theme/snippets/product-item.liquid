@@ -1,0 +1,190 @@
+{% assign items = "" %}
+{% assign itemsAvailability = "" %}
+{% assign colorsAvailability = false %}
+{% assign hasAdditionalInfo = false %}
+
+{% if settings.show_second_image_on_hover == true %}
+  {%- assign secondary_image_enabled = true -%}
+{% endif %}
+
+{% if productInfoSetting and productInfoSetting == 'show-on-hover' %}
+  {% assign hasAdditionalInfo = true %}
+{% endif %}
+
+{% assign isColor = false %}
+{% assign delayAmount = '' %}
+
+{%- comment -%}
+  Build the product URL with a ?collection= param so breadcrumbs can
+  reconstruct the category context even when the canonical URL is /products/*.
+{%- endcomment -%}
+{% if collection.handle and collection.handle != blank %}
+  {% assign product_url_with_collection = item.url | append: '?collection=' | append: collection.handle %}
+{% else %}
+  {% assign product_url_with_collection = item.url %}
+{% endif %}
+
+<article
+  class="product-item {{ grid }}"
+  data-product-item="{{ item.options_with_values | json | escape }}"
+  data-product-item-type="{{ item.type | escape }}"
+  data-product-item-brand="{{ item.vendor | escape }}"
+  data-aos-duration="600"
+  data-aos-delay="{{ delayAmount }}"
+  data-aos="fade-up"
+  data-aos-easing="capital-easing"
+>
+  <div class="product-item__wrapper">
+    {% capture banner_compiled %}
+      {% render "product-badges", item: item, collection: collection %}
+    {% endcapture %}
+
+    {%- comment -%}Use the URL with collection param for all links{%- endcomment -%}
+    {% assign image_link = product_url_with_collection %}
+
+    {% assign image_default = item.featured_image | img_url: image_default_width %}
+
+    {% assign image_secondary = false %}
+
+    {% if item.media.size > 1 and settings.show_second_image_on_hover == true %}
+      {% assign image_secondary = item.media[1].preview_image  %}
+    {% endif %}
+
+    {% if hasAdditionalInfo %}
+      {% assign image_secondary = false %}
+    {% endif %}
+
+    {% if item.media.size > 0 %}
+      <div class="product-item__image-wrapper">
+        {%- comment -%}
+          Desktop image click fix: wrap image in a plain <a> so the whole
+          image area is clickable, not just the overlay button.
+        {%- endcomment -%}
+        <a href="{{ product_url_with_collection }}" class="product-item__image-link" tabindex="-1" aria-hidden="true">
+          {%
+            render 'image',
+            secondary_image_enabled: secondary_image_enabled,
+            image_object: item.featured_media,
+            image_secondary_object: image_secondary,
+            image_widths: '340, 440, 680, 880, 1020, 1320',
+            image_noscript_width: '220x',
+            image_class: 'product-item-image',
+            image_link: false,
+            image_tabindex: '-1',
+            image_additional_content: banner_compiled,
+            image_default: image_default,
+            image_link_class: false,
+            image_attributes: false
+          %}
+        </a>
+
+        {%- comment -%}Quick Add to Basket button{%- endcomment -%}
+        {% unless item.variants.size > 1 %}
+          <button
+            class="product-item__quick-add"
+            type="button"
+            data-quick-add-id="{{ item.variants.first.id }}"
+            aria-label="{{ 'products.product.add_to_cart' | t }} {{ item.title }}"
+          >
+            <span class="product-item__quick-add-text">{{ 'products.product.add_to_cart' | t }}</span>
+            <span class="product-item__quick-add-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            </span>
+          </button>
+        {% else %}
+          <a
+            href="{{ product_url_with_collection }}"
+            class="product-item__quick-add product-item__quick-add--select"
+          >
+            <span class="product-item__quick-add-text">{{ 'products.product.select_options' | t | default: 'Select options' }}</span>
+            <span class="product-item__quick-add-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            </span>
+          </a>
+        {% endunless %}
+      </div>
+    {% else %}
+      <a href="{{ product_url_with_collection }}" class="product-grid-item">
+    {% endif %}
+
+    <div class="product-item-details {{ productInfoSetting }}">
+
+      {% assign collectionHandle = 'all' %}
+      {% if collection.url %}
+        {% assign collectionHandle = collection.handle %}
+      {% endif %}
+
+      {% assign vendorLink = false %}
+
+      {%- comment -%}
+        Vendor URL fix: map vendor handle to a brand page (/pages/<handle>)
+        if one exists, otherwise fall back to the collection vendor filter.
+      {%- endcomment -%}
+      {% assign vendor_page_handle = item.vendor | handle %}
+      {% assign vendor_page = pages[vendor_page_handle] %}
+
+      {% if isSearch and settings.predictive_search_show_vendor %}
+        {% if vendor_page.url %}
+          {% assign vendorLink = item.vendor | link_to: vendor_page.url %}
+        {% else %}
+          {% assign vendorLink = item.vendor | link_to_vendor %}
+        {% endif %}
+      {% elsif settings.productBrand %}
+        {% if vendor_page.url %}
+          {% assign vendorLink = item.vendor | link_to: vendor_page.url %}
+        {% elsif settings.productItemVendorCollection %}
+          {% capture url %}/collections/{{ collectionHandle }}/{{ item.vendor | handle }}{% endcapture %}
+          {% assign vendorLink = item.vendor | link_to: url %}
+        {% else %}
+          {% assign vendorLink = item.vendor | link_to_vendor %}
+        {% endif %}
+      {% endif %}
+
+      {% if vendorLink %}
+        <span class="product-item-brand">{{ vendorLink }}</span>
+      {% endif %}
+
+      <h3 class="product--item-title">
+        <a href="{{ product_url_with_collection }}">{{ item.title }}</a>
+      </h3>
+
+      {% if settings.show_reviews %}
+        <a class="product-item__reviews" href="{{ product_url_with_collection }}">
+          <span class="shopify-product-reviews-badge" data-id="{{ item.id }}"></span>
+        </a>
+      {% endif %}
+
+      <div class="product-item-price">
+      {% if isSearch != true or settings.predictive_search_show_price %}
+        {% render "product-item-price", item: item %}
+      {% endif %}
+      </div>
+
+      {% if colorsAvailability %}
+        <ul class="product-item-colors">
+          {% for colorItem in colorsAvailability %}
+            {% assign colorParts = colorItem | split: "/" %}
+            {% assign isAvailable = colorParts | last %}
+            {% assign colorName = colorParts | first %}
+
+            {% render 'color-override', value: colorName %}
+            <li
+              class="{% if isAvailable == 'false' %}soldout{% endif %}"
+              style="background-color: {{ color | escape }}"
+              data-color="{{ colorName | escape }}">
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {% for cartItem in cart.items %}
+        {% if cartItem.product_id == item.id %}
+          <a class="product-item-in-cart" href="{{ routes.cart_url }}">{{ "products.product.in_cart" | t }}</a>
+          {% break %}
+        {% endif %}
+      {% endfor %}
+
+    </div>
+  </div>
+
+</article>

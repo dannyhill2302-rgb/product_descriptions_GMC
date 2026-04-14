@@ -1,0 +1,92 @@
+<div
+  class="product-recommendations-wrapper"
+  data-product-id="{{ product.id }}"
+  data-limit="12"
+  data-recommendations-url="{{ routes.product_recommendations_url }}"
+  data-product-item-wrapper
+>
+  {%- if section.settings.show_product_recommendations and recommendations.products_count > 0 -%}
+    <section
+      class="page-wrapper page-wrapper--swiper"
+      data-product-recommendations-inner
+    >
+      <div class="product-recommendations swiper-container">
+        {%- if section.settings.product_recommendations_heading != blank -%}
+          <h2>{{ section.settings.product_recommendations_heading }}</h2>
+        {%- endif -%}
+        <div class="grid swiper-wrapper">
+          {%- for item in recommendations.products -%}
+            {%
+              render 'product-item',
+              item: item,
+              grid: 'grid-item-25 swiper-slide',
+              additionalInfo: false,
+              image_default_width: '1024x',
+              productInfoSetting: '',
+              isSearch: false,
+              delayAmount: 100
+            %}
+          {%- endfor -%}
+        </div>
+        <div class="swiper-button-prev">
+          {% render 'icon-arrow' %}
+        </div>
+        <div class="swiper-button-next">
+          {% render 'icon-arrow' %}
+        </div>
+        <div class="swiper-scrollbar"></div>
+      </div>
+    </section>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+    "name": {
+        "en": "Product recommendations",
+        "de": "Produktempfehlungen",
+        "es": "Recomendaciones de productos",
+        "fr": "Recommandations de produits",
+        "pt-PT": "Recomendações de produtos"
+    },
+    "settings": [
+        {
+            "type": "checkbox",
+            "id": "show_product_recommendations",
+            "label": {
+                "en": "Show dynamic recommendations",
+                "de": "Dynamische Empfehlungen anzeigen",
+                "es": "Mostrar recomendaciones dinámicas",
+                "fr": "Montrer des recommandations dynamiques",
+                "pt-PT": "Mostrar recomendações dinâmicas"
+            },
+            "info": {
+                "en": "Dynamic recommendations change and improve with time. [Learn more](https://support.weareeight.com/hc/en-us/articles/360020170218-Product-Recommendations)",
+                "de": "Dynamische Empfehlungen verändern und verbessern sich mit der Zeit. [Mehr erfahren](https://support.weareeight.com/hc/en-us/articles/360020170218-Product-Recommendations)",
+                "es": "Las recomendaciones dinámicas cambian y mejoran con el tiempo. [Aprenda más](https://support.weareeight.com/hc/en-us/articles/360020170218-Product-Recommendations)",
+                "fr": "Les recommandations dynamiques changent et s'améliorent avec le temps. [En savoir plus](https://support.weareeight.com/hc/en-us/articles/360020170218-Product-Recommendations)",
+                "pt-PT": "As recomendações dinâmicas mudam e melhoram com o tempo. [Saber mais](https://support.weareeight.com/hc/en-us/articles/360020170218-Product-Recommendations)"
+            },
+            "default": true
+        },
+        {
+            "type": "text",
+            "id": "product_recommendations_heading",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            },
+            "default": {
+                "en": "You may also like",
+                "de": "Ihnen könnte auch gefallen",
+                "es": "También podría gustarle",
+                "fr": "Vous aimerez peut-être aussi",
+                "pt-PT": "Também poderá gostar de"
+            }
+        }
+    ]
+}
+{% endschema %}

@@ -1,0 +1,20 @@
+<div class="product-price" id="product-price">
+  {% if product.compare_at_price_max > product.price %}
+    <span class="hidden">{{ 'products.general.sale_price' | t }}</span>
+  {% else %}
+    <span class="hidden">{{ 'products.general.regular_price' | t }}</span>
+  {% endif %}
+  <span class="money" data-product-price>
+    {{ current_variant.price | money }}
+  </span>
+
+  {% if product.compare_at_price_max > product.price %}
+    <span class="hidden">{{ 'products.general.regular_price' | t }}</span>
+    <span class="product-price-compare hidden money" data-product-price-compare>
+      {{ current_variant.compare_at_price | money }}
+    </span>
+  {% endif %}
+
+  {% assign current_variant = product.selected_or_first_available_variant %}
+  {% render 'unit-price-measurement-variant', variant: current_variant %}
+</div>

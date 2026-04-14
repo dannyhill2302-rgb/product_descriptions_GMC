@@ -1,0 +1,205 @@
+{%- capture arrowPrev -%}
+  <button
+    class="slick-arrow slick-previous"
+    type="button"
+    role="button"
+    data-role="none"
+    aria-label="{{ 'modules.slideshow.previous' | t | escape }}"
+  >
+    {% render 'icon-arrow' %}
+  </button>
+{%- endcapture -%}
+
+{%- capture arrowNext -%}
+  <button
+    class="slick-arrow slick-next"
+    type="button"
+    role="button"
+    data-role="none"
+    aria-label="{{ 'modules.slideshow.next' | t | escape }}"
+  >
+    {% render 'icon-arrow' %}
+  </button>
+{%- endcapture -%}
+
+{% assign slideshowEnabled = false %}
+{% if section.blocks.size > 1 %}
+  {% assign slideshowEnabled = true %}
+{% endif %}
+
+<script
+  type="application/json"
+  data-section-type="slideshow"
+  data-section-id="{{ section.id }}"
+  data-section-data
+>
+  {
+    "autoplay": {{ section.settings.autoplay | json }},
+    "slideshowEnabled": {{ slideshowEnabled | json }},
+    "speed": {{ section.settings.speed | times: 1000 | json }},
+    "iconPrevious": {{ arrowPrev | strip_newlines | strip | json }},
+    "iconNext": {{ arrowNext | strip_newlines | strip | json }},
+    "hasDots": {{ section.settings.dots | json }}
+  }
+</script>
+
+{%- capture placeholder -%}
+  <span class="svg-placeholder">{{ 'collection-1' | placeholder_svg_tag }}</span>
+{%- endcapture -%}
+
+<section
+  class="slideshow-wrapper{% if section.settings.same_height %} slideshow-same-height{% endif %}"
+  data-slideshow
+>
+  {% for block in section.blocks %}
+    {% assign subheading = false %}
+    {% assign title = false %}
+    {% assign text = false %}
+    {% assign button = false %}
+    {% assign url = false %}
+
+    {% if block.settings.subheading != blank %}
+      {% assign subheading = true %}
+    {% endif %}
+
+    {% if block.settings.heading != blank %}
+      {% assign heading = true %}
+    {% endif %}
+
+    {% if block.settings.heading != blank or block.settings.subheading != blank %}
+      {% assign title = true %}
+    {% endif %}
+
+    {% if block.settings.text != blank %}
+      {% assign text = true %}
+    {% endif %}
+
+    {% if block.settings.url %}
+      {% assign url = block.settings.url %}
+    {% endif %}
+
+    {% if block.settings.button != blank and url %}
+      {% assign button = true %}
+    {% endif %}
+
+    {% assign colorText = block.settings.colorText %}
+
+    {% capture itemContent %}
+      <div class="slideshow-content-wrapper {{ block.settings.captionPosition }} {{ block.settings.textAlignment }}{% if section.blocks.size == 1 %} single-slide{% endif%}">
+        <div class="slideshow-content {{ block.settings.captionPosition }}">
+          <div class="slideshow-content-inner">
+            {% if subheading %}
+              <h3 class="index-subheading{% if subheading %} first-fade{% endif %}">{{ block.settings.subheading | escape }}</h3>
+            {% endif %}
+
+            {% if heading %}
+              <h2 class="slideshow-title{% if heading %} first-fade{% endif %}">{{ block.settings.heading | escape }}</h2>
+            {% endif %}
+
+            {% if text %}
+              <p class="slideshow-text{% if title %} second-fade{% elsif block.settings.text != empty %} first-fade{% endif %}">{{ block.settings.text | escape }}</p>
+            {% endif %}
+
+            {% if button %}
+              <a class="slideshow-button button hover-animation {% if title and block.settings.text != empty %} third-fade{% elsif title and block.settings.text == empty %} first-fade{% elsif title or block.settings.text == empty %} second-fade{% else %} first-fade{% endif %}" href="{{ block.settings.url }}">
+                <span class="button-text">{{- block.settings.button | escape -}}</span>
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endcapture %}
+
+    <div
+      class="slideshow-image slideshow-item-{{ block.id }}{% if block.settings.overlay %} slideshow-image-overlay{% endif %}"
+      data-slideshow-item="{{ block.id }}"
+
+      {% comment %}
+          We need to set height of slideshow otherwise AOS animations does not work.
+          The 14px is common width of scrollbar (it will fix automatically when images loads)
+      {% endcomment %}
+      style="min-height: 65vh"
+
+      {{ block.shopify_attributes }}
+    >
+
+      {% if block.settings.image %}
+
+        {% assign image = block.settings.image %}
+        {% assign image_noscript_width = '1280x' %}
+
+        {%-
+          render 'image',
+          image_object: image,
+          image_widths: '375, 750, 500, 1000, 720, 960, 1060, 1280, 1440, 1920, 2120, 2560',
+          image_noscript_width: image_noscript_width,
+          image_link: false,
+          image_additional_content: false,
+          image_class: false,
+          image_attributes: false
+        -%}
+
+        {% if title or text or button %}
+          {{ itemContent }}
+        {% endif %}
+
+        {% if block.settings.url != blank %}
+          <a href="{{ block.settings.url }}"></a>
+        {% endif %}
+      {% else %}
+
+        {{ placeholder }}
+
+        {% if title or text or button %}
+          {{ itemContent }}
+        {% endif %}
+
+      {% endif %}
+
+    </div>
+  {% endfor %}
+</section>
+
+<style type="text/css">
+
+  #shopify-section-{{ section.id }} .slideshow-wrapper .slick-dots li.slick-active button {
+    background-color: {{ section.settings.slider-indicator--color }};
+  }
+  #shopify-section-{{ section.id }} .slideshow-wrapper button.slick-arrow svg {
+    color: {{ section.settings.slider-indicator--color }};
+  }
+  #shopify-section-{{ section.id }} .slideshow-wrapper button.slick-arrow:after {
+    border: 1px solid {{ section.settings.slider-indicator--color }};
+  }
+
+  {% for block in section.blocks %}
+    #shopify-section-{{ section.id }} .slideshow-item-{{ block.id }} .index-subheading,
+    #shopify-section-{{ section.id }} .slideshow-item-{{ block.id }} .slideshow-title,
+    #shopify-section-{{ section.id }} .slideshow-item-{{ block.id }} .slideshow-text {
+      color: {{ block.settings.colorText }};
+    }
+
+    #shopify-section-{{ section.id }} .slideshow-item-{{ block.id }} .hover-animation {
+      background-color: {{ block.settings.colorButton }};
+    }
+    #shopify-section-{{ section.id }} .slideshow-item-{{ block.id }} .hover-animation::before {
+      {% assign background_lightness = block.settings.colorButton | color_extract: 'lightness' %}
+      {% if background_lightness > 50 %}
+        background-color: {{ block.settings.colorButton | color_darken: 7 | color_saturate: 7 | downcase }};
+      {% else %}
+        background-color: {{ block.settings.colorButton | color_lighten: 5 | color_desaturate: 5 | downcase }};
+      {% endif %}
+    }
+    #shopify-section-{{ section.id }} .slideshow-item-{{ block.id }} .hover-animation .button-text {
+      color: {{ block.settings.textColorButton }};
+    }
+
+    #shopify-section-{{ section.id }} .slideshow-item-{{ block.id }} .slideshow-title {
+      font-size: {{ section.settings.titleSize }}px;
+    }
+
+    #shopify-section-{{ section.id }} .slideshow-item-{{ block.id }} .slideshow-text {
+      font-size: {{ section.settings.textSize }}px;
+    }
+  {% endfor %}
+</style>

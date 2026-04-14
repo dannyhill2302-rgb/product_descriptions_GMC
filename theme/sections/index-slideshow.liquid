@@ -1,0 +1,440 @@
+{% capture delayAmount %}{% cycle '200', '400', '600', '800', '100' %}{% endcapture %}
+
+<div {% render 'animations', type: 'fadeCycle', delay: delayAmount %}>
+  {% render 'slideshow', section: section %}
+</div>
+
+{% schema %}
+{
+    "name": {
+        "en": "Slideshow",
+        "de": "Diashow",
+        "es": "Presentación de diapositivas",
+        "fr": "Diaporama",
+        "pt-PT": "Apresentação de diapositivos"
+    },
+    "class": "section-index-slideshow",
+    "max_blocks": 5,
+    "settings": [
+        {
+            "type": "checkbox",
+            "id": "autoplay",
+            "label": {
+                "en": "Auto-rotate slides",
+                "de": "Bilder automatisch drehen",
+                "es": "Rotar las diapositivas automáticamente",
+                "fr": "Diapositives auto-rotatives",
+                "pt-PT": "Rodar os diapositivos automaticamente"
+            },
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "dots",
+            "label": {
+                "en": "Show slide indicator",
+                "de": "Bild-Kennzeichen anzeigen",
+                "es": "Mostrar el indicador de diapositivas",
+                "fr": "Afficher l'indicateur de diapositive",
+                "pt-PT": "Mostrar indicador de diapositivos"
+            },
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "same_height",
+            "label": {
+                "en": "Fullscreen",
+                "de": "Vollbild",
+                "es": "Pantalla completa",
+                "fr": "Plein écran",
+                "pt-PT": "Ecrã inteiro"
+            },
+            "default": true
+        },
+        {
+            "type": "range",
+            "id": "speed",
+            "label": {
+                "en": "Change slides every",
+                "de": "Bilder wechseln alle",
+                "es": "Cambiar diapositivas cada",
+                "fr": "Changer de diapositive toutes les ",
+                "pt-PT": "Mudar os diapositivos a cada"
+            },
+            "min": 1,
+            "max": 10,
+            "step": 1,
+            "default": 5,
+            "unit": {
+                "en": "s",
+                "de": "s",
+                "es": "s",
+                "fr": "s",
+                "pt-PT": "s"
+            }
+        },
+        {
+            "type": "range",
+            "id": "titleSize",
+            "label": {
+                "en": "Heading size",
+                "de": "Überschift-Größe",
+                "es": "Tamaño del encabezado",
+                "fr": "Taille de la rubrique",
+                "pt-PT": "Tamanho do título"
+            },
+            "min": 20,
+            "max": 36,
+            "step": 2,
+            "default": 30,
+            "unit": {
+                "en": "px",
+                "de": "px",
+                "es": "px",
+                "fr": "px",
+                "pt-PT": "px"
+            }
+        },
+        {
+            "type": "range",
+            "id": "textSize",
+            "label": {
+                "en": "Text size",
+                "de": "Textgröße",
+                "es": "Tamaño del texto",
+                "fr": "Taille de texte",
+                "pt-PT": "Tamanho do texto"
+            },
+            "min": 12,
+            "max": 36,
+            "step": 2,
+            "default": 16,
+            "unit": {
+                "en": "px",
+                "de": "px",
+                "es": "px",
+                "fr": "px",
+                "pt-PT": "px"
+            }
+        },
+        {
+            "type": "color",
+            "id": "slider-indicator--color",
+            "label": {
+                "en": "Slider indicator color",
+                "de": "Farbe des Bild-Kennzeichens",
+                "es": "Color del indicador de deslizamiento",
+                "fr": "Couleur de l'indicateur du curseur",
+                "pt-PT": "Cor do indicador de diapositivos"
+            },
+            "default": "#000000"
+        }
+    ],
+    "blocks": [
+        {
+            "name": {
+                "en": "Slide",
+                "de": "Dia",
+                "es": "Deslizarse",
+                "fr": "Diapositive",
+                "pt-PT": "Diapositivo"
+            },
+            "type": "image",
+            "settings": [
+                {
+                    "type": "image_picker",
+                    "id": "image",
+                    "label": {
+                        "en": "Image",
+                        "de": "Bild",
+                        "es": "Imagen",
+                        "fr": "Image",
+                        "pt-PT": "Imagem"
+                    },
+                    "info": {
+                        "en": "2000 x 900px recommended",
+                        "de": "2000 x 900 px empfohlen",
+                        "es": "Recomendado 2000 x 900 px",
+                        "fr": "2000 x 900 px recommandé",
+                        "pt-PT": "2000 x 900px, recomendado"
+                    }
+                },
+                {
+                    "type": "checkbox",
+                    "id": "overlay",
+                    "label": {
+                        "en": "Enable overlay",
+                        "de": "Overlay aktivieren",
+                        "es": "Habilitar superposición",
+                        "fr": "Activez la superposition",
+                        "pt-PT": "Ativar sobreposição"
+                    },
+                    "info": {
+                        "en": "Add a gradient overlay to increase text readability",
+                        "de": "Gradienten-Overlay hinzufügen, um die Lesbarkeit des Textes zu verbessern",
+                        "es": "Añadir una superposición de degradado para aumentar la legibilidad del texto",
+                        "fr": "Ajoutez un calque dégradé pour améliorer la lisibilité du texte",
+                        "pt-PT": "Adicionar um sobreposição de gradiente para melhorar a legibilidade do texto"
+                    },
+                    "default": true
+                },
+                {
+                    "type": "text",
+                    "id": "subheading",
+                    "label": {
+                        "en": "Subheading",
+                        "de": "Unterüberschrift",
+                        "es": "Subencabezado",
+                        "fr": "Sous-rubrique",
+                        "pt-PT": "Subtítulo"
+                    }
+                },
+                {
+                    "type": "text",
+                    "id": "heading",
+                    "label": {
+                        "en": "Heading",
+                        "de": "Überschrift",
+                        "es": "Encabezado",
+                        "fr": "Rubrique",
+                        "pt-PT": "Título"
+                    },
+                    "default": {
+                        "en": "Image slide",
+                        "de": "Bild",
+                        "es": "Diapositiva de imagen",
+                        "fr": "Diapositive",
+                        "pt-PT": "Diapositivo de imagem"
+                    }
+                },
+                {
+                    "type": "text",
+                    "id": "text",
+                    "label": {
+                        "en": "Text",
+                        "de": "Text",
+                        "es": "Texto",
+                        "fr": "Texte",
+                        "pt-PT": "Texto"
+                    },
+                    "default": {
+                        "en": "Tell your brand's story through images",
+                        "de": "Erzählen Sie die Geschichte Ihrer Marke mit Bildern",
+                        "es": "Cuente la historia de su marca a través de imágenes",
+                        "fr": "Racontez l'histoire de votre marque en images",
+                        "pt-PT": "Conte a história da sua marca através de imagens"
+                    }
+                },
+                {
+                    "type": "text",
+                    "id": "button",
+                    "label": {
+                        "en": "Button label",
+                        "de": "Button-Bezeichnung",
+                        "es": "Etiqueta del botón",
+                        "fr": "Étiquette du bouton",
+                        "pt-PT": "Etiqueta do botão"
+                    },
+                    "default": {
+                        "en": "Shop now",
+                        "de": "Jetzt einkaufen",
+                        "es": "Comprar ahora",
+                        "fr": "Acheter maintenant",
+                        "pt-PT": "Comprar agora"
+                    }
+                },
+                {
+                    "type": "url",
+                    "id": "url",
+                    "label": {
+                        "en": "Slide link",
+                        "de": "Dialink",
+                        "es": "Enlace de la diapositiva",
+                        "fr": "Lien coulissant",
+                        "pt-PT": "Ligação do diapositivo"
+                    },
+                    "default": "/collections/all"
+                },
+                {
+                    "type": "select",
+                    "id": "captionPosition",
+                    "label": {
+                        "en": "Caption position",
+                        "de": "Position der Bildunterschrift",
+                        "es": "Posición del título",
+                        "fr": "Position de la légende",
+                        "pt-PT": "Posição da legenda"
+                    },
+                    "default": "justify-content-start",
+                    "options": [
+                        {
+                            "value": "justify-content-start",
+                            "label": {
+                                "en": "Left",
+                                "de": "Links",
+                                "es": "Izquierda",
+                                "fr": "Gauche",
+                                "pt-PT": "Esquerda"
+                            }
+                        },
+                        {
+                            "value": "justify-content-center",
+                            "label": {
+                                "en": "Center",
+                                "de": "Mitte",
+                                "es": "Centro",
+                                "fr": "Centre",
+                                "pt-PT": "Centro"
+                            }
+                        },
+                        {
+                            "value": "justify-content-end",
+                            "label": {
+                                "en": "Right",
+                                "de": "Rechts",
+                                "es": "Derecha",
+                                "fr": "Droite",
+                                "pt-PT": "Direita"
+                            }
+                        },
+                        {
+                            "value": "align-items-end justify-content-start",
+                            "label": {
+                                "en": "Bottom left",
+                                "de": "Unten links",
+                                "es": "Abajo a la izquierda",
+                                "fr": "En bas à gauche",
+                                "pt-PT": "Canto inferior esquerdo"
+                            }
+                        },
+                        {
+                            "value": "align-items-end justify-content-center",
+                            "label": {
+                                "en": "Bottom center",
+                                "de": "Untere Mitte",
+                                "es": "Abajo en el centro",
+                                "fr": "En bas au centre",
+                                "pt-PT": "Centro inferior"
+                            }
+                        },
+                        {
+                            "value": "align-items-end justify-content-end",
+                            "label": {
+                                "en": "Bottom right",
+                                "de": "Unten rechts",
+                                "es": "Abajo derecha",
+                                "fr": "En bas à droite",
+                                "pt-PT": "Canto inferior direito"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "select",
+                    "id": "textAlignment",
+                    "label": {
+                        "en": "Text alignment",
+                        "de": "Textausrichtung",
+                        "es": "Alineación del texto",
+                        "fr": "Alignement du texte",
+                        "pt-PT": "Alinhamento do texto"
+                    },
+                    "options": [
+                        {
+                            "value": "left",
+                            "label": {
+                                "en": "Left",
+                                "de": "Links",
+                                "es": "Izquierda",
+                                "fr": "Gauche",
+                                "pt-PT": "Esquerda"
+                            }
+                        },
+                        {
+                            "value": "center",
+                            "label": {
+                                "en": "Center",
+                                "de": "Mitte",
+                                "es": "Centro",
+                                "fr": "Centre",
+                                "pt-PT": "Centro"
+                            }
+                        },
+                        {
+                            "value": "right",
+                            "label": {
+                                "en": "Right",
+                                "de": "Rechts",
+                                "es": "Derecha",
+                                "fr": "Droite",
+                                "pt-PT": "Direita"
+                            }
+                        }
+                    ],
+                    "default": "left"
+                },
+                {
+                    "type": "color",
+                    "id": "colorText",
+                    "label": {
+                        "en": "Text color",
+                        "de": "Textfarbe",
+                        "es": "Color del texto",
+                        "fr": "Couleur du texte",
+                        "pt-PT": "Cor do texto"
+                    },
+                    "default": "#ffffff"
+                },
+                {
+                    "type": "color",
+                    "id": "textColorButton",
+                    "label": {
+                        "en": "Button text color",
+                        "de": "Farbe des Buttontextes",
+                        "es": "Color del texto del botón",
+                        "fr": "Couleur du texte du bouton",
+                        "pt-PT": "Cor do texto do botão"
+                    },
+                    "default": "#ffffff"
+                },
+                {
+                    "type": "color",
+                    "id": "colorButton",
+                    "label": {
+                        "en": "Button background color",
+                        "de": "Farbe des Buttonhintergrunds",
+                        "es": "Color de fondo del botón",
+                        "fr": "Couleur d'arrière-plan du bouton",
+                        "pt-PT": "Cor de fundo do botão"
+                    },
+                    "default": "#333333"
+                }
+            ]
+        }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Slideshow",
+                "de": "Diashow",
+                "es": "Presentación de diapositivas",
+                "fr": "Diaporama",
+                "pt-PT": "Apresentação de diapositivos"
+            },
+            "category": {
+                "en": "Image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            },
+            "blocks": [
+                {
+                    "type": "image"
+                }
+            ]
+        }
+    ]
+}
+{% endschema %}

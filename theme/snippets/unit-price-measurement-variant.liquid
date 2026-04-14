@@ -1,0 +1,10 @@
+{% if variant.unit_price %}
+	<div class="unit-price{% unless variant.unit_price_measurement %} hide{% endunless %}">
+		(<span class="unit-price__price"><span class="money">{{ variant.unit_price | money }}</span></span>
+		<span> / </span>
+		{%- if variant.unit_price_measurement.reference_value != 1 -%}
+			<span class="unit-price__ref-value">{{ variant.unit_price_measurement.reference_value }}</span>
+		{%- endif -%}
+		<span class="unit-price__ref-unit">{{ variant.unit_price_measurement.reference_unit }}</span>)
+	</div>
+{% endif %}

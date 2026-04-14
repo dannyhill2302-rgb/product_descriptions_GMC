@@ -1,0 +1,394 @@
+<section class="featured-content--wrapper{% if section.settings.remove-spacing %} remove-spacing{% endif %}">
+  <div class="featured-content{% if section.settings.textAlignment == 'text-right' %} featured-content--text-right{% elsif section.settings.textAlignment == 'text-center' %} featured-content--text-center{% endif %}">
+
+        <div class="grid{% if section.settings.layout == 'right' %} homepage-text-with-image--right{% else %} homepage-text-with-image--left{% endif %}{% if section.settings.textPosition == 'middle' %} homepage-text-with-image--middle{% elsif section.settings.textPosition == 'bottom' %} homepage-text-with-image--bottom{% endif %}">
+
+          {% if section.settings.layout == 'left' %}
+
+          <div class="homepage-image-with-text--image grid-item-50">
+
+            {% if section.settings.image != blank %}
+              <figure {% render 'animations', type: 'fadeUpAnim3' %}>
+                {%
+                  render 'image',
+                  image_object: section.settings.image,
+                  image_widths: '270, 460, 540, 680, 810, 920, 1080, 1380, 1620',
+                  image_noscript_width: '680x',
+                  image_link: false,
+                  image_additional_content: false,
+                  image_class: false,
+                  image_attributes: false
+                %}
+              </figure>
+            {% else %}
+              <span class="svg-placeholder">{{ 'lifestyle-1' | placeholder_svg_tag }}</span>
+            {% endif %}
+
+          </div>
+
+          {% endif %}
+
+          <div class="homepage-image-with-text--text grid-item-50{% if section.settings.layout == 'right' %} homepage-image-with-text--text---right{% endif %}">
+
+            {% if section.settings.heading != blank or section.settings.subHeading != blank %}
+              <header class="index-header" {% render 'animations', type: 'fadeUpAnim1' %}>
+
+                {% if section.settings.subHeading != blank %}
+                  <h3 class="index-subheading{% if section.settings.heading == blank %} image-with-text--subheading-no-margin{% endif %}">{{ section.settings.subHeading }}</h3>
+                {% endif %}
+
+                {% if section.settings.heading != blank %}
+                  <h2 class="image-with-text--title">{{ section.settings.heading }}</h2>
+                {% endif %}
+
+              </header>
+            {% endif %}
+
+            {% if section.settings.text != blank %}
+              <div class="image-with-text--content{% if section.settings.heading == blank and section.settings.subHeading == blank %} image-with-text--content-no-margin{% endif %}"
+                {% if section.settings.heading != blank or section.settings.subHeading != blank %}
+                  style="width:100%;"
+                {% endif %}
+                {% if section.settings.heading != blank or section.settings.subHeading != blank %}
+                  {% render 'animations', type: 'fadeUpAnim2' %}
+                {% else %}
+                  {% render 'animations', type: 'fadeUpAnim1' %}
+                {% endif %}>
+                {{ section.settings.text }}
+              </div>
+            {% endif %}
+
+          </div>
+
+          {% if section.settings.layout == 'right' %}
+
+          <div class="homepage-image-with-text--image grid-item-50">
+
+            {% if section.settings.image != blank %}
+              <figure {% render 'animations', type: 'fadeUpAnim3' %}>
+                {%
+                  render 'image',
+                  image_object: section.settings.image,
+                  image_widths: '270, 460, 540, 680, 810, 920, 1080, 1380, 1620',
+                  image_noscript_width: '680x',
+                  image_link: false,
+                  image_additional_content: false,
+                  image_class: false,
+                  image_attributes: false
+                %}
+              </figure>
+            {% else %}
+              <span class="svg-placeholder">{{ 'lifestyle-1' | placeholder_svg_tag }}</span>
+            {% endif %}
+
+          </div>
+
+          {% endif %}
+
+        </div>
+
+    </div>
+
+</section>
+
+<style>
+  #shopify-section-{{ section.id }} .featured-content,
+  #shopify-section-{{ section.id }} .featured-content h2,
+  #shopify-section-{{ section.id }} .featured-content h3 {
+    color: {{ section.settings.colorText }};
+  }
+
+  #shopify-section-{{ section.id }} .grid {
+    background-color: {{ section.settings.colorBg }};
+  }
+
+  {% if section.settings.remove-spacing %}
+
+    #shopify-section-{{ section.id }} {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
+    #shopify-section-{{ section.id }} .featured-content--wrapper {
+      max-width: 100%;
+      padding: 0;
+    }
+
+  {% endif %}
+</style>
+
+{% schema %}
+{
+    "name": {
+        "en": "Image with text",
+        "de": "Bild mit Text",
+        "es": "Imagen con texto",
+        "fr": "Image avec texte",
+        "pt-PT": "Imagem com texto"
+    },
+    "class": "section-index-text",
+    "settings": [
+          {
+            "type": "header",
+            "content": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            }
+        },
+        {
+          "type": "text",
+          "id": "subHeading",
+          "label": {
+              "en": "Subheading",
+              "de": "Unterüberschrift",
+              "es": "Subencabezado",
+              "fr": "Sous-rubrique",
+              "pt-PT": "Subtítulo"
+          }
+        },
+        {
+            "type": "text",
+            "id": "heading",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            },
+            "default": {
+              "en": "Share your story",
+              "de": "Teilen Sie Ihre Geschichte",
+              "es": "Comparte tu historia",
+              "fr": "Partagez votre histoire",
+              "pt-PT": "Partilhe a sua história"
+            }
+        },
+        {
+            "type": "richtext",
+            "id": "text",
+            "label": {
+                "en": "Text",
+                "de": "Rich Text",
+                "es": "Texto enriquecido",
+                "fr": "Texte riche",
+                "pt-PT": "Texto rico"
+            },
+            "default": {
+                "en": "<p>Write something nice. Maybe a value proposition— tell us what you stand for.</p>",
+                "de": "<p>Schreiben Sie etwas Nettes. Vielleicht ein Wertversprechen – erzählen Sie uns, wofür Sie stehen.</p>",
+                "es": "<p>Escriba algo bonito. Tal vez una proposición de valor: díganos lo que usted representa.</p>",
+                "fr": "<p>Écrivez quelque chose de gentil. Peut-être une proposition de valeur : dites-nous ce que vous représentez.</p>",
+                "pt-PT": "<p>Escreva algo simpático. Talvez uma proposta de valor — diga-nos o que representa.</p>"
+            }
+        },
+        {
+					"type": "color",
+					"id": "colorBg",
+					"label": {
+							"en": "Background color",
+							"de": "Hintergrundfarbe",
+							"es": "Color de fondo",
+							"fr": "Couleur d'arrière-plan",
+							"pt-PT": "Cor de fundo"
+					},
+					"default": "#f5f5f5"
+				},
+        {
+					"type": "color",
+					"id": "colorText",
+					"label": {
+							"en": "Text color",
+							"de": "Textfarbe",
+							"es": "Color del texto",
+							"fr": "Couleur du texte",
+							"pt-PT": "Cor do texto"
+					},
+					"default": "#333333"
+				},
+        {
+            "type": "select",
+            "id": "textPosition",
+            "label": {
+                "en": "Text position",
+                "de": "Textposition",
+                "es": "Posición del texto",
+                "fr": "Position du texte",
+                "pt-PT": "Posição do texto"
+            },
+            "default": "middle",
+            "options": [
+                {
+                    "value": "top",
+                    "label": {
+                      "en": "Top",
+                      "de": "Oben",
+                      "es": "Arriba",
+                      "fr": "En haut",
+                      "pt-PT": "Parte superior"
+                    }
+                },
+                {
+                    "value": "middle",
+                    "label": {
+                      "en": "Middle",
+                      "de": "Mitte",
+                      "es": "Medio",
+                      "fr": "Au milieu",
+                      "pt-PT": "Centro"
+                    }
+                },
+                {
+                    "value": "bottom",
+                    "label": {
+                      "en": "Bottom",
+                      "de": "Unten",
+                      "es": "Abajo",
+                      "fr": "En bas",
+                      "pt-PT": "Parte inferior"
+                    }
+                }
+            ]
+        },
+        {
+          "type": "select",
+          "id": "textAlignment",
+          "label": {
+              "en": "Text alignment",
+              "de": "Textausrichtung",
+              "es": "Alineación del texto",
+              "fr": "Alignement du texte",
+              "pt-PT": "Alinhamento do texto"
+          },
+          "default": "text-center",
+          "options": [
+            {
+              "value": "text-left",
+              "label": {
+                  "en": "Left",
+                  "de": "Links",
+                  "es": "Izquierda",
+                  "fr": "Gauche",
+                  "pt-PT": "Esquerda"
+              }
+            },
+            {
+              "value": "text-center",
+              "label": {
+                  "en": "Center",
+                  "de": "Mitte",
+                  "es": "Centro",
+                  "fr": "Centre",
+                  "pt-PT": "Centro"
+              }
+            },
+            {
+              "value": "text-right",
+              "label": {
+                  "en": "Right",
+                  "de": "Rechts",
+                  "es": "Derecha",
+                  "fr": "Droite",
+                  "pt-PT": "Direita"
+              }
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": {
+              "en": "Image settings",
+              "de": "Image-Einstellungen",
+              "es": "Ajustes de imagen",
+              "fr": "Paramètres de l'image",
+              "pt-PT": "Configurações de imagem"
+          }
+        },
+        {
+            "type": "image_picker",
+            "id": "image",
+            "label": {
+                "en": "Image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            },
+            "info": {
+                "en": "1000 x 1000px recommended",
+                "de": "Empfohlen: 1000 x 1000 Pixel",
+                "es": "1000 x 1000 píxeles recomendados",
+                "fr": "1000 x 1000 pixels recommandés",
+                "pt-PT": "1000 x 1000 px, recomendado"
+            }
+        },
+        {
+            "type": "select",
+            "id": "layout",
+            "label": {
+                "en": "Layout",
+                "de": "Layout",
+                "es": "Diseño",
+                "fr": "Mise en page",
+                "pt-PT": "Apresentação"
+            },
+            "default": "right",
+            "options": [
+                {
+                    "value": "left",
+                    "label": {
+                        "en": "Image on left",
+                        "de": "Bild links",
+                        "es": "Imagen a la izquierda",
+                        "fr": "Image à gauche",
+                        "pt-PT": "Imagem à esquerda"
+                    }
+                },
+                {
+                    "value": "right",
+                    "label": {
+                        "en": "Image on right",
+                        "de": "Bild rechts",
+                        "es": "Imagen a la derecha",
+                        "fr": "Image à droite",
+                        "pt-PT": "Imagem à direita"
+                    }
+                }
+            ]
+        },
+        {
+          "type": "checkbox",
+          "id": "remove-spacing",
+          "default": true,
+          "label": {
+            "en": "Remove spacing",
+            "de":"Abstände entfernen",
+            "es": "Eliminar espacio",
+            "fr": "Supprimer l'espacement",
+            "pt-PT": "Remover o espaçamento"
+          }
+        }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Image with text",
+                "de": "Bild mit Text",
+                "es": "Imagen con texto",
+                "fr": "Image avec texte",
+                "pt-PT": "Imagem com texto"
+            },
+            "category": {
+              "en": "Image",
+              "de": "Bild",
+              "es": "Imagen",
+              "fr": "Image",
+              "pt-PT": "Imagem"
+          }
+        }
+    ]
+}
+{% endschema %}

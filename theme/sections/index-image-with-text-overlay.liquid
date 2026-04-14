@@ -1,0 +1,559 @@
+<section
+	data-section-id="{{ section.id }}"
+  data-section-type="home"
+	data-section-child="image-with-text-overlay"
+	class="image-with-text-overlay__wrapper homepage-content--{{ section.id }}
+
+	{%- case section.settings.textPosition -%}
+		{%- when 'left' %} image-with-text-overlay__wrapper--textPosition-left
+		{%- when 'center' %} image-with-text-overlay__wrapper--textPosition-center
+		{%- when 'right' %} image-with-text-overlay__wrapper--textPosition-right
+	{%- endcase -%}
+
+	{%- case section.settings.textAlignment -%}
+		{%- when 'left' %} image-with-text-overlay__wrapper--textAlignment-left
+		{%- when 'center' %} image-with-text-overlay__wrapper--textAlignment-center
+		{%- when 'right' %} image-with-text-overlay__wrapper--textAlignment-right
+	{%- endcase -%}
+
+	{%- case section.settings.image_height -%}
+		{%- when '30vw' %} size-small
+		{%- when '40vw' %} size-medium
+		{%- when '50vw' %} size-large
+		{%- when 'original' %} size-original
+	{%- endcase -%}
+	"
+	{% render 'animations', type: 'fadeUpAnim1' %}
+>
+
+	{% if section.settings.image_height == 'original' %}
+
+		<div class="image-with-text-overlay__content">
+
+			<div class="image-with-text-overlay__image homepage-content--{{ section.id }}">
+				{% if section.settings.image %}
+					{%-
+						render 'image',
+						image_object: section.settings.image,
+						image_widths: '375, 750, 500, 1000, 720, 960, 1060, 1280, 1440, 1920, 2120, 2560',
+						image_noscript_width: '1280x',
+						image_link: false,
+						image_additional_content: false,
+						image_class: false,
+						image_attributes: false
+					-%}
+				{% else %}
+					<span class="svg-placeholder">{{ 'lifestyle-1' | placeholder_svg_tag }}</span>
+				{% endif %}
+			</div>
+
+			{% if section.settings.subheading != blank or section.settings.title != blank or section.settings.text != blank or section.settings.button_label != blank %}
+				<div class="image-with-text-overlay__text">
+					<div class="image-with-text-overlay__text-inner">
+                        {% if section.settings.subheading != blank %}
+                            <h3 class="index-subheading">{{ section.settings.subheading | escape }}</h3>
+                        {% endif %}
+
+                        {% if section.settings.title != blank %}
+							<h2 class="image-with-text-overlay__title">{{ section.settings.title | escape }}</h2>
+						{% endif %}
+
+						{% if section.settings.text != blank %}
+							<div class="image-with-text-overlay__subtext">{{ section.settings.text }}</div>
+						{% endif %}
+
+						{% if section.settings.button_label != blank and section.settings.button_link != blank %}
+							<div>
+								<a href="{{ section.settings.button_link }}" class="image-with-text-overlay__btn button hover-animation third-fade">
+									<span class="button-text">{{ section.settings.button_label | escape }}</span>
+								</a>
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			{% endif %}
+
+		</div>
+
+	{% else %}
+
+		<style>
+			{% if section.settings.image != blank %}
+				.homepage-content--{{ section.id }} .img {
+					background-position: center;
+					background-repeat: no-repeat;
+					background-size: cover;
+				}
+			{% endif %}
+
+			.homepage-content--{{ section.id }} .img,
+      .height--{{ section.id }} {
+				height: {{ section.settings.image_height }};
+			}
+		</style>
+
+		<div class="image-with-text-overlay__content">
+
+			{% capture image_layout %}
+				<div class="image-with-text-overlay__image homepage-content--{{ section.id }}">
+					<div class="height--{{ section.id }}">
+						{% if section.settings.image != blank %}
+							{%
+								render 'image-bg',
+								image_class: 'img',
+								image: section.settings.image,
+								image_default: false,
+								image_sizes: false,
+								image_additional_content: false,
+								image_dimension: false,
+								image_link: false
+							%}
+						{% else %}
+							<span class="svg-placeholder">{{ 'lifestyle-1' | placeholder_svg_tag }}</span>
+						{% endif %}
+					</div>
+				</div>
+			{% endcapture %}
+
+			{{ image_layout }}
+
+			{% if section.settings.subheading != blank or section.settings.title != blank or section.settings.text != blank or section.settings.button_label != blank %}
+				<div class="image-with-text-overlay__text">
+					<div class="image-with-text-overlay__text-inner">
+                        {% if section.settings.subheading != blank %}
+                            <h3 class="index-subheading">{{ section.settings.subheading | escape }}</h3>
+                        {% endif %}
+                        
+                        {% if section.settings.title != blank %}
+							<h2 class="image-with-text-overlay__title">{{ section.settings.title | escape }}</h2>
+						{% endif %}
+
+						{% if section.settings.text != blank %}
+							<div class="image-with-text-overlay__subtext">{{ section.settings.text }}</div>
+						{% endif %}
+
+						{% if section.settings.button_label != blank and section.settings.button_link != blank %}
+							<div>
+								<a href="{{ section.settings.button_link }}" class="image-with-text-overlay__btn button hover-animation third-fade">
+									<span class="button-text">{{ section.settings.button_label | escape }}</span>
+								</a>
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			{% endif %}
+
+		</div>
+
+	{% endif %}
+
+</section>
+
+<style>
+	.homepage-content--{{ section.id }} h2.image-with-text-overlay__title {
+		font-size: {{ section.settings.heading--text-size }}px;
+		color: {{ section.settings.colorText }};
+	}
+
+	.homepage-content--{{ section.id }} .image-with-text-overlay__subtext p {
+		font-size: {{ section.settings.text--text-size }}px;
+		color: {{ section.settings.colorText }};
+    }
+    
+    .homepage-content--{{ section.id }} .index-subheading {
+		color: {{ section.settings.colorText }};
+    }
+
+	@media only screen and (max-width: 768px) {
+		.homepage-content--{{ section.id }} h2.image-with-text-overlay__title {
+			font-size: {{ section.settings.heading--text-size | times: 0.8 }}px;
+		}
+
+		.homepage-content--{{ section.id }} .image-with-text-overlay__subtext p {
+			font-size: {{ section.settings.text--text-size | times: 0.8 }}px;
+		}
+	}
+
+	{% if section.settings.bg_image_overlay_opacity != 0 %}
+		.image-with-text-overlay__wrapper .homepage-content--{{ section.id }}.image-with-text-overlay__image::before {
+			background-color: {{ section.settings.bg_image_overlay_color }};
+			opacity: 0.{{ section.settings.bg_image_overlay_opacity | prepend: '00' | slice: -2, 2 }};
+		}
+	{% endif %}
+
+</style>
+
+{% schema %}
+{
+    "name": {
+			"en": "Image with text overlay",
+			"de": "Bild mit Textüberlagerung",
+			"es": "Imagen con texto superpuesto",
+			"fr": "Image avec texte superposé",
+			"pt-PT": "Imagem com sobreposição de texto"
+    },
+    "class": "image-with-text-overlay__wrapper",
+    "settings": [
+        {
+            "type": "header",
+            "content": {
+                "en": "Background image",
+                "de": "Hintergrundbild",
+                "es": "Imagen de fondo",
+                "fr": "Image d'arrière-plan",
+                "pt-PT": "Imagem de fundo"
+            }
+        },
+        {
+            "type": "image_picker",
+            "id": "image",
+            "label": {
+                "en": "Image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            }
+        },
+        {
+            "type": "select",
+            "id": "image_height",
+            "label": {
+                "en": "Minimum section height",
+                "de": "Mindestabschnittshöhe",
+                "es": "Altura mínima de sección",
+                "fr": "Hauteur de section minimale",
+                "pt-PT": "Altura mínima da secção"
+            },
+            "default": "40vw",
+            "options": [
+                {
+                    "value": "30vw",
+                    "label": {
+                        "en": "Small",
+                        "de": "Klein",
+                        "es": "Pequeño",
+                        "fr": "Petite",
+                        "pt-PT": "Pequeno"
+                    }
+                },
+                {
+                    "value": "40vw",
+                    "label": {
+                        "en": "Medium",
+                        "de": "Mittel",
+                        "es": "Mediano",
+                        "fr": "Moyenne",
+                        "pt-PT": "Médio"
+                    }
+                },
+                {
+                    "value": "50vw",
+                    "label": {
+                        "en": "Large",
+                        "de": "Groß",
+                        "es": "Grande",
+                        "fr": "Grande",
+                        "pt-PT": "Grande"
+                    }
+                },
+                {
+                    "value": "original",
+                    "label": {
+                        "en": "Original",
+                        "de": "Original",
+                        "es": "Original",
+                        "fr": "D'origine",
+                        "pt-PT": "Original"
+                    }
+                }
+            ]
+				},
+				{
+					"type": "color",
+					"id": "bg_image_overlay_color",
+					"label": {
+							"en": "Overlay color",
+							"de": "Farbe des Overlays",
+							"es": "Color de superposición",
+							"fr": "Couleur superposée",
+							"pt-PT": "Sobrepor cor"
+					},
+					"default": "#000"
+				},
+        {
+            "type": "range",
+            "id": "bg_image_overlay_opacity",
+            "min": 0,
+            "max": 95,
+            "step": 5,
+            "unit": {
+                "en": "%",
+                "de": "%",
+                "es": "%",
+                "fr": "%",
+                "pt-PT": "%"
+            },
+            "label": {
+                "en": "Overlay opacity",
+                "de": "Überlagerungsdeckkraft",
+                "es": "Capacidad de sobrexposición",
+                "fr": "Opacité de superposition",
+                "pt-PT": "Opacidade de sobreposição"
+            },
+            "default": 0
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            }
+        },
+        {
+            "type": "text",
+            "id": "subheading",
+            "label": {
+                "en": "Subheading",
+                "de": "Unterüberschrift",
+                "es": "Subencabezado",
+                "fr": "Sous-rubrique",
+                "pt-PT": "Subtítulo"
+            }
+        },
+        {
+            "type": "text",
+            "id": "title",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            },
+            "default": {
+                "en": "Share your story",
+                "de": "Teilen Sie Ihre Geschichte",
+                "es": "Comparte tu historia",
+                "fr": "Partagez votre histoire",
+                "pt-PT": "Partilhe a sua história"
+            }
+        },
+        {
+            "type": "richtext",
+            "id": "text",
+            "label": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            },
+            "default": {
+                "en": "<p>Add a large image with text overlay to give focus to your chosen product, collection, or blog post</p>",
+                "de": "<p>Fügen Sie ein großes Bild mit einer Textüberlagerung hinzu, um das Produkt, die Kollektion oder den Blogbeitrag Ihrer Wahl in den Fokus zu rücken.</p>",
+                "es": "<p>Añade una imagen grande con superposición de texto para llamar la atención sobre el producto, la colección o la publicación de blog que elijas</p>",
+                "fr": "<p>Ajoutez une grande image avec un texte superposé pour mettre l'accent sur le produit, la collection ou le blog de votre choix</p>",
+                "pt-PT": "<p>Adicione uma imagem grande, com texto sobreposto, para destacar o produto, coleção ou postagem no blogue que escolheu</p>"
+            }
+        },
+        {
+					"type": "color",
+					"id": "colorText",
+					"label": {
+							"en": "Text color",
+							"de": "Textfarbe",
+							"es": "Color del texto",
+							"fr": "Couleur du texte",
+							"pt-PT": "Cor do texto"
+					},
+					"default": "#ffffff"
+				},
+        {
+            "type": "select",
+            "id": "textPosition",
+            "label": {
+                "en": "Text position",
+                "de": "Textposition",
+                "es": "Posición del texto",
+                "fr": "Position du texte",
+                "pt-PT": "Posição do texto"
+            },
+            "default": "center",
+            "options": [
+                {
+                    "value": "left",
+                    "label": {
+                        "en": "Left",
+                        "de": "Links",
+                        "es": "Izquierda",
+                        "fr": "Gauche",
+                        "pt-PT": "Esquerda"
+                    }
+                },
+                {
+                    "value": "center",
+                    "label": {
+                        "en": "Center",
+                        "de": "Mitte",
+                        "es": "Centro",
+                        "fr": "Centre",
+                        "pt-PT": "Centro"
+                    }
+                },
+                {
+                    "value": "right",
+                    "label": {
+                        "en": "Right",
+                        "de": "Rechts",
+                        "es": "Derecha",
+                        "fr": "Droite",
+                        "pt-PT": "Direita"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "textAlignment",
+            "label": {
+                "en": "Text alignment",
+                "de": "Textausrichtung",
+                "es": "Alineación del texto",
+                "fr": "Alignement du texte",
+                "pt-PT": "Alinhamento do texto"
+            },
+            "default": "center",
+            "options": [
+                {
+                    "value": "left",
+                    "label": {
+                        "en": "Left",
+                        "de": "Links",
+                        "es": "Izquierda",
+                        "fr": "Gauche",
+                        "pt-PT": "Esquerda"
+                    }
+                },
+                {
+                    "value": "center",
+                    "label": {
+                        "en": "Center",
+                        "de": "Mitte",
+                        "es": "Centro",
+                        "fr": "Centre",
+                        "pt-PT": "Centro"
+                    }
+                },
+                {
+                    "value": "right",
+                    "label": {
+                        "en": "Right",
+                        "de": "Rechts",
+                        "es": "Derecha",
+                        "fr": "Droite",
+                        "pt-PT": "Direita"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "range",
+            "id": "heading--text-size",
+            "min": 20,
+            "max": 36,
+            "step": 2,
+            "unit": {
+                "en": "px",
+                "de": "px",
+                "es": "px",
+                "fr": "px",
+                "pt-PT": "px"
+            },
+            "label": {
+                "en": "Heading size",
+                "de": "Überschift-Größe",
+                "es": "Tamaño del encabezado",
+                "fr": "Taille de la rubrique",
+                "pt-PT": "Tamanho do título"
+            },
+            "default": 30
+        },
+        {
+            "type": "range",
+            "id": "text--text-size",
+            "min": 12,
+            "max": 36,
+            "step": 2,
+            "unit": {
+                "en": "px",
+                "de": "px",
+                "es": "px",
+                "fr": "px",
+                "pt-PT": "px"
+            },
+            "label": {
+                "en": "Text size",
+                "fr": "Taille de texte",
+                "de": "Textgröße",
+                "es": "Tamaño del texto",
+                "pt-PT": "Tamanho do texto"
+            },
+            "default": 16
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Button",
+                "de": "Button",
+                "es": "Botón",
+                "fr": "Bouton",
+                "pt-PT": "Botão"
+            }
+        },
+        {
+            "type": "text",
+            "id": "button_label",
+            "label": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            }
+        },
+        {
+            "type": "url",
+            "id": "button_link",
+            "label": {
+                "en": "Link",
+                "de": "Link",
+                "es": "Enlace",
+                "fr": "Lien",
+                "pt-PT": "Ligação"
+            }
+        }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Image with text overlay",
+                "de": "Bild mit Textüberlagerung",
+                "es": "Imagen con texto superpuesto",
+                "fr": "Image avec texte superposé",
+                "pt-PT": "Imagem com sobreposição de texto"
+            },
+            "category": {
+                "en": "Image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            }
+        }
+    ]
+}
+{% endschema %}

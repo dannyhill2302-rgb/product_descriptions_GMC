@@ -1,0 +1,74 @@
+{% assign hasImage = false %}
+{% if collection.image %}
+  {% assign hasImage = true %}
+  {% assign image = collection.image | img_url: 'large' %}
+{% else %}
+  {% assign image = collection.products.first | img_url: 'large' %}
+{% endif %}
+
+{% assign imagesEnabled = false %}
+{% if section.settings.collection-image %}
+  {% assign imagesEnabled = true %}
+{% endif %}
+
+{% assign imageSize = '470x' %}
+
+{% assign hasProduct = false %}
+{% if section.settings.collection-product-item %}
+  {% assign hasProduct = true %}
+{% endif %}
+
+<article class="collection-header {% if imagesEnabled %}grid has-image{% else %}grid-item-50 {% if hasProduct %}has-product{% endif %}{% endif %}" data-collection-header="{{ collection.handle }}"{% if hasProduct %} data-product-item-wrapper{% endif %}>
+  {% if section.settings.collection-image %}
+    <div class="grid-item-50">
+      {% capture image_additional_content %}
+        <span class="collection-header-title">{{ collection.title }}</span>
+      {% endcapture %}
+
+      {% assign image_default = collection.image | img_url: '540x' %}
+
+      {% if collection.image %}
+        {% assign useImage = collection.image %}
+      {% else %}
+        {% assign useImage = collection.products.first.media[0].preview_image %}
+      {% endif %}
+
+      {%-
+        render 'image-bg',
+        image: useImage,
+        image_class: 'collection-header-image',
+        image_link: collection.url,
+        image_tabindex: '-1',
+        image_additional_content: image_additional_content,
+        image_dimension: 'half',
+        image_default: image_default,
+      -%}
+    </div>
+  {% endif %}
+
+  <div class="collection-header-info-wrapper {% if imagesEnabled %}grid-item-50{% endif %}">
+    <div class="collection-header-info {% if hasProduct %}grid-item-66{% else %}grid-item-100{% endif %}">
+      <h2><a href="{{ collection.url }}">{{ collection.title }}</a></h2>
+      {% if section.settings.collection-description and collection.description != blank %}
+        <div class="collection-header-description">{{ collection.description | strip_html | truncatewords: 50 }}</div>
+      {% endif %}
+
+      <div class="collection-header-link">
+        <a href="{{ collection.url }}?sort_by=best-selling">{{ "collection.header.popular" | t }}</a> /
+        <a href="{{ collection.url }}?sort_by=created-ascending">{{ "collection.header.newest" | t }}</a> /
+        <a href="{{ collection.url }}">{{ "collection.header.all_products" | t }}</a>
+      </div>
+    </div>
+
+    {% if hasProduct %}
+      {% assign image_default_width = '340x' %}
+
+      {%-
+        render "product-item",
+        grid: "grid-item-33",
+        item: collection.all_products.first,
+        sort: collection.default_sort_by
+      -%}
+    {% endif %}
+  </div>
+</article>

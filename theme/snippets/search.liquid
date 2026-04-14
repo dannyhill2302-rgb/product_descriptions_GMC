@@ -1,0 +1,48 @@
+{%- capture search_types -%}
+  {%- if settings.predictive_search_products -%}product,{%- endif -%}
+  {%- if settings.predictive_search_pages -%}page,{%- endif -%}
+  {%- if settings.predictive_search_articles -%}article,{%- endif -%}
+  {%- if settings.predictive_search_collections -%}collection{%- endif -%}
+{%- endcapture -%}
+
+{%- capture close_icon -%}
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M23.954 21.03l-9.184-9.095 9.092-9.174L21.03-.046l-9.09 9.179L2.764.045l-2.81 2.81L9.14 11.96.045 21.144l2.81 2.81 9.112-9.192 9.18 9.1z"/></svg>
+{%- endcapture -%}
+
+<div class="header-search-form-wrapper header-search-form-style-{{ settings.headerSearchStyle }}">
+  <form class="header-search-form form" action="{{ routes.search_url }}" method="get" data-header-search-form>
+    <div class="header-search-input-wrapper">
+      <label for="header-search" aria-label="{{ 'layout.header.search_placeholder' | t }}">
+        {% if settings.headerSearchStyle == "minimal" %}
+          <button class="header-search-submit header-search-submit--minimal" type="button" aria-label="{{ 'layout.header.search_submit' | t }}" data-header-search-submit><svg><use xlink:href="#icon-search"></use></svg></button>
+          <span class="header-search-text">{{ 'layout.header.search' | t }}</span>
+        {% endif %}
+        <input
+          id="header-search"
+          name="q"
+          type="text"
+          placeholder="{{ 'layout.header.search_placeholder' | t }}"
+          value=""
+          class="form-input {% if settings.predictive_search_enabled %}is-predictive{% else %}not-predictive{% endif %}{% if settings.headerSearchStyle == "minimal" %} hidden{% endif %}"
+          data-search-types="{{ search_types }}"
+          data-show-prices="{{ settings.predictive_search_show_price }}"
+          data-show-vendor="{{ settings.predictive_search_show_vendor }}"
+          aria-hidden="true"
+          tabindex="0"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+        />
+        <span class="header-search-clear" aria-label="{{ "search.general.clear" | t }}" tabindex="0">{{ close_icon }}</span>
+      </label>
+      {% if settings.headerSearchStyle == "boxed" %}
+          <button class="header-search-submit" type="submit" aria-label="{{ 'layout.header.search_submit' | t }}" data-header-search-submit><svg><use xlink:href="#icon-search"></use></svg></button>
+      {% endif %}
+    </div>
+    <div class="header-search-results-wrapper" data-header-search-results-wrapper>
+      <div class="close-icon" aria-label="{{ "search.general.close" | t }}" tabindex="0" data-header-search-results-close><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
+      <div class="header-search-results" data-header-search-results>
+      </div>
+    </div>
+  </form>
+</div>

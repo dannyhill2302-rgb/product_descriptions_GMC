@@ -1,0 +1,41 @@
+{% comment %}
+Render icon for media types
+
+Parameters:
+* media: Media object
+* link: Url
+{% endcomment %}
+
+{%
+  if media.media_type == 'model' or
+  media.media_type == 'video' or
+  media.media_type == 'external_video'
+%}
+
+  {% if link %}
+  <a href="{{ link }}">
+  {% endif %}
+
+  <span class="product-thumbnail-media-icon">
+    {% if media.media_type == 'model' %}
+
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60">
+        <path d="M0 0h60v60H0z"></path>
+        <path class="icon" d="M40.4 22.57l-8.8-5.14a3.19 3.19 0 00-3.21 0l-8.8 5.14A3.24 3.24 0 0018 25.36v10.28a3.23 3.23 0 001.6 2.79l8.8 5.14a3.2 3.2 0 003.21 0l8.8-5.14A3.23 3.23 0 0042 35.64V25.36a3.24 3.24 0 00-1.6-2.79zM20.6 36.7a1.23 1.23 0 01-.6-1.06V25.36a1.23 1.23 0 01.6-1.06l8.8-5.14a1.19 1.19 0 011.19 0l8.8 5.14a1.2 1.2 0 01.36.34l-9.51 4.89a2.23 2.23 0 00-1.25 2V41.6z" fill="#323232"></path>
+      </svg>
+
+    {% elsif media.media_type == 'video' or media.media_type == 'external_video' %}
+
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 61 61">
+        <rect x="0.5" y="0.5" width="60" height="60" stroke-miterlimit="10"/>
+        <path class="icon" d="M25,21.39a1,1,0,0,0-1.51.86V38.64a1,1,0,0,0,1.55.83l13.11-8.67a1,1,0,0,0,0-1.7Z"/>
+      </svg>
+
+    {% endif %}
+  </span>
+
+  {% if link %}
+  </a>
+  {% endif %}
+
+{% endif %}

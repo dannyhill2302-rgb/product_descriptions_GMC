@@ -1,0 +1,94 @@
+{%- comment -%}
+  Drawer recommendations — lightweight, triggered after cart updates.
+  The JS in right-drawer picks this up via data-cart-drawer-rec.
+{%- endcomment -%}
+<div
+  class="cart-drawer-rec"
+  data-cart-drawer-rec
+  data-rec-url="{{ routes.product_recommendations_url }}"
+  style="display:none;"
+>
+  <h4 class="cart-drawer-rec__heading">You might like</h4>
+  <div class="cart-drawer-rec__list" data-cart-drawer-rec-list></div>
+</div>
+
+<script>
+(function(){
+  function loadDrawerRecs(seedId) {
+    var el = document.querySelector('[data-cart-drawer-rec]');
+    if (!el || !seedId) return;
+    var url = el.dataset.recUrl;
+    var list = el.querySelector('[data-cart-drawer-rec-list]');
+
+    fetch(url + '?product_id=' + seedId + '&limit=3&intent=complementary')
+      .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+      .then(function(d){
+        if (!d.products || !d.products.length) throw new Error('none');
+        return d;
+      })
+      .catch(function(){
+        return fetch(url + '?product_id=' + seedId + '&limit=3').then(function(r){ return r.json(); });
+      })
+      .then(function(d){
+        if (!d.products || !d.products.length) return;
+        list.innerHTML = d.products.map(function(p){
+          var img = p.featured_image
+            ? '<img src="' + p.featured_image + '&width=80" alt="" loading="lazy">'
+            : '';
+          var price = p.price_min
+            ? (p.price_min / 100).toLocaleString('nl-NL', {style:'currency', currency:'EUR'})
+            : '';
+          var single = p.variants && p.variants.length === 1 && p.variants[0].available;
+          var btn = single
+            ? '<button class="drawer-rec-atc" type="button" data-vid="' + p.variants[0].id + '">+ Add</button>'
+            : '<a class="drawer-rec-atc drawer-rec-atc--link" href="' + p.url + '">View</a>';
+          return '<div class="drawer-rec-item">'
+            + '<a href="' + p.url + '" class="drawer-rec-item__img">' + img + '</a>'
+            + '<div class="drawer-rec-item__info">'
+            + '<a href="' + p.url + '" class="drawer-rec-item__name">' + p.title + '</a>'
+            + '<span class="drawer-rec-item__price">' + price + '</span>'
+            + btn
+            + '</div></div>';
+        }).join('');
+        el.style.display = '';
+
+        list.querySelectorAll('.drawer-rec-atc[data-vid]').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            btn.textContent = '...'; btn.disabled = true;
+            fetch('/cart/add.js',{
+              method:'POST',
+              headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},
+              body: JSON.stringify({id: btn.dataset.vid, quantity:1})
+            }).then(function(r){ return r.json(); }).then(function(){
+              btn.textContent = '✓';
+              document.dispatchEvent(new CustomEvent('cart:refresh', {bubbles:true}));
+              setTimeout(function(){ btn.textContent = '+ Add'; btn.disabled = false; }, 2000);
+            }).catch(function(){ btn.textContent = '+ Add'; btn.disabled = false; });
+          });
+        });
+      })
+      .catch(function(){});
+  }
+
+  // Load on page load if cart has items
+  document.addEventListener('DOMContentLoaded', function(){
+    var cartData = document.getElementById('initial-cart');
+    if (!cartData) return;
+    try {
+      var cart = JSON.parse(cartData.textContent);
+      if (cart.items && cart.items.length > 0) {
+        loadDrawerRecs(cart.items[0].product_id);
+      }
+    } catch(e) {}
+  });
+
+  // Reload after cart is refreshed (add to cart, remove, etc.)
+  document.addEventListener('cart:refresh', function(){
+    fetch('/cart.js').then(function(r){ return r.json(); }).then(function(cart){
+      if (cart.items && cart.items.length > 0) {
+        loadDrawerRecs(cart.items[0].product_id);
+      }
+    }).catch(function(){});
+  });
+})();
+</script>

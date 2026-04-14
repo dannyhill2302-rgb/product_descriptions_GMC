@@ -1,0 +1,23 @@
+{% case section.settings.feature_block_id %}
+  {% when '122ad031-49db-4475-949a-1287a34e6ba3' %}
+  <div class="kaching-icon-block" data-block-id="122ad031-49db-4475-949a-1287a34e6ba3"></div>
+{% endcase %}
+{% schema %}
+  {
+    "name": "Icon block",
+    "settings": [
+      {
+        "type": "select",
+        "id": "feature_block_id",
+        "label": "Icon block",
+        "options": [{"value":"","label":"None"},{"value":"122ad031-49db-4475-949a-1287a34e6ba3","label":"Ben-G Icons"}]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Guarantees & Features Icons",
+        "category": "Image"
+      }
+    ]
+  }
+{% endschema %}

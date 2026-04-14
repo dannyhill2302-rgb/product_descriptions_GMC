@@ -1,0 +1,31 @@
+{% if address.company != blank %}
+  {{ address.company }}<br>
+{% endif %}
+
+{% if address.street != blank %}
+  {{ address.street }}<br>
+{% endif %}
+
+{% if address.city != blank %}
+  {{ address.city | capitalize }}
+
+  {% unless address.province_code != blank %}
+    <br>
+  {% endunless %}
+{% endif %}
+
+{% if address.province_code != blank %}
+  {{ address.province_code | upcase }}<br>
+{% endif %}
+
+{% if address.zip != blank %}
+  {{ address.zip | upcase }}<br>
+{% endif %}
+
+{% if address.country != blank %}
+  {{ address.country }}<br>
+{% endif %}
+
+{% if address.phone != blank %}
+  {{ address.phone }}
+{% endif %}

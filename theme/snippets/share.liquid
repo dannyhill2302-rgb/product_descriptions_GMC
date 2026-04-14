@@ -1,0 +1,37 @@
+{% if settings.shareFacebook or settings.shareTwitter or settings.sharePinterest or settings.shareFancy %}
+  <aside class="share-wrapper" id="product-share">
+    <div class="share">
+      {% assign fullURL = shop.url | append: url %}
+
+      {% if settings.shareFacebook %}
+        <a target="_blank" rel="nofollow" href="//www.facebook.com/sharer.php?u={{ fullURL }}" class="share-facebook" title="Facebook">
+          <svg><use xlink:href="#social-facebook"></use></svg>
+        </a>
+      {% endif %}
+
+      {% if settings.sharePinterest and image %}
+        <a target="_blank" href="//pinterest.com/pin/create/button/?url={{ fullURL }}&amp;media={{ image | img_url: '1024x1024' }}&amp;description={{ title | url_param_escape }}" class="share-pinterest" title="Pinterest">
+          <svg><use xlink:href="#social-pinterest"></use></svg>
+        </a>
+      {% endif %}
+
+      {% if settings.shareFancy and image %}
+        <a target="_blank" rel="nofollow" href="//www.thefancy.com/fancyit?ItemURL={{ fullURL }}&amp;Title={{ title | url_param_escape }}&amp;Category={{ collection | url_param_escape }}&amp;ImageURL={{ image | img_url: '1024x1024' }}" class="share-fancy" title="Fancy">
+          <svg><use xlink:href="#social-fancy"></use></svg>
+        </a>
+      {% endif %}
+
+      {% if settings.shareTwitter %}
+        <a target="_blank" rel="nofollow" href="//twitter.com/share?url={{ fullURL }}" class="share-twitter" title="Twitter">
+          <svg><use xlink:href="#social-twitter"></use></svg>
+        </a>
+      {% endif %}
+
+      {% if template contains 'blog' or template contains 'article' %}
+        <a target="_blank" rel="nofollow" href="{{ blog.url }}.atom" class="share-rss" title="{{ 'layout.share.subscribe' | t: feed: blog.title }}">
+          <svg><use xlink:href="#social-rss"></use></svg>
+        </a>
+      {% endif %}
+    </div>
+  </aside>
+{% endif %}

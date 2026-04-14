@@ -1,0 +1,13 @@
+{%- if image != blank -%}
+  {%- assign image_widths_arr = '180,360,540,720,900,1080,1296,1512,1728,1950,2100,2260,2450,2700,3000,3350,3750,4100' | split: ',' -%}
+
+  {%- for width_s in image_widths_arr -%}
+    {%- assign width = width_s | times: 1 -%}
+    {%- if image.width > width -%}
+      {%- assign width_x = width | append: 'x' -%}
+      {{ image | img_url: width_x }} {{ width }}w {{ width | divided_by: image.aspect_ratio | round }}h,
+    {%- endif -%}
+  {%- endfor -%}
+
+  {{ image | img_url: 'master' }} {{ image.width }}w {{ image.height }}h
+{%- endif -%}

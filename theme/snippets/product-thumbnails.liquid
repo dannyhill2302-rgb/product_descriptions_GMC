@@ -1,0 +1,34 @@
+{% if product.media.size > 1 %}
+  <div class="product-thumbnails visibly-hidden js-dependent" id="product-thumbnails">
+    <div data-product-thumbnails class="thumbnails">
+      {% for media in product.media %}
+        {%- capture image_attributes -%}
+          data-product-thumbnail-index="{{ media.position }}"
+        {%- endcapture -%}
+        {% capture img_id %}FeaturedImage-{{ section.id }}-{{ media.id }}{% endcapture %}
+        {% assign imageSize = '100x' %}
+        {% if media.src != blank %}
+          {% assign media_img_src = media.src %}
+        {% else %}
+          {% assign media_img_src = media.preview_image.src %}
+        {% endif %}
+
+        <div class="product-thumbnail-wrap" tabindex="0">
+          <img
+            {{ image_attributes }}
+            class="product-thumbnail"
+            src="{{ media | img_url: imageSize }}"
+            srcset="{{ media | img_url: imageSize }} 1x, {{ media | img_url: imageSize, scale: 2 }} 2x"
+            alt="{{ media.alt | escape }}"
+            data-product-thumbnail-src="{{ media_img_src }}"
+            id="{{ img_id }}"
+            data-media-id="media-template-{{ section_id }}-{{ media.id }}"
+            data-media-type="{{ media.media_type }}"
+          >
+          {% render 'product-media-icon', media: media  %}
+        </div>
+
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}

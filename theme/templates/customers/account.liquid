@@ -1,0 +1,73 @@
+
+<h1 class="page-header">{{ 'customer.account.title' | t }}</h1>
+
+<div class="page-wrapper" data-account>
+  <div class="account-wrapper grid">
+    <main class="account grid-item-66">
+
+      {% comment %}
+        If we have past orders, loop through each one
+      {% endcomment %}
+
+      <h3 class="account-header">{{ 'customer.account.order_history' | t }}</h3>
+
+      {% paginate customer.orders by 20 %}
+        {% if customer.orders.size != 0 %}
+
+          <div class="account-headers grid">
+            <span class="grid-item-15">{{ 'customer.account.order_number' | t }}</span>
+            <span class="grid-item-25">{{ 'customer.account.date' | t }}</span>
+            <span class="grid-item-20">{{ 'customer.account.payment_status' | t }}</span>
+            <span class="grid-item-20">{{ 'customer.account.fulfillment_status' | t }}</span>
+            <span class="grid-item-20">{{ 'customer.account.total' | t }}</span>
+          </div>
+
+          {% for order in customer.orders %}
+            <div class="account-orders grid">
+              <span class="grid-item-15">{{ order.name | link_to: order.customer_url }}</span>
+              <span class="grid-item-25" data-label="{{ 'customer.account.date' | t }}">{{ order.created_at | date: format: 'month_day_year' }}</span>
+              <span class="grid-item-20" data-label="{{ 'customer.account.payment_status' | t }}">{{ order.financial_status_label }}</span>
+              <span class="grid-item-20" data-label="{{ 'customer.account.fulfillment_status' | t }}">{{ order.fulfillment_status_label }}</span>
+              <span class="grid-item-20 money" data-label="{{ 'customer.account.total' | t }}">{{ order.total_price | money }}</span>
+            </div>
+
+            <div class="account-orders--mobile grid">
+              <span class="grid-item-50 account-headers--mobile">{{ 'customer.account.order_number' | t }}</span><span class="grid-item-50">{{ order.name | link_to: order.customer_url }}</span>
+              <span class="grid-item-50 account-headers--mobile">{{ 'customer.account.date' | t }}</span><span class="grid-item-50" data-label="{{ 'customer.account.date' | t }}">{{ order.created_at | date: format: 'month_day_year' }}</span>
+              <span class="grid-item-50 account-headers--mobile">{{ 'customer.account.payment_status' | t }}</span><span class="grid-item-50" data-label="{{ 'customer.account.payment_status' | t }}">{{ order.financial_status_label }}</span>
+              <span class="grid-item-50 account-headers--mobile">{{ 'customer.account.fulfillment_status' | t }}</span><span class="grid-item-50" data-label="{{ 'customer.account.fulfillment_status' | t }}">{{ order.fulfillment_status_label }}</span>
+              <span class="grid-item-50 account-headers--mobile">{{ 'customer.account.total' | t }}</span><span class="grid-item-50 money" data-label="{{ 'customer.account.total' | t }}">{{ order.total_price | money }}</span>
+            </div>
+          {% endfor %}
+
+          {% if paginate.pages > 1 %}
+            {% render "pagination", paginate: paginate, width: "full-width" %}
+          {% endif %}
+
+        {% else %}
+
+          <p>{{ 'customer.account.no_orders' | t }}</p>
+
+        {% endif %}
+
+      {% endpaginate %}
+    </main>
+
+    <aside class="account-sidebar grid-item-33">
+      <h3 class="account-header">{{ 'customer.account.details' | t }}</h3>
+
+      <h4>{{ customer.name }}</h4>
+
+      {% assign address = customer.default_address %}
+
+      {% if address != nil %}
+        <p>
+          {% render "customer-address", address: address %}
+        </p>
+      {% endif %}
+
+      <p><a href="{{ routes.account_addresses_url }}">{{ 'customer.account.view_addresses' | t }} ({{ customer.addresses_count }})</a></p>
+    </aside>
+  </div>
+
+</div>

@@ -1,0 +1,259 @@
+{%- capture textSize -%}
+    {% case section.settings.navigation--navigation-blocks--text-size %}
+    {% when 'small' %}
+        index-navigation-list__wrapper__list--small
+    {% when 'medium' %}
+        index-navigation-list__wrapper__list--medium
+    {% when 'large' %}
+        index-navigation-list__wrapper__list--large
+    {% when 'extra-large' %}
+        index-navigation-list__wrapper__list--extralarge
+    {% endcase %}
+{%- endcapture -%}
+
+{%- capture fontFamily -%}{% case section.settings.navigation--navigation-blocks--font %}{% when 'body-font' %}index-navigation-list__wrapper__list--body{% when 'heading-font' %}index-navigation-list__wrapper__list--heading{% endcase %}{%- endcapture -%}
+
+<section
+  class="index-navigation-list"
+  data-section-id="{{ section.id }}"
+  data-section-type="home"
+  data-section-child="navigation-list"
+  {% render 'animations', type: 'fadeUpAnim1' %}
+>
+    <div class="index-navigation-list__wrapper">
+
+        {% if section.settings.navigation--navigation-blocks--heading != blank or section.settings.navigation--navigation-blocks--subheading != blank %}
+            <header class="index-header">
+                {% if section.settings.navigation--navigation-blocks--subheading != blank %}
+                    <h3 class="index-subheading">{{ section.settings.navigation--navigation-blocks--subheading | escape }}</h3>
+                {% endif %}
+
+                {% if section.settings.navigation--navigation-blocks--heading != blank %}
+                    <h2>{{ section.settings.navigation--navigation-blocks--heading | escape }}</h2>
+                {% endif %}
+            </header>
+        {% endif %}
+
+        {% if section.settings.navigation--navigation-blocks--menu != blank %}
+            <ul class="index-navigation-list__wrapper__list {{ textSize }} {{ fontFamily }}" data-navigation-list>
+                {% for link in linklists[section.settings.navigation--navigation-blocks--menu].links %}
+                    <li class="index-navigation-list__wrapper__list__link">
+                        <a href="{{ link.url }}" tabindex="0">{{ link.title }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <ul class="index-navigation-list__wrapper__list {{ textSize }} {{ fontFamily }} onboarding" data-navigation-list>
+                {% for i in (1..5) %}
+                    <li class="index-navigation-list__wrapper__list__link">
+                        <a href="#" tabindex="0">{{ 'layout.onboarding.collection' | t }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+    </div>
+
+</section>
+
+<style type="text/css">
+    #shopify-section-{{ section.id }} .index-navigation-list .index-navigation-list__wrapper__list__link a {
+      color: {{ section.settings.navigation--navigation-blocks--text-color }};
+      background-color: {{ section.settings.navigation--navigation-blocks--background-color }};
+    }
+
+    #shopify-section-{{ section.id }} .index-navigation-list .index-navigation-list__wrapper__list__link a:hover,
+    #shopify-section-{{ section.id }} .index-navigation-list .index-navigation-list__wrapper__list__link a:focus {
+      {% assign bg_lightness = section.settings.navigation--navigation-blocks--background-color | color_extract: 'lightness' %}
+      {% if bg_lightness > 30 %}
+        background-color: {{ section.settings.navigation--navigation-blocks--background-color | color_darken: 4 }};
+      {% else %}
+        background-color: {{ section.settings.navigation--navigation-blocks--background-color | color_lighten: 10 }};
+      {% endif %}
+    }
+</style>
+
+{% schema %}
+{
+    "name": {
+        "en": "Navigation list",
+        "de": "Navigationsliste",
+        "es": "Lista de navegación",
+        "fr": "Liste de navigation",
+        "pt-PT": "Lista de navegação"
+    },
+    "class": "section-index-navigationList",
+    "settings": [
+        {
+            "type": "text",
+            "id": "navigation--navigation-blocks--subheading",
+            "label": {
+                "en": "Subheading",
+                "de": "Unterüberschrift",
+                "es": "Subencabezado",
+                "fr": "Sous-rubrique",
+                "pt-PT": "Subtítulo"
+            }
+        },
+        {
+            "type": "text",
+            "id": "navigation--navigation-blocks--heading",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            },
+            "default": {
+                "en": "Highlight bestsellers",
+                "de": "Bestseller hervorheben",
+                "es": "Destacar los más vendidos",
+                "fr": "Mettre en évidence les meilleures ventes",
+                "pt-PT": "Destacar os mais vendidos"
+            }
+        },
+        {
+            "type": "link_list",
+            "id": "navigation--navigation-blocks--menu",
+            "label": {
+                "en": "Menu",
+                "de": "Menü",
+                "es": "Menú",
+                "fr": "Menu",
+                "pt-PT": "Menu"
+            }
+        },
+        {
+            "type": "select",
+            "id": "navigation--navigation-blocks--text-size",
+            "label": {
+                "en": "Text size",
+                "fr": "Taille de texte",
+                "de": "Textgröße",
+                "es": "Tamaño del texto",
+                "pt-PT": "Tamanho do texto"
+            },
+            "options": [
+                {
+                    "value": "small",
+                    "label": {
+                        "en": "Small",
+                        "de": "Klein",
+                        "es": "Pequeño",
+                        "fr": "Petite",
+                        "pt-PT": "Pequeno"
+                    }
+                },
+                {
+                    "value": "medium",
+                    "label": {
+                        "en": "Medium",
+                        "de": "Mittel",
+                        "es": "Mediano",
+                        "fr": "Moyenne",
+                        "pt-PT": "Médio"
+                    }
+                },
+                {
+                    "value": "large",
+                    "label": {
+                      "en": "Large",
+                      "de": "Groß",
+                      "es": "Grande",
+                      "fr": "Grande",
+                      "pt-PT": "Grande"
+                    }
+                },
+                {
+                    "value": "extra-large",
+                    "label": {
+                        "en": "Extra Large",
+                        "de": "Extra groß",
+                        "es": "Muy grande",
+                        "fr": "Extra grande",
+                        "pt-PT": "Extra Grande"
+                    }
+                }
+            ],
+            "default": "medium"
+        },
+        {
+            "type": "radio",
+            "id": "navigation--navigation-blocks--font",
+            "label": {
+                "en": "Font",
+                "fr": "Police",
+                "de": "Schriftart",
+                "es": "Tipografía",
+                "pt-PT": "Tipo de letra"
+            },
+            "options": [
+                {
+                    "value": "body-font",
+                    "label": {
+                        "en": "Body font",
+                        "de": "Schrift für den Textkörper",
+                        "es": "Fuente del cuerpo",
+                        "fr": "Police du corps",
+                        "pt-PT": "Tipo de letra do corpo"
+                    }
+                },
+                {
+                    "value": "heading-font",
+                    "label": {
+                        "en": "Heading font",
+                        "de": "Schrift für Überschriften",
+                        "es": "Fuente del encabezado",
+                        "fr": "Police de titre",
+                        "pt-PT": "Tipo de letra do cabeçalho"
+                    }
+                }
+            ],
+            "default": "heading-font"
+        },
+        {
+            "type": "color",
+            "id": "navigation--navigation-blocks--text-color",
+            "label": {
+                "en": "Text color",
+                "de": "Textfarbe",
+                "es": "Color del texto",
+                "fr": "Couleur du texte",
+                "pt-PT": "Cor do texto"
+            },
+            "default": "#333333"
+        },
+        {
+            "type": "color",
+            "id": "navigation--navigation-blocks--background-color",
+                "label": {
+                "en": "Background color",
+                "de": "Hintergrundfarbe",
+                "es": "Color de fondo",
+                "fr": "Couleur d'arrière-plan",
+                "pt-PT": "Cor de fundo"
+            },
+            "default": "#F5F5F5"
+        }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Navigation list",
+                "de": "Navigationsliste",
+                "es": "Lista de navegación",
+                "fr": "Liste de navigation",
+                "pt-PT": "Lista de navegação"
+            },
+            "category": {
+                "en": "Navigation",
+                "fr": "Navigation",
+                "de": "Navigation",
+                "es": "Navegación",
+                "pt-PT": "Navegação"
+            }
+        }
+    ]
+}
+{% endschema %}

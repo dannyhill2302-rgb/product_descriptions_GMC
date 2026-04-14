@@ -1,0 +1,78 @@
+{% unless image_default %}
+  {% assign image_default = image | img_url: '280x280' %}
+{% endunless %}
+
+{% unless image_sizes %}
+  {% assign image_sizes = "auto" %}
+{% endunless %}
+
+{%- capture image_content -%}
+  {%- if image_additional_content != blank -%}
+    {{- image_additional_content -}}
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- capture image_bgset -%}
+  {%
+    render 'image-bgset',
+    image: image,
+    image_dimension: image_dimension,
+  %}
+{%- endcapture -%}
+
+<figure
+  class="{{ image_class }} lazyload js-dependent"
+  data-bgset="{{ image_bgset }}"
+  data-sizes="{{ image_sizes }}"
+  data-parent-fit="cover"
+  data-backup="{{ image | img_url: '1024x' }}"
+  alt="{{ image.alt | escape }}"
+>
+
+  {%- if image_link -%}
+    <a
+      class="{{ image_link_class }}"
+      href="{{ image_link }}"
+      {% if image_tabindex %}
+      tabindex="{{ image_tabindex }}"
+      {% endif %}
+    >
+      {{- image_content -}}
+    </a>
+  {%- else -%}
+    {{- image_content -}}
+  {%- endif -%}
+
+</figure>
+
+<noscript>
+  <figure
+    class="{{ image_class }}"
+    style="background-image: url('{{ image_default }}')"
+  >
+
+    {%- if image_link -%}
+      <a
+        class="{{ image_link_class }}"
+        href="{{ image_link }}"
+        {% if image_tabindex %}
+        tabindex="{{ image_tabindex }}"
+        {% endif %}
+      >
+        {{- image_content -}}
+      </a>
+    {%- else -%}
+      {{- image_content -}}
+    {%- endif -%}
+
+  </figure>
+</noscript>
+
+{% assign image_bgset = false %}
+{% assign image_sizes = false %}
+{% assign image_link = false %}
+{% assign image_link_class = '' %}
+{% assign image_tabindex = 1 %}
+{% assign image_default = false %}
+{% assign image_additional_content = '' %}
+{% assign image_dimension = false %}

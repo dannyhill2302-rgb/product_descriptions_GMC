@@ -1,0 +1,54 @@
+<ul class="block-grid mobile four-up product-collection">    
+{% for link in linklist.links %} //Here we are saying use the links in the linklist we created and assign them to the below code
+<li>
+  <div class="product">
+  {% comment %}
+ You can connect collections, products, pages, & even blogs. By default it will use the first product that appears on a collection or you can pick a featured image.
+  {% endcomment %}
+
+  {% assign link_item = link.object %} //Creates a new variable for link_item using link.object which in-turn can access any of the attributes that are available (product, collection, page or blog)
+  {% assign link_image = '' %}//creates a new variable for link_image which assigns 
+  {% capture link_title %}{{ link.title | escape }}{% endcapture %}//grab the link title and assign it as the link.title 
+
+  {% if link.type == 'collection_link' %}//if the link type is a collection then use this set of rules
+    {% if link_item.image %}//if there is a link_item image then proceed to the next step
+      {% assign link_image = link_item.image.src | collection_img_url: 'medium' %}//if there is a featured collection image use that and size it as a medium image 
+    {% else %}//Otherwise
+      {% assign link_image = link_item.products.first.featured_image | product_img_url: 'medium' %}//Grab the first product image and use that as the image
+    {% endif %}
+  {% elsif link.type == 'product_link' %}//If it's a product link instead of a collection link
+    {% assign link_image = link_item.featured_image | product_img_url: 'medium' %}//Assign the featured image for said product
+  {% elsif link.type == 'page_link' %}//However, if it's a page link then follow the rules below
+    {% if link_item.content contains "<img" %}//If the content of the page has an <img tag in it then proceed to the next step
+      {% assign src = link_item.content | split: 'src="' %}//Create a new variable for link_item.content and use src='"' substring as a parameter
+      {% assign src = src[1] | split: '"' | first | replace: '//cdn', 'http://cdn' | replace: 'http:http://', 'http://' | remove: 'https:'  %}//Create a new variable for src[1] use '"' substring as a parameter and replace '//cdn' with 'http://cdn' then replace 'http:http://' then finally remove 'https:'
+      {% if src %}//if there is a src 
+        {% assign link_image = src %}//then create a new variable for link_image using src
+      {% endif %}
+    {% endif %}
+  {% elsif link.type == 'blog_link' %}//Otherwise if link.type is a blog link
+    {% if link_item.articles.first.content contains "<img" %}//And if the blog content contains an image tag
+      {% assign src = link_item.articles.first.content | split: 'src="' %}//Then create a new variable to src 
+      {% assign src = src[1] | split: '"' | first | replace: '//cdn', 'http://cdn' | replace: 'http:http://', 'http://' | remove: 'https:'  %}//Create a new variable for src[1] use '"' substring as a parameter and replace '//cdn' with 'http://cdn' then replace 'http:http://' then finally remove 'https:'
+      {% if src %}//if src is present 
+        {% assign link_image = src %}//then create a new variable for link_image using src
+      {% endif %}
+    {% endif %}
+  {% endif %}
+
+<a href="{{ link_item.url }}" title="{{ link_title }}">//Here is where it all comes together make the link_item.url click-able and link to the content and add the title using link_title 
+    <span class="thumbnail">
+      {% if link_image != '' %} //if link_image does not equal '' then continue to the next step 
+        <img {% if settings.align_height %}style="max-height:{{ settings.collection_height }}px"{% endif %} src="{{ link_image }}" alt="{{ link_title }}" />//check if there are settings for align_height if so add it to the style otherwise just get the link_image and make the alt tag the link title
+      {% endif %}
+    </span>
+
+    <span class="product-title">
+      {{ link_title }} //add the link title  (it's click-able)
+    </span>
+  </a>
+
+  </div>
+</li>
+{% endfor %}
+</ul>

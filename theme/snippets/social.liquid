@@ -1,0 +1,24 @@
+{% assign socialNetworks = 'behance|dribbble|facebook|flickr|instagram|linkedin|producthunt|medium|pinterest|rss|tiktok|tumblr|twitter|vimeo|youtube' | split: '|' %}
+
+{% assign has_socials = false %}
+
+{% for network in socialNetworks %}
+  {% capture setting %}social{{ network | capitalize }}{% endcapture %}
+  {% if settings[setting] != blank %}
+    {% assign has_socials = true %}
+  {% endif %}
+{% endfor %}
+
+{% if has_socials %}
+  {% render "icons-social.svg" %}
+    <div class="social-wrapper">
+      <ul class="social">
+        {% for network in socialNetworks %}
+          {% capture setting %}social{{ network | capitalize }}{% endcapture %}
+          {% if settings[setting] != blank %}
+            <li class="{{ network }}"><a href="{{ settings[setting] }}" itemprop="sameAs" aria-label="{{ network }}"><svg><use xlink:href="#social-{{ network }}"></use></svg></a></li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+{% endif %}

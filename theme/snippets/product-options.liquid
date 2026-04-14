@@ -1,0 +1,230 @@
+<div id="product-options" data-product-options>
+
+  <div class="form product-form">
+    {% form 'product', product %}
+
+      {% unless product.variants.size == 1 and product.variants.first.title contains 'Default' %}
+        <div class="product-swatches">
+          {% assign selected_color = "" %}
+          {% for option in product.options_with_values %}
+            {% assign index = forloop.index0 %}
+            {% assign isColor = false %}
+            {% if option.name == settings.productColorSwatches %}
+              {% assign isColor = true %}
+            {% endif %}
+
+            {% assign checked = false %}
+            {% assign currentOption = "option" | append: forloop.index %}
+            {% for value in option.values %}
+              {% if value == current_variant[currentOption] %}
+                {% assign checked = value %}
+                {% if option.position == 1 %}
+                  {% assign selected_color = value %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            <div class="form-field form-field-swatch swatch-{% if isColor %}color{% else %}other{% endif %}" data-product-swatch="{{ forloop.index0 }}">
+              <span class="form-field-title">{{ option.name }}</span>
+              <div class="form-field__swatch-options">
+                {% for value in option.values %}
+                  <div
+                    class="form-swatch-item {% if option.selected_value == value %}available{% endif %}"
+                    data-product-swatch-value="{{ value | escape }}"
+                    {% assign matching_variant = product.variants | where: "option1", selected_color | where: "option2", value | first %}
+                    {% if matching_variant %}
+                    data-product-swatch-quantity="{{ matching_variant.inventory_quantity }}"
+                    {% endif %}
+                    data-product-swatch-input>
+                    {% if isColor %}
+                      <div class="tooltip">{{ value }}</div>
+                    {% endif %}
+                    {% capture id %}
+                      {{ product.id }}-option-{{ index }}-{{ value | escape }}{% endcapture %}
+
+                    <input
+                      class="form-radio"
+                      id="{{ id }}"
+                      type="radio"
+                      name="{{ product.id }}-option-{{ index }}"
+                      value="{{ value | escape }}"
+                      {% if value == checked %}checked{% endif %}
+                      {% if matching_variant and matching_variant.inventory_quantity == 0 %}
+                      disabled
+                      {% endif %}>
+                    <label
+                      tabindex="0"
+                      for="{{ id }}"
+                      {% if isColor %}style="background-color: {{ value | split: ' ' | join: '' }}; background-image: url({{ value | handle | append: '.png' | file_url }});background-size:cover;background-repeat:no-repeat;"data-color="{{ value | escape }}"{% endif %}>
+                      {% unless isColor %}
+                        {{ value }}
+                      {% endunless %}
+                    </label>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        {{ selected_options }}
+      {% endunless %}
+
+      <div class="form-field product-select-simple-wrapper">
+        <label for="product-select-simple" aria-label="{{ 'layout.header.search_placeholder' | t }}">
+          <select
+            id="product-select-simple"
+            class="product-select-simple no-wrap"
+            name="id">
+            {% for variant in product.variants %}
+
+              {% if variant.available %}
+                <option {% if variant == current_variant %}selected{% endif %} value="{{ variant.id }}">{{ variant.title }}</option>
+              {% else %}
+                <option value="{{ variant.id }}" disabled>
+                  {{ variant.title }}
+                </option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+
+      {% comment "Example: adding line item properties" %}
+        {% assign customAttr = "Engraving" %}
+        <div class="form-field">
+          <label class="form-label" for="{{ customAttr | escape }}-{{ product.id }}">
+            <span class="form-field-title">{{ customAttr }}</span>
+            <input
+              class="form-input"
+              type="text"
+              id="{{ customAttr | escape }}-{{ product.id }}"
+              name="properties[{{ customAttr }}]">
+          </label>
+        </div>
+      {% endcomment %}
+
+      {% if product.available %}
+        <div class="form-field product-quantity">
+          <label class="form-label" for="product-quantity">
+            <span class="form-field-title">{{ 'products.product.quantity' | t }}</span>
+            <div class="qty-selector">
+              <button class="qty-selector__btn qty-selector__btn--minus" type="button">{% render 'icon-minus' %}</button>
+              <input
+                class="form-input qty-selector__input"
+                type="text"
+                name="quantity"
+                value="1"
+                id="product-quantity"
+                data-product-quantity>
+              <button class="qty-selector__btn qty-selector__btn--add" type="button">{% render 'icon-add' %}</button>
+            </div>
+          </label>
+        </div>
+      {% endif %}
+
+      {% if section.settings.productStockLevel != blank and product.available %}
+        {% assign threshold = section.settings.productStockLevel | append: '.0' | times: 1 %}
+        {% assign infinity = false %}
+        {% assign hasStockCounter = false %}
+        {% assign inventory = '' %}
+        {% for variant in product.variants %}
+          {% if variant.inventory_management == null or variant.inventory_management == "" or variant.inventory_management == "shopify" and variant.inventory_policy == "continue" %}
+            {% assign infinity = true %}
+          {% elsif variant.inventory_quantity < threshold %}
+            {% assign hasStockCounter = true %}
+          {% endif %}
+        {% endfor %}
+
+        {% if hasStockCounter %}
+          <div class="form-field product-stock" data-product-stock-wrapper>
+            <div class="form-label">
+              <span class="form-field-title">{{ 'products.product.stock_level' | t }}</span>
+
+              <span
+                class="product-stock-level"
+                data-product-stock
+                data-stock-total="{{ total }}">
+                {% assign inventory = '' %}
+                {% for variant in product.variants %}
+                  {% if variant.inventory_management == null or variant.inventory_management == '' or variant.inventory_management == 'shopify' and variant.inventory_policy == 'continue' %}
+                    {% capture inventory %}
+                      {{ inventory }}|100%{% endcapture %}
+                    {% if variant == current_variant %}
+                      {% assign currentInventory = '100%' %}
+                    {% endif %}
+                  {% else %}
+                    {% assign variant_inventory = variant.inventory_quantity | divided_by: threshold | times: 100 %}
+                    {% if variant_inventory > 100 %}
+                      {% assign variant_inventory = 100 %}
+                    {% endif %}
+                    {% capture inventory %}
+                      {{ inventory }}|{{ variant_inventory | append: '%' }}{% endcapture %}
+                    {% if variant == current_variant %}
+                      {% assign currentInventory = variant_inventory | append: '%' %}
+                    {% endif %}
+                  {% endif %}
+                {% endfor %}
+
+                {% capture inventory %}
+                  {{ inventory | remove_first: '|' | split: '|' | escape }}{% endcapture %}
+                <span data-product-stock-variant-visual="{{ inventory }}" style="width: {{ currentInventory }}"></span>
+              </span>
+
+              {% for variant in product.variants %}
+                {% if variant.inventory_management == null or variant.inventory_management == '' or variant.inventory_management == 'shopify' and variant.inventory_policy == 'continue' %}
+                  <span
+                    class="product-stock-count {% if variant == current_variant %}visible{% endif %}"
+                    data-product-stock-variant="{{ variant.id }}"
+                    data-product-stock-index="{{ forloop.index0 }}"></span>
+                {% else %}
+                  {% if variant.inventory_quantity > threshold %}
+                    <span
+                      class="product-stock-count {% if variant == current_variant %}visible{% endif %}"
+                      data-product-stock-variant="{{ variant.id }}"
+                      data-product-stock-index="{{ forloop.index0 }}">{{ 'products.product.has_stock' | t }}</span>
+                  {% elsif variant.inventory_quantity > 0 %}
+                    <span
+                      class="product-stock-count {% if variant == current_variant %}visible{% endif %}"
+                      data-product-stock-variant="{{ variant.id }}"
+                      data-product-stock-index="{{ forloop.index0 }}">{{ 'products.product.low_stock' | t: stock: variant.inventory_quantity }}</span>
+                  {% elsif variant.inventory_quantity == 0 %}
+                    <span
+                      class="product-stock-count {% if variant == current_variant %}visible{% endif %}"
+                      data-product-stock-variant="{{ variant.id }}"
+                      data-product-stock-index="{{ forloop.index0 }}">{{ 'products.product.sold_out' | t }}</span>
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      {% endif %}
+
+      <div class="form-actions">
+        <button
+          class="button
+          {% unless product.available %}button-disabled{% endunless %}
+          {% if section.settings.productsSmartPayment and product.selling_plan_groups.size == 0 %}button-secondary{% endif %}"
+          type="button"
+          data-product-add
+          {% unless product.available %}disabled{% endunless %}>
+          {% render 'spinner' %}
+          {% if product.available %}
+            <span class="button-text">{{ 'products.product.add_to_cart' | t }}</span>
+          {% else %}
+            <span class="button-text">{{ 'products.product.sold_out' | t }}</span>
+          {% endif %}
+        </button>
+
+        {% if section.settings.productsSmartPayment and product.available %}
+          {{ form | payment_button }}
+        {% endif %}
+      </div>
+
+      <div class="shopify-payment-terms__container">
+        {{ form | payment_terms }}
+      </div>
+
+    {% endform %}
+  </div>
+</div>

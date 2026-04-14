@@ -1,0 +1,69 @@
+{% if settings.show_second_image_on_hover == true %}
+  {%- assign secondary_image_enabled = true -%}
+{% endif %}
+
+<div id="product-images">
+  <div class="product-images-inner js-dependent" data-product-images>
+    {% if product.images != blank %}
+      {% for image in product.images %}
+        {%- capture image_attributes -%}
+          data-high-res="{{ image | img_url: '1600x' }}"
+        {%- endcapture -%}
+
+        <span
+          class="{% if forloop.first %}product-image-first{% else %}product-image-other{% endif %}"
+          data-product-image-src="{{ image.src }}"
+        >
+          {%-
+            render 'image',
+            secondary_image_enabled: secondary_image_enabled,
+            image_object: image,
+            image_widths: '335, 420, 460, 670, 840, 920, 1005, 1260, 1380',
+            image_attributes: image_attributes,
+            image_link: false,
+            image_additional_content: false,
+            image_class: false
+          -%}
+        </span>
+      {% endfor %}
+    {% else %}
+      {{ 'product-1' | placeholder_svg_tag }}
+    {% endif %}
+  </div>
+
+  <noscript>
+    <div class="product-images-inner">
+      {% for image in product.images %}
+        {% assign imageSize = '560x' %}
+        <img
+          src="{{ image | img_url: imageSize }}"
+          srcset="{{ image | img_url: imageSize }} 1x, {{ image | img_url: imageSize, scale: 2 }} 2x, {{ image | img_url: imageSize, scale: 3 }} 3x"
+          alt="{{ image.alt | escape }}"
+        >
+      {% endfor %}
+    </div>
+  </noscript>
+
+  <div
+    class="product-images-lightbox"
+    data-product-images-lightbox-wrapper
+    role="dialog"
+    aria-modal="true"
+  >
+    <div data-product-images-lightbox>
+      <button
+        class="product-images-lightbox-close"
+        id="product_images_lightbox_close"
+        aria-label="Close"
+        type="button" 
+        data-product-images-lightbox-cloe
+      >
+        <svg><use xlink:href="#icon-close"></use></svg>
+      </button>
+      <span class="products-images-lightbox-spinner">
+          {% render 'spinner' %}
+      </span>
+      <img src="{{ routes.root_url }}" alt="">
+    </div>
+  </div>
+</div>

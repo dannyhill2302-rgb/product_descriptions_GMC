@@ -1,0 +1,131 @@
+<aside class="cart-totals grid-item-30">
+  <section class="cart-checkout">
+    <div class="cart-total-wrapper" data-cart-totals>
+
+      <table>
+        <tbody>
+          {% if cart.discount_applications != blank %}
+            <tr class="cart-total-line">
+              <td>{{ "cart.totals.subtotal" | t }}</td>
+              <td><span class="money">{{ cart.original_total_price | money }}</span></td>
+            </tr>
+
+            {% for discount_application in cart.discount_applications %}
+              <tr class="cart-total-line">
+                <td>
+                  {{ "cart.totals.discount" | t }}
+                  <span class="cart-total-line__discount-name">{{ discount_application.title }}</span>
+                </td>
+                <td>
+                  -<span class="money">{{ discount_application.total_allocated_amount | money }}</span>
+                </td>
+              </tr>
+            {% endfor %}
+          {% endif %}
+
+          <tr class="cart-total-line cart-total-line--total">
+            <td>{{ "cart.totals.total" | t }}</td>
+            <td><span class="money">{{ cart.total_price | money }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      {% if shop.taxes_included or shop.shipping_policy.body %} 
+        <span class="cart-page__policies">
+          {% if shop.taxes_included %}
+            {{ 'cart.totals.include_taxes' | t }}
+          {% endif %}
+
+          {% if shop.shipping_policy.body != blank %}
+            {{ 'cart.totals.shipping_policy_html' | t: link: shop.shipping_policy.url }}
+          {% endif %}
+        </span>
+      {% endif %}
+      
+    </div>
+  </section>
+
+  {% if section.settings.cartShippingCalculator %}
+    <section class="cart-module-wrapper" data-shipping data-cart-module>
+      <button class="cart-module-toggle" type="button" aria-label="{{ 'cart.shipping.heading' | t }}" data-cart-module-toggle>
+        {{ 'cart.shipping.heading' | t }} &#43;
+      </button>
+
+      <div class="cart-module">
+        <div class="form-field">
+          <label class="form-label" for="address_country" aria-label="{{ 'cart.shipping.country' | t }}">
+            <span class="form-field-title">{{ 'cart.shipping.country' | t }}</span>
+            <span class="form-select-wrapper">
+              <select
+                name="address[country]"
+                id="address_country"
+                data-default="{% if shop.customer_accounts_enabled and customer %}{{ customer.default_address.country }}{% elsif section.settings.cartShippingCountry != '' %}{{ section.settings.cartShippingCountry | escape }}{% endif %}"
+                data-shipping-country
+              >
+                {{- country_option_tags -}}
+              </select>
+            </span>
+          </label>
+        </div>
+
+        <div class="form-field" id="address_province_container">
+          <label class="form-label" for="address_province" aria-label="{{ 'cart.shipping.province' | t }}">
+            <span class="form-field-title">{{ 'cart.shipping.province' | t }}</span>
+            <span class="form-select-wrapper">
+              <select name="address[province]" id="address_province" data-default="{% if shop.customer_accounts_enabled and customer and customer.default_address.province != '' %}{{ customer.default_address.province }}{% endif %}" data-shipping-province></select>
+            </span>
+          </label>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label" for="address_zip" aria-label="{{ 'cart.shipping.zip' | t }}">
+            <span class="form-field-title">{{ 'cart.shipping.zip' | t }}</span>
+            <input class="form-input" type="text" id="address_zip" name="address[zip]" {% if shop.customer_accounts_enabled and customer %}value="{{ customer.default_address.zip }}"{% endif %} data-shipping-zip>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <input class="button" type="button" value="{{ 'cart.shipping.submit' | t }}" aria-label="{{ 'cart.shipping.submit' | t }}" data-shipping-rates-submit>
+        </div>
+
+        <div class="cart-shipping-response" data-shipping-response></div>
+      </div>
+    </section>
+  {% endif %}
+
+  {% if section.settings.cartNote %}
+    <section class="cart-module-wrapper" data-cart-module>
+      <button class="cart-module-toggle" type="button" aria-label="{{ 'cart.note.heading' | t }}" data-cart-module-toggle>
+        {{ 'cart.note.heading' | t }} &#43;
+      </button>
+
+      <div class="cart-module">
+        <div class="form-field">
+          <label for="cart-note" aria-label="{{ 'cart.totals.special_instructions' | t }}">
+            <textarea class="cart-note form-input form-full" name="note" id="cart-note" placeholder="{{ 'cart.totals.special_instructions' | t }}">{{ cart.note }}</textarea>
+          </label>
+        </div>
+      </div>
+    </section>
+  {% endif %}
+  
+  {%- comment -%}Cart page recommendations — shown above checkout actions{%- endcomment -%}
+  <section class="cart-page-recommendations">
+    {%- render 'cart-recommendations-inline' -%}
+  </section>
+
+  <section class="form-actions">
+    <button class="button update" type="submit" name="update" value="{{ 'cart.totals.update' | t }}" aria-label="{{ 'cart.totals.update' | t }}" data-cart-update><span class="button-text">{{ 'cart.totals.update' | t }}</span></button>
+    <button class="button hover-animation checkout checkout--sale" type="submit" name="checkout" value="{{ 'cart.totals.check_out' | t }}" aria-label="{{ 'cart.totals.check_out' | t }}"><span class="button-text">{{ 'cart.totals.check_out' | t }}</span></button>
+    
+ {%  assign additional_checkout_buttons = false %}
+            
+   {% if additional_checkout_buttons %}
+      <div class="cart-additional-buttons additional-checkout-buttons">
+        {{ content_for_additional_checkout_buttons }}
+      </div>
+    {% endif %}
+    
+  </section>
+
+</aside>

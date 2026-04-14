@@ -1,0 +1,203 @@
+{% assign isPassword = false %}
+{% if template == "password" %}
+  {% assign isPassword = true %}
+{% endif %}
+
+<section class="index-newsletter {% if section.settings.subheading != blank or section.settings.heading != blank or section.settings.text != blank %}is-fullwidth{% endif %}">
+  <div class="index-newsletter-inner {% if section.settings.text != blank %}has-subheading{% endif %}">
+    {% form "customer" %}
+
+      {% assign success = false %}
+      {% if form.posted_successfully? %}
+        {% assign success = true %}
+      {% else %}
+
+        {% if section.settings.subheading != blank or section.settings.heading != blank or section.settings.text != blank %}
+          <header class="index-header" {% render 'animations', type: 'fadeRightAnim1' %}>
+
+            {% if section.settings.subheading != blank %}
+              <h3 class="index-subheading">{{ section.settings.subheading | escape }}</h3>
+            {% endif %}  
+
+            {% if section.settings.heading != blank %}
+              <h2 class="index-newsletter-title">{{ section.settings.heading | escape }}</h2>
+            {% endif %}
+
+            {% if section.settings.text != blank %}
+              <div class="homepage-subheader h4">{{ section.settings.text }}</div>
+            {% endif %}
+
+          </header>
+        {% endif %}
+
+      {% endif %}
+
+      <div class="index-newsletter-content {% if success %}align-center{% endif %}" {%- if section.settings.text != blank -%}{% render 'animations', type: 'fadeLeftAnim3' %}{% else %}{% render 'animations', type: 'fadeLeftAnim2' %}{% endif %}>
+
+        {% if form.posted_successfully? %}
+          <p>{{ 'password.mailing_list.success' | t }}</p>
+        {% else %}
+
+          {% if form.errors %}
+            <div class="form-errors">
+              {{ form.errors | default_errors }}
+            </div>
+          {% endif %}
+
+          <input type="hidden" name="contact[tags]" value="{{ section.settings.customerTag | escape }}">
+
+          <div class="form-field">
+            <label class="form-label" for="mailing-list-email" aria-label="{{ 'modules.mailing_list.email' | t }}">
+              <input class="form-input form-full" type="email" name="contact[email]" id="mailing-list-email" placeholder="{{ 'modules.mailing_list.email' | t }}" value="{{ customer.email }}">
+            </label>
+
+            <button class="button hover-animation {% if isPassword %}leader{% endif %}" type="submit" value="{{ 'modules.mailing_list.join' | t }}" aria-label="{{ 'modules.mailing_list.join' | t }}"><span class="button-text">{{ 'modules.mailing_list.join' | t }}</span></button>
+          </div>
+
+        {% endif %}
+
+      </div>
+
+    {% endform %}
+  </div>
+</section>
+
+<style type="text/css">
+
+    #shopify-section-{{ section.id }} .index-newsletter-inner {
+      background-color: {{ section.settings.colorBackground }};
+      color: {{ section.settings.colorText }};
+    }
+
+    #shopify-section-{{ section.id }} .index-newsletter-title,
+    #shopify-section-{{ section.id }} .index-subheading {
+      color: {{ section.settings.colorText }};
+    }
+
+    {% capture rgb %}
+      {{- section.settings.colorText | color_extract: 'red' -}},
+      {{- section.settings.colorText | color_extract: 'green' -}},
+      {{- section.settings.colorText | color_extract: 'blue' -}}
+    {% endcapture %}
+
+    #shopify-section-{{ section.id }} .form-input::-webkit-input-placeholder { color: rgba({{ rgb }}, 0.7); }
+    #shopify-section-{{ section.id }} .form-input::-moz-placeholder { color: rgba({{ rgb }}, 0.7); }
+    #shopify-section-{{ section.id }} .form-input::-ms-placeholder { color: rgba({{ rgb }}, 0.7); }
+    #shopify-section-{{ section.id }} .form-input::placeholder { color: rgba({{ rgb }}, 0.7); }
+
+    #shopify-section-{{ section.id }} .form-input {
+      {% if section.settings.colorBackground != '#ffffff' %}
+      	border: 0;
+      {% endif %}
+      color: {{ section.settings.colorText }};
+      background-color: {{ section.settings.colorBackground | color_lighten: 10 }};
+    }
+</style>
+
+{% schema %}
+{
+    "name": {
+        "en": "Newsletter",
+        "de": "Newsletter",
+        "es": "Boletín de noticias",
+        "fr": "Bulletin d'information",
+        "pt-PT": "Newsletter"
+    },
+    "class": "section-index-newsletter",
+    "settings": [
+        {
+            "type": "text",
+            "id": "subheading",
+            "label": {
+                "en": "Subheading",
+                "de": "Unterüberschrift",
+                "es": "Subencabezado",
+                "fr": "Sous-rubrique",
+                "pt-PT": "Subtítulo"
+            }
+        },
+        {
+            "type": "text",
+            "id": "heading",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            },
+            "default": {
+              "en": "Expand your email list",
+              "de": "Erweitern Sie Ihren E-Mail-Verteiler",
+              "es": "Expanda su lista de correo electrónico",
+              "fr": "Élargissez votre liste de diffusion",
+              "pt-PT": "Expanda a sua lista de emails"
+            }
+        },
+        {
+            "type": "richtext",
+            "id": "text",
+            "label": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            }
+        },
+        {
+            "type": "text",
+            "id": "customerTag",
+            "label": {
+                "en": "Tag to apply to customer",
+                "de": "Tag, mit dem Kunden gekennzeichnet werden können",
+                "es": "Etiqueta para aplicar al cliente",
+                "fr": "Balise à appliquer au client",
+                "pt-PT": "Etiqueta a aplicar ao cliente"
+            }
+        },
+        {
+            "type": "color",
+            "id": "colorText",
+            "label": {
+                "en": "Text color",
+                "de": "Textfarbe",
+                "es": "Color del texto",
+                "fr": "Couleur du texte",
+                "pt-PT": "Cor do texto"
+            },
+            "default": "#333333"
+        },
+        {
+            "type": "color",
+            "id": "colorBackground",
+            "label": {
+                "en": "Background color",
+                "de": "Hintergrundfarbe",
+                "es": "Color de fondo",
+                "fr": "Couleur d'arrière-plan",
+                "pt-PT": "Cor de fundo"
+            },
+            "default": "#EDEDED"
+        }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Newsletter",
+                "de": "Newsletter",
+                "es": "Boletín de noticias",
+                "fr": "Bulletin d'information",
+                "pt-PT": "Newsletter"
+            },
+            "category": {
+                "en": "Promotional",
+                "de": "Werbung",
+                "es": "Promocional",
+                "fr": "Promotionnel",
+                "pt-PT": "Promocional"
+            }
+        }
+    ]
+}
+{% endschema %}

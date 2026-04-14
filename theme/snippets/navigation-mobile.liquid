@@ -1,0 +1,64 @@
+<div class="main-navigation-wrapper navigation-mobile">
+  <nav class="main-navigation" data-mobile-navigation>
+    <ul class="navigation-list">
+      {% for link in linklists[section.settings.navigationMainMenu].links %}
+
+        {% assign hasChildren = false %}
+        {% if link.levels > 0 %}
+          {% assign hasChildren = true %}
+        {% endif %}
+
+        <li class="navigation-list-item {% if hasChildren %}has-dropdown{% endif %} {% render 'sale-checker', item: link %}" data-navigation-item>
+
+          <div class="navigation-list-item-inner">
+            <a href="{{ link.url }}">{{ link.title }}</a>
+            {% if hasChildren %}
+              <button class="navigation-dropdown-toggle" type="button" data-navigation-dropdown-toggle aria-expanded="false" aria-controls="navigation-list-secondary-{{ forloop.index0 }}">
+                <svg><use xlink:href="#icon-plus"></use></svg>
+              </button>
+            {% endif %}
+          </div>
+
+          {% if hasChildren %}
+
+            <ul class="navigation-list secondary" id="navigation-list-secondary-{{ forloop.index0 }}" aria-label="submenu" aria-hidden="true">
+              {% for link_secondary in link.links %}
+
+                {% assign hasChildren = false %}
+                {% if link_secondary.levels > 0 %}
+                  {% assign hasChildren = true %}
+                {% endif %}
+
+                <li class="navigation-list-item {% if hasChildren %}has-dropdown{% endif %} {% render 'sale-checker', item: link_secondary %}" data-navigation-item>
+                  <div class="navigation-list-item-inner">
+                    <a href="{{ link_secondary.url }}">{{ link_secondary.title }}</a>
+                    {% if hasChildren %}
+                      <button class="navigation-dropdown-toggle" type="button" data-navigation-dropdown-toggle aria-expanded="false" aria-controls="navigation-list-tertiary-{{ forloop.index0 }}">
+                        <svg><use xlink:href="#icon-plus"></use></svg>
+                      </button>
+                    {% endif %}
+                  </div>
+
+                  {% if hasChildren %}
+                    <ul class="navigation-list tertiary" id="navigation-list-tertiary-{{ forloop.index0 }}" aria-label="submenu" aria-hidden="true">
+                      {% for link_tertiary in link_secondary.links %}
+                        <li class="navigation-list-item {% render 'sale-checker', item: link_tertiary %}">
+                          <div class="navigation-list-item-inner">
+                            {{ link_tertiary.title | link_to: link_tertiary.url }}
+                          </div>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+
+          {% endif %}
+
+        </li>
+
+      {% endfor %}
+    </ul>
+  </nav>
+</div>

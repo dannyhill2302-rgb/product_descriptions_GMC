@@ -1,0 +1,148 @@
+<section
+  class="index-rich-text"
+  data-section-id="{{ section.id }}"
+  data-section-type="home"
+  data-section-child="rich-text"
+>
+
+	{% if section.settings.subheading != blank or section.settings.title != blank %}
+		<header class="index-header" {% render 'animations', type: 'fadeUpAnim1' %}>		
+            {% if section.settings.subheading != blank %}
+                <h3 class="index-subheading">{{ section.settings.subheading | escape }}</h3>
+            {% endif %}
+
+            {% if section.settings.title != blank %}
+                <h2>{{ section.settings.title | escape }}</h2>
+            {% endif %}
+		</header>
+	{% endif %}
+
+	{% if section.settings.text != blank %}
+		<div class="index-rich-text__text"
+			{% if section.settings.subheading != blank or section.settings.title != blank %}
+				{% render 'animations', type: 'fadeUpAnim2' %}
+			{% else %}
+				{% render 'animations', type: 'fadeUpAnim1' %}
+			{% endif %}
+		>
+			{{ section.settings.text }}
+		</div>
+	{% endif %}
+
+	{% if section.settings.button_label != blank and section.settings.button_link != blank %}
+		<div
+        {% if section.settings.subheading != blank or section.settings.title != blank %}
+                {% render 'animations', type: 'fadeUpAnim2' %}
+            {% else %}
+                {% render 'animations', type: 'fadeUpAnim1' %}
+            {% endif %}
+		>
+			<a href="{{ section.settings.button_link }}" class="rich-text-button button hover-animation">
+				<span class="button-text">{{ section.settings.button_label }}</span>
+			</a>
+		</div>
+	{% endif %}
+
+</section>
+
+{% schema %}
+{
+    "name": {
+        "en": "Rich text",
+        "de": "Rich Text",
+        "es": "Texto enriquecido",
+        "fr": "Texte riche",
+        "pt-PT": "Texto rico"
+    },
+    "class": "rich-text",
+    "settings": [
+        {
+            "type": "text",
+            "id": "subheading",
+            "label": {
+                "en": "Subheading",
+                "de": "Unterüberschrift",
+                "es": "Subencabezado",
+                "fr": "Sous-rubrique",
+                "pt-PT": "Subtítulo"
+            }
+        },
+        {
+            "type": "text",
+            "id": "title",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            },
+            "default": {
+                "en": "Welcome to our store",
+                "de": "Willkommen in unserem Store",
+                "es": "Bienvenido a nuestra tienda",
+                "fr": "Bienvenue dans notre magasin",
+                "pt-PT": "Bem-vindo/a à nossa loja"
+            }
+        },
+        {
+            "type": "richtext",
+            "id": "text",
+            "label": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            },
+            "default": {
+                "en": "<p>Use this text block to show store announcements, advertise products and collections, or simply welcome visitors to your store.</p>",
+                "de": "<p>Verwenden Sie diesen Textblock, um Ankündigungen zu zeigen, Produkte und Kollektionen zu bewerben oder einfach Besucher in Ihrem Store willkommen zu heißen.</p>",
+                "es": "<p>Utilice este bloque de texto para mostrar avisos de la tienda, anunciar productos y colecciones o, simplemente, para dar la bienvenida a los visitantes. </p>",
+                "fr": "<p>Utilisez ce bloc de texte pour afficher les annonces en magasin, annoncer des produits et des collections ou simplement accueillir les visiteurs dans votre magasin. </p>",
+                "pt-PT": "<p>Utilize este bloco de texto para exibir anúncios da loja, publicitar produtos e coleções, ou apenas dar as boas-vindas às pessoas que visitam a sua loja.</p>"
+            }
+        },
+        {
+            "type": "text",
+            "id": "button_label",
+            "label": {
+                "en": "Button label",
+                "de": "Button-Bezeichnung",
+                "es": "Etiqueta del botón",
+                "fr": "Étiquette du bouton",
+                "pt-PT": "Etiqueta do botão"
+            }
+        },
+        {
+            "type": "url",
+            "id": "button_link",
+            "label": {
+                "en": "Button link",
+                "de": "Buttonlink",
+                "es": "Enlace del botón",
+                "fr": "Lien du bouton",
+                "pt-PT": "Ligação do botão"
+            }
+        }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Rich text",
+                "de": "Rich Text",
+                "es": "Texto enriquecido",
+                "fr": "Texte riche",
+                "pt-PT": "Texto rico"
+            },
+            "category": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            }
+        }
+    ]
+}
+{% endschema %}

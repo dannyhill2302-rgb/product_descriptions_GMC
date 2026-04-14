@@ -1,0 +1,66 @@
+{%- assign image_url = image_object | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+
+{% if image_secondary_object != false and image_secondary_object != null %}
+  {%- assign has_secondary_image = true -%}
+  {%- assign image_secondary_url = image_secondary_object | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+{% endif %}
+
+{% if secondary_image_enabled == true and has_secondary_image == true %}
+  {%- assign show_secondary_image = true -%}
+{% endif %}
+
+<div class="height-inherit{% if show_secondary_image %} has-secondary-image{% endif %} {{ container_class }}">
+  {% if image_link %}
+    <a
+      class="{{ image_link_class }}"
+      href="{{ image_link }}"
+      {% if image_tabindex %}
+      tabindex="{{ image_tabindex }}"
+      {% endif %}></a>
+    {% endif %}
+
+    {%- if image_additional_content != blank -%}
+      {{- image_additional_content -}}
+    {%- endif -%}
+
+    <img
+      src="{{ "capitalPreloadImage.svg" | asset_url }}"
+      class="{{ image_class }} lazyload is-lazy supports-js"
+      data-src="{{ image_url }}"
+      data-widths="[{{ image_widths }}]"
+      data-sizes="auto"
+      alt="{{ image_object.alt | escape }}"
+      {{ image_attributes }}>
+
+    {% if show_secondary_image %}
+      <img
+        src="{{ "capitalPreloadImage.svg" | asset_url }}"
+        class="{{ image_class }} lazyload is-lazy supports-js  {{ image_class }}--secondary"
+        data-src="{{ image_secondary_url }}"
+        data-widths="[{{ image_widths }}]"
+        data-sizes="auto"
+        alt=""
+        {{ image_attributes }}>
+    {% endif %}
+
+    {% if image_link %}
+    </a>
+  {% endif %}
+</div>
+
+{% if image_noscript_width %}
+  <noscript>
+    <img
+      src="{{ image_object | img_url: image_noscript_width }}"
+      srcset="{{ image_object | img_url: image_noscript_width }} 1x, {{ image_object | img_url: image_noscript_width, scale: 2 }} 2x, {{ image_object | img_url: image_noscript_width, scale: 3 }} 3x"
+      alt=" {{ image_object.alt | escape }}">
+  </noscript>
+{% endif %}
+
+{% assign image_noscript_width = false %}
+{% assign image_link = false %}
+{% assign image_link_class = '' %}
+{% assign image_tabindex = 1 %}
+{% assign image_default = false %}
+{% assign image_additional_content = '' %}
+{% assign image_dimension = false %}

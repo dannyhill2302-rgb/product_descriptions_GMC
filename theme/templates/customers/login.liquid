@@ -1,0 +1,95 @@
+<div data-account>
+  <div class="account-login-wrapper visible" data-account-login>
+
+    <h1 class="page-header">{{ 'customer.login.title' | t }}</h1>
+
+    {% form 'customer_login' %}
+
+      {% if form.errors %}
+        <div class="form-error">
+          {{ form.errors | default_errors }}
+        </div>
+      {% endif %}
+
+      <div class="form-field">
+        <label class="form-label" for="login-email" aria-label="{{ 'customer.login.email' | t }}">
+          <span class="form-field-title">{{ 'customer.login.email' | t }}</span>
+          <input class="form-input form-full {% if form.errors contains 'email' %}error{% endif %}" type="email" name="customer[email]" id="login-email" placeholder="{{ 'customer.login.email' | t }}" autocorrect="off" autocapitalize="off" autofocus>
+        </label>
+      </div>
+
+      {% if form.password_needed %}
+        <div class="form-field">
+          <label class="form-label" for="login-password" aria-label="{{ 'customer.login.password' | t }}">
+            <span class="form-field-title">{{ 'customer.login.password' | t }}</span>
+            <input class="form-input form-full {% if form.errors contains 'password' %}error{% endif %}" type="password" value="" name="customer[password]" id="login-password" placeholder="{{ 'customer.login.password' | t }}">
+          </label>
+        </div>
+      {% endif %}
+
+      <div class="form-actions">
+        <button class="button hover-animation leader" type="submit" value="{{ 'customer.login.log_in' | t }}" aria-label="{{ 'customer.login.log_in' | t }}"><span class="button-text">{{ 'customer.login.log_in' | t }}</span></button>
+
+        {% if form.password_needed %}
+          <button class="button sidekick" type="button" aria-label="{{ 'customer.login.forgot_password' | t }}" data-account-reset-password-toggle>{{ 'customer.login.forgot_password' | t }}</button>
+        {% endif %}
+      </div>
+
+    {% endform %}
+
+    {% if shop.checkout.guest_login %}
+      <div class="account-guest-checkout">
+        {% form 'guest_login' %}
+          <div class="form-submit">
+            <input class="button form-full" type="submit" value="{{ 'customer.login.guest_continue' | t }}" aria-label="{{ 'customer.login.guest_continue' | t }}">
+          </div>
+        {% endform %}
+      </div>
+    {% else %}
+      <div class="account-create-account">
+        <a class="button hover-animation form-full" href="{{ routes.account_register_url }}" aria-label="{{ 'customer.login.create_account' | t }}"><span class="button-text">{{ 'customer.login.create_account' | t }}</span></a>
+      </div>
+    {% endif %}
+  </div>
+
+
+  <div class="account-recover-password-wrapper" data-account-reset-password>
+
+    <h2 class="page-header">{{ 'customer.recover_password.title' | t }}</h2>
+
+    {% form 'recover_customer_password' %}
+
+      {% if form.posted_successfully? %}
+
+        <script>window.location.hash = 'recover';</script>
+        <div class="form-success">
+          {{ 'customer.recover_password.success' | t }}
+        </div>
+
+      {% else %}
+
+        <p>{{ 'customer.recover_password.subtext' | t }}</p>
+
+        {% if form.errors %}
+          <div class="form-error">
+            {{ form.errors | default_errors }}
+          </div>
+        {% endif %}
+
+        <div class="form-field">
+          <label class="form-label" for="recover-email" aria-label="{{ 'customer.recover_password.email' | t }}">
+            <span class="form-field-title">{{ 'customer.recover_password.email' | t }}</span>
+            <input class="form-input form-full" type="email" value="" name="email" id="recover-email" placeholder="{{ 'customer.recover_password.email' | t }}" autocorrect="off" autocapitalize="off">
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button class="button hover-animation leader" type="submit" value="{{ 'customer.recover_password.submit' | t }}" aria-label="{{ 'customer.recover_password.submit' | t }}"><span class="button-text">{{ 'customer.recover_password.submit' | t }}</span></button>
+          <button class="button sidekick" type="button" aria-label="{{ 'customer.recover_password.cancel' | t }}" data-account-reset-password-toggle>{{ 'customer.recover_password.cancel' | t }}</button>
+        </div>
+
+      {% endif %}
+    {% endform %}
+
+  </div>
+</div>

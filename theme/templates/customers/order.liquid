@@ -1,0 +1,147 @@
+<h1 class="page-header">{{ 'customer.order.title' | t: order_number: order.name }}</h1>
+
+<div class="page-wrapper">
+  <div class="account-wrapper grid">
+    <main class="order grid-item-66">
+      <div class="order-status grid">
+        <h3 class="account-header">{{ 'customer.order.order_status' | t }}</h3>
+
+        <div class="order-status-item grid-item grid-item-33">
+          <strong>{{ 'customer.order.date' | t }}</strong>
+          <span>{{ order.created_at | date: "%B %d, %Y %I:%M%p" }}</span>
+
+          {% if order.cancelled %}
+            <div class="order-status-cancelled">
+              {% assign cancelled_at = order.cancelled_at | date: "%B %d, %Y %I:%M%p" %}
+              <span>{{ 'customer.order.cancelled' | t: date: cancelled_at }}</span>
+              <span>{{ 'customer.order.cancelled_reason' | t: reason: order.cancel_reason }}</span>
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="order-status-item grid-item grid-item-33">
+          <strong>{{ 'customer.order.payment_status' | t }}</strong>
+          <span>{{ order.financial_status_label }}</span>
+        </div>
+
+        <div class="order-status-item grid-item grid-item-33">
+          <strong>{{ 'customer.order.fulfillment_status' | t }}</strong>
+          <span>{{ order.fulfillment_status_label }}</span>
+        </div>
+      </div>
+
+      <div class="order-headers grid">
+        <span class="grid-item-25">{{ 'customer.order.product' | t }}</span>
+        <span class="grid-item-15">{{ 'customer.order.price' | t }}</span>
+        <span class="grid-item-15">{{ 'customer.order.quantity' | t }}</span>
+        <span class="grid-item-15">{{ 'customer.order.subtotal' | t }}</span>
+        <span class="grid-item-15">{{ 'customer.order.discount' | t }}</span>
+        <span class="grid-item-15">{{ 'customer.order.total' | t }}</span>
+      </div>
+
+      {% for line_item in order.line_items %}
+        <div class="order-details grid" id="{{ line_item.id }}">
+          <div class="grid-item-25">
+            {{ line_item.title | link_to: line_item.product.url }}
+            
+            {% if line_item.selling_plan_allocation %}
+              <div class="product__selling-plan">{{ line_item.selling_plan_allocation.selling_plan.name }}</div>
+            {% endif %}
+
+            {% if line_item.fulfillment %}
+              <div class="note">
+                {% assign created_at = line_item.fulfillment.created_at | date: format: 'month_day_year' %}
+                {{ 'customer.order.fulfilled_at' | t: date: created_at }}
+                {% if line_item.fulfillment.tracking_number %}
+                  <a href="{{ line_item.fulfillment.tracking_url }}">{{ line_item.fulfillment.tracking_company }} #{{ line_item.fulfillment.tracking_number}}</a>
+                {% endif %}
+              </div>
+            {% endif %}
+          </div>
+          <span class="grid-item-15 money" data-label="{{ 'customer.order.price' | t }}">
+            {{ line_item.original_price | money }}
+            {% render 'unit-price-measurement-variant', variant: line_item.variant %}
+          </span>
+          <span class="grid-item-15" data-label="{{ 'customer.order.quantity' | t }}">
+            {{ line_item.quantity }}
+          </span>
+          <span class="grid-item-15 money" data-label="{{ 'customer.order.subtotal' | t }}">
+            {{ line_item.original_line_price | money }}
+          </span>
+          <span class="grid-item-15" data-label="{{ 'customer.order.discount' | t }}">
+            {% for discount_allocation in line_item.line_level_discount_allocations %}
+              -<span class="money">{{ discount_allocation.amount | money }}</span>
+              <span class="order-details__discount-title">
+                {{ discount_allocation.discount_application.title }}
+              </span>
+            {% else %}
+              &ndash;
+            {% endfor %}
+          </span>
+          <span class="grid-item-15 money" data-label="{{ 'customer.order.total' | t }}">
+            {{ line_item.final_line_price | money }}
+          </span>
+        </div>
+      {% endfor %}
+
+      <div class="order-totals-wrapper">
+        <div class="order-totals">
+          <div class="order-total-line order-subtotal grid">
+            <span class="grid-item-50">{{ 'customer.order.subtotal' | t }}</span>
+            <span class="grid-item-50 money">{{ order.line_items_subtotal_price | money }}</span>
+          </div>
+
+          {% for discount_application in order.cart_level_discount_applications %}
+            <div class="order-total-line order-discount grid">
+              <span class="grid-item-50">{{ 'customer.order.discount' | t }}</span>
+              <span class="grid-item-50 money">-{{ discount_application.total_allocated_amount | money }}</span>
+              <span class="grid-item-100 order-discount__title">{{ discount_application.title }}</span>
+            </div>
+          {% endfor %}
+
+          {% for shipping_method in order.shipping_methods %}
+            <div class="order-total-line order-shipping grid">
+              <span class="grid-item-50">{{ 'customer.order.shipping' | t }}</span>
+              <span class="grid-item-50 money">{{ shipping_method.price | money }}</span>
+              <span class="grid-item-100 order-shipping__title">{{ shipping_method.title }}</span>
+            </div>
+          {% endfor %}
+
+          {% for tax_line in order.tax_lines %}
+            <div class="order-total-line order-tax grid">
+              <span class="grid-item-50">{{ 'customer.order.tax' | t }}</span>
+              <span class="grid-item-50 money">{{ tax_line.price | money }}</span>
+              <span class="grid-item-100 order-tax__title">{{ tax_line.title }} {{ tax_line.rate | times: 100 }}%</span>
+            </div>
+          {% endfor %}
+
+          <div class="order-total-line order-total grid">
+            <span class="grid-item-50">{{ 'customer.order.total' | t }}</span>
+            <span class="grid-item-50 money">{{ order.total_price | money }}</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="order-sidebar grid-item-33">
+      <div class="order-billing-address grid-item-100">
+        <h3 class="account-header">{{ 'customer.order.billing_address' | t }}</h3>
+
+        {% assign address = order.billing_address %}
+        <p>
+          {% render "customer-address", address: address %}
+        </p>
+      </div>
+
+      <div class="order-shipping-address grid-item-100">
+        <h3 class="account-header">{{ 'customer.order.shipping_address' | t }}</h3>
+
+        {% assign address = order.shipping_address %}
+        <p>
+          {% render "customer-address", address: address %}
+        </p>
+      </div>
+    </aside>
+  </div>
+
+</div>

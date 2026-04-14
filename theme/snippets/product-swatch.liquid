@@ -1,0 +1,47 @@
+{% assign found_option = false %}
+{% assign option_index = 0 %}
+
+{% for option in product.options %}
+  {% if option == product-swatch %}
+    {% assign found_option = true %}
+    {% assign option_index = forloop.index0 %}
+  {% endif %}
+{% endfor %}
+
+{% assign isColor = false %}
+{% if found_option and option == settings.productColorSwatches %}
+  {% assign isColor = true %}
+{% endif %}
+
+<div class="form-field form-field-swatch {% if isColor %}swatch-color{% else %}swatch-other{% endif %}" data-product-swatch="{{ option_index | plus: 1 }}">
+  <span class="form-field-title">{{ product-swatch }}</span>
+  {% assign values = "" %}
+  {% for variant in product.variants %}
+    {% assign value = variant.options[option_index] %}
+
+    {% unless values contains value %}
+      {% assign values = values | join: "," %}
+      {% assign values = values | append: "," | append: value %}
+      {% assign values = values | split: "," %}
+
+      <div class="form-swatch-item" data-product-swatch-value="{{ value | escape }}">
+
+        {% if isColor %}
+          <div class="tooltip">{{ value }}</div>
+        {% endif %}
+
+        <input class="form-radio" id="swatch-{{ option_index }}-{{ value | handle }}" type="radio" name="{{ product.id }}-option-{{ option_index }}" value="{{ value | escape }}">
+
+        <label
+          for="swatch-{{ option_index }}-{{ value | handle }}"
+          aria-label="{{ value | escape }}"
+          {% if isColor %}
+            style="background-color: {{ value | split: ' ' | join: '' | downcase }}"
+            data-color="{{ value | split: ' ' | join: '' | downcase }}"
+          {% endif %}>
+          {% unless isColor %}{{ value }}{% endunless %}
+        </label>
+      </div>
+    {% endunless %}
+  {% endfor %}
+</div>

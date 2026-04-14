@@ -1,0 +1,558 @@
+{% assign hasSubheading = false %}
+{% if section.settings.indexBlogSubheading != blank %}
+  {% assign hasSubheading = true %}
+{% endif %}
+
+{% assign hasHeading = false %}
+{% if section.settings.indexBlogHeading != blank %}
+  {% assign hasHeading = true %}
+{% endif %}
+
+{% assign hasText = false %}
+{% if section.settings.indexBlogText != blank %}
+  {% assign hasText = true %}
+{% endif %}
+
+<section class="index-blog" data-section-id="{{ section.id }}" data-section-type="home" data-section-child="index-blog">
+
+  {% if hasSubheading or hasHeading or hasText %}
+    <header class="index-header">
+      {% if hasSubheading %}
+        <h3 class="index-subheading">{{ section.settings.indexBlogSubheading | escape }}</h3>
+      {% endif %}
+        {% if hasHeading %}
+        <h2>{{ section.settings.indexBlogHeading | escape }}</h2>
+      {% endif %}
+      {% if hasText %}
+        <div class="homepage-subheader">{{ section.settings.indexBlogText }}</div>
+      {% endif %}
+    </header>
+  {% endif %}
+
+  <div class="grid">
+
+    {% comment %} vvvvv START PLACEHOLDER vvvvv {% endcomment %}
+    {% unless section.blocks.first %}
+
+      {% for i in (1..3) %}
+        <article
+          class="index-blog-item grid-item-33 index-blog-item--image---{{ section.settings.imageSize }}{% if image %} image-content{% else %} text-content{% endif %}"
+          data-block-id="{{ block.id }}"
+          {{ block.shopify_attributes }}
+          {% capture delayAmount %}{% cycle '200', '400', '600', '800' %}{% endcapture %}
+          {% render 'animations', type: 'fadeCycle', delay: delayAmount %}>
+
+          <figure class="svg-placeholder">
+            {% capture index %}{% cycle '1', '2', '3', '4', '5', '6' %}{% endcapture %}
+            {{ 'collection-' | append: index | placeholder_svg_tag }}
+          </figure>
+
+          <div class="index-blog-item-content">
+            <div>
+              <h3 class="index-blog-title">{{ "layout.onboarding.blog_item_title" | t }}</h3>
+              <p class="index-blog-text">{{ "layout.onboarding.blog_item_text" | t }}</p>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+
+    {% endunless %}
+    {% comment %} ^^^^^ END PLACEHOLDER ^^^^^ {% endcomment %}
+
+    {% assign block = section.blocks.first %}
+
+    {% case section.settings.post_limit %}
+      {% when 2 %}
+        {% assign itemSize = "50" %}
+        {% assign image_widths = '270, 460, 540, 680, 810, 920, 1080, 1380, 1620' %}
+        {% assign image_noscript_width = '680x' %}
+      {% when 3 %}
+        {% assign itemSize = "33" %}
+        {% assign image_widths = '360, 460, 720, 920, 1080, 1380' %}
+        {% assign image_noscript_width = '540x' %}
+      {% else %}
+        {% assign itemSize = "25" %}
+        {% assign image_widths = '260, 340, 460, 520, 700, 780, 920, 1020, 1380' %}
+        {% assign image_noscript_width = '225x' %}
+    {% endcase %}
+
+    {% case block.type %}
+
+      {% when "article" %}
+
+        {% for i in (1..section.settings.post_limit) %}
+          {% assign blog_post = 'blog_post_' | append: i %}
+          {% assign current_post = articles[block.settings[blog_post]] %}
+
+          {% unless current_post == empty %}
+
+            <article
+              class="index-blog-item grid-item-{{ itemSize }} index-blog-item--image---{{ section.settings.imageSize }}{% if current_post.image %} image-content{% else %} text-content{% endif %}"
+              data-block-id="{{ block.id }}"
+              {{ block.shopify_attributes }}
+              {% capture delayAmount %}{% cycle '200', '400', '600', '800' %}{% endcapture %}
+              {% render 'animations', type: 'fadeCycle', delay: delayAmount %}>
+
+              {% if current_post.image %}
+                {% if section.settings.imageSize == 'natural' %}
+                  <figure>
+                    {%
+                      render 'image',
+                      image_object: current_post.image,
+                      image_widths: image_widths,
+                      image_noscript_width: image_noscript_width,
+                      image_additional_content: false,
+                      image_class: false,
+                      image_attributes: false
+                    %}
+                    <a class="index-blog-link" href="{{ current_post.url }}"></a>
+                  </figure>
+                {% else %}
+                  <a href="{{ current_post.url }}" aria-label="{{ current_post.image.alt }}">
+                    {%
+                      render 'image-bg',
+                      image_class: 'index-blog-item--image',
+                      image: current_post.image,
+                      image_default: false,
+                      image_sizes: false,
+                      image_additional_content: false,
+                      image_dimension: false,
+                      image_link: false
+                    %}
+                  </a>
+                {% endif %}
+              {% endif %}
+
+              <div class="index-blog-item-content">
+                <div>
+                  {% if section.settings.showDate %}
+                    <time class="index-blog-published">{{ current_post.published_at | date: format: 'month_day_year' }}</time>
+                  {% endif %}
+
+                  <a class="index-blog-title" href="{{ current_post.url }}">
+                    <h3>{{ current_post.title }}</h3>
+                  </a>
+
+                  {% if section.settings.showAuthor %}
+                    <div class="index-blog-author">{{ 'modules.blog.posted_by' | t: author: current_post.author }}</div>
+                  {% endif %}
+
+                  <p class="index-blog-text">{{ current_post.excerpt_or_content | strip_html | truncatewords: 30 }}</p>
+                </div>
+              </div>
+            </article>
+
+          {% else %}
+
+            <article
+              class="index-blog-item grid-item-{{ itemSize }} index-blog-item--image---{{ section.settings.imageSize }}{% if image %} image-content{% else %} text-content{% endif %}"
+              data-block-id="{{ block.id }}"
+              {{ block.shopify_attributes }}
+              {% capture delayAmount %}{% cycle '200', '400', '600', '800' %}{% endcapture %}
+              {% render 'animations', type: 'fadeCycle', delay: delayAmount %}>
+
+              <figure class="svg-placeholder">
+                {% capture index %}{% cycle '1', '2', '3', '4', '5', '6' %}{% endcapture %}
+                {{ 'collection-' | append: index | placeholder_svg_tag }}
+              </figure>
+
+              <div class="index-blog-item-content">
+                <div>
+                  <h3 class="index-blog-title">{{ "layout.onboarding.blog_item_title" | t }}</h3>
+                  <p class="index-blog-text">{{ "layout.onboarding.blog_item_text" | t }}</p>
+                </div>
+              </div>
+            </article>
+
+          {% endunless %}
+
+        {% endfor %}
+
+      {% when "blog" %}
+
+        {% assign selected_blog = blogs[block.settings.blog] %}
+
+        {% unless selected_blog == empty %}
+
+          {% for article in selected_blog.articles limit: section.settings.post_limit %}
+            <article
+              class="index-blog-item grid-item-{{ itemSize }} index-blog-item--image---{{ section.settings.imageSize }}{% if article.image %} image-content{% else %} text-content{% endif %}"
+              data-block-id="{{ block.id }}"
+              {{ block.shopify_attributes }}
+              {% capture delayAmount %}{% cycle '200', '400', '600', '800' %}{% endcapture %}
+              {% render 'animations', type: 'fadeCycle', delay: delayAmount %}>
+
+              {% if article.image %}
+                {% if section.settings.imageSize == 'natural' %}
+                  <figure>
+                    {%
+                      render 'image',
+                      image_object: article.image,
+                      image_widths: image_widths,
+                      image_noscript_width: image_noscript_width,
+                      image_additional_content: false,
+                      image_class: false,
+                      image_attributes: false
+                    %}
+                    <a class="index-blog-link" href="{{ article.url }}"></a>
+                  </figure>
+                {% else %}
+                  <a href="{{ article.url }}" aria-label="{{ article.image.alt }}">
+                    {%
+                      render 'image-bg',
+                      image_class: 'index-blog-item--image',
+                      image: article.image,
+                      image_default: image_default,
+                      image_sizes: false,
+                      image_additional_content: false,
+                      image_dimension: false,
+                      image_link: false
+                    %}
+                  </a>
+                {% endif %}
+              {% endif %}
+
+              <div class="index-blog-item-content">
+                <div>
+                  {% if section.settings.showDate %}
+                    <time class="index-blog-published">{{ article.published_at | date: format: 'month_day_year' }}</time>
+                  {% endif %}
+
+                  <a class="index-blog-title" href="{{ article.url }}">
+                    <h3>{{ article.title }}</h3>
+                  </a>
+
+                  {% if section.settings.showAuthor %}
+                    <div class="index-blog-author">{{ 'modules.blog.posted_by' | t: author: article.author }}</div>
+                  {% endif %}
+
+                  <p class="index-blog-text">{{ article.excerpt_or_content | strip_html | truncatewords: 30 }}</p>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+
+        {% else %}
+
+          {% for i in (1..section.settings.post_limit) %}
+            <article
+              class="index-blog-item grid-item-{{ itemSize }} index-blog-item--image---{{ section.settings.imageSize }}{% if image %} image-content{% else %} text-content{% endif %}"
+              data-block-id="{{ block.id }}"
+              {{ block.shopify_attributes }}
+              {% capture delayAmount %}{% cycle '200', '400', '600', '800' %}{% endcapture %}
+              {% render 'animations', type: 'fadeCycle', delay: delayAmount %}>
+
+              <figure class="svg-placeholder">
+                {% capture index %}{% cycle '1', '2', '3', '4', '5', '6' %}{% endcapture %}
+                {{ 'collection-' | append: index | placeholder_svg_tag }}
+              </figure>
+
+              <div class="index-blog-item-content">
+                <div>
+                  <h3 class="index-blog-title">{{ "layout.onboarding.blog_item_title" | t }}</h3>
+                  <p class="index-blog-text">{{ "layout.onboarding.blog_item_text" | t }}</p>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+
+        {% endunless %}
+
+    {% endcase %}
+
+  </div>
+
+</section>
+
+{% schema %}
+{
+    "name": {
+        "en": "Blog posts",
+        "de": "Blogposts",
+        "es": "Publicaciones del blog",
+        "fr": "Articles de blog",
+        "pt-PT": "Publicações no blog"
+    },
+    "class": "section-index-blog",
+    "max_blocks": 1,
+    "settings": [
+        {
+            "type": "text",
+            "id": "indexBlogSubheading",
+            "label": {
+                "en": "Subheading",
+                "de": "Unterüberschrift",
+                "es": "Subencabezado",
+                "fr": "Sous-rubrique",
+                "pt-PT": "Subtítulo"
+            }
+        },
+        {
+            "type": "text",
+            "id": "indexBlogHeading",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            }
+        },
+        {
+            "type": "richtext",
+            "id": "indexBlogText",
+            "label": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            }
+        },
+        {
+            "type": "range",
+            "id": "post_limit",
+            "min": 2,
+            "max": 4,
+            "step": 1,
+            "label": {
+                "en": "Posts to show",
+                "de": "Anzuzeigende Beiträge",
+                "es": "Publicaciones para mostrar",
+                "fr": "Articles à montrer",
+                "pt-PT": "Publicações a apresentar"
+            },
+            "default": 3
+        },
+        {
+            "type": "checkbox",
+            "id": "showDate",
+            "label": {
+                "en": "Show date",
+                "de": "Datum anzeigen",
+                "es": "Mostrar fecha",
+                "fr": "Date d'affichage",
+                "pt-PT": "Mostrar data"
+            },
+            "default": true
+        },
+        {
+            "type": "checkbox",
+            "id": "showAuthor",
+            "label": {
+                "en": "Show author",
+                "de": "Autor anzeigen",
+                "es": "Mostrar autor",
+                "fr": "Afficher l'auteur",
+                "pt-PT": "Mostrar autor"
+            },
+            "default": true
+        },
+        {
+            "type": "select",
+            "id": "imageSize",
+            "options": [
+                {
+                  "value": "natural",
+                  "label": {
+                      "en": "Natural",
+                      "de": "Natürlich",
+                      "es": "Natural",
+                      "fr": "Naturel",
+                      "pt-PT": "Natural"
+                  }
+                },
+                {
+                  "value": "square",
+                  "label": {
+                      "en": "Square (1:1)",
+                      "de": "Quadrat (1:1)",
+                      "es": "Cuadrado (1:1)",
+                      "fr": "Carré (1:1)",
+                      "pt-PT": "Quadrado (1:1)"
+                  }
+                },
+                {
+                  "value": "landscape",
+                  "label": {
+                      "en": "Landscape (4:3)",
+                      "de": "Landschaft (4:3)",
+                      "es": "Apaisado (4:3)",
+                      "fr": "Paysage (4:3)",
+                      "pt-PT": "Horizontal (4:3)"
+                  }
+                },
+                {
+                    "value": "portrait",
+                    "label": {
+                        "en": "Portrait (2:3)",
+                        "de": "Porträt (2:3)",
+                        "es": "Retrato (2:3)",
+                        "fr": "Portrait (2:3)",
+                        "pt-PT": "Vertical (2:3)"
+                    }
+                },
+                {
+                    "value": "wide",
+                    "label": {
+                        "en": "Wide (16:9)",
+                        "de": "Breit (16:9)",
+                        "es": "Ancho (16:9)",
+                        "fr": "Large (16:9)",
+                        "pt-PT": "Largo (16:9)"
+                    }
+                }
+            ],
+            "label": {
+              "en": "Image size",
+              "de": "Bildgröße",
+              "es": "Tamaño de la imagen",
+              "fr": "Taille de l'image",
+              "pt-PT": "Tamanho da imagem"
+            },
+            "default": "square"
+        }
+    ],
+    "blocks": [
+      {
+        "type": "article",
+        "name": {
+            "en": "Selected blog posts",
+            "de": "Ausgewählte Blogbeiträge",
+            "es": "Publicaciones de blog seleccionadas",
+            "fr": "Articles du blog sélectionnés",
+            "pt-PT": "Publicações do blogue selecionadas"
+        },
+        "settings": [
+          {
+            "type": "header",
+            "content": {
+                "en": "Selected blog posts",
+                "de": "Ausgewählte Blogbeiträge",
+                "es": "Publicaciones de blog seleccionadas",
+                "fr": "Articles du blog sélectionnés",
+                "pt-PT": "Publicações do blogue selecionadas"
+            },
+            "info": {
+                "en": "Choose the blog posts you want to feature",
+                "de": "Wählen Sie die Blogbeiträge, die Sie präsentieren möchten",
+                "es": "Elige las publicaciones del blog que quieres destacar",
+                "fr": "Choisissez les articles du blog que vous souhaitez mettre en avant",
+                "pt-PT": "Escolha as publicações do blogue que pretende apresentar"
+            }
+          },
+          {
+            "type": "article",
+            "id": "blog_post_1",
+            "label": {
+                "en": "First blog post",
+                "de": "Erster Blogbeitrag",
+                "es": "Primera publicación del blog",
+                "fr": "Premier article du blog",
+                "pt-PT": "Primeira publicação do blogue"
+            }
+          },
+          {
+            "type": "article",
+            "id": "blog_post_2",
+            "label": {
+                "en": "Second blog post",
+                "de": "Zweiter Blogbeitrag",
+                "es": "Segunda publicación del blog",
+                "fr": "Deuxième article du blog",
+                "pt-PT": "Segunda publicação do blogue"
+            }
+          },
+          {
+            "type": "article",
+            "id": "blog_post_3",
+            "label": {
+                "en": "Third blog post",
+                "de": "Dritter Blogbeitrag",
+                "es": "Tercera publicación del blog",
+                "fr": "Troisième article du blog",
+                "pt-PT": "Terceira publicação do blogue"
+            }
+          },
+          {
+            "type": "article",
+            "id": "blog_post_4",
+            "label": {
+                "en": "Fourth blog post",
+                "de": "Vierter Blogbeitrag",
+                "es": "Cuarta publicación del blog",
+                "fr": "Quatrième article du blog",
+                "pt-PT": "Quarta publicação do blogue"
+            }
+          }
+        ]
+      },
+      {
+        "type": "blog",
+        "name": {
+            "en": "Selected blog",
+            "de": "Ausgewählter Blog",
+            "es": "Blog seleccionado",
+            "fr": "Blog sélectionné",
+            "pt-PT": "Blogue selecionado"
+        },
+        "settings": [
+          {
+            "type": "header",
+            "content": {
+              "en": "Selected blog",
+              "de": "Ausgewählter Blog",
+              "es": "Blog seleccionado",
+              "fr": "Blog sélectionné",
+              "pt-PT": "Blogue selecionado"
+            },
+            "info": {
+                "en": "Choose the blog you want to feature",
+                "de": "Wählen Sie den Blog, den Sie präsentieren möchten",
+                "es": "Elige el blog que quieres destacar",
+                "fr": "Choisissez le blog que vous souhaitez mettre en avant",
+                "pt-PT": "Escolha o blogue que pretende apresentar"
+            }
+          },
+          {
+            "type": "blog",
+            "id": "blog",
+            "label": {
+                "en": "Blog",
+                "de": "Blog",
+                "es": "Blog",
+                "fr": "Blog",
+                "pt-PT": "Blog"
+            }
+          }
+        ]
+      }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Blog posts",
+                "de": "Blogposts",
+                "es": "Publicaciones del blog",
+                "fr": "Articles de blog",
+                "pt-PT": "Publicações no blog"
+            },
+            "category": {
+                "en": "Blog",
+                "de": "Blog",
+                "es": "Blog",
+                "fr": "Blog",
+                "pt-PT": "Blog"
+            },
+            "blocks": [
+              {
+                "type": "blog",
+                "settings": {
+                  "blog": "News"
+                }
+              }
+            ]
+        }
+    ]
+}
+{% endschema %}

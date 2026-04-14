@@ -1,0 +1,84 @@
+<div class="header-account-dropdown js-dependent" data-header-account-dropdown-wrapper>
+  <div class="module-content module-main-content" data-account-dropdown>
+    {% if customer %}
+      <div class="header-account-profile grid">
+        <figure class="grid-item">
+          <img
+            class="lazyload"
+            src="//www.gravatar.com/avatar/{{ customer.email | md5 }}?s=110"
+            data-src="//www.gravatar.com/avatar/{{ customer.email | md5 }}?s={width}"
+            data-widths="[55, 110]"
+            data-sizes="auto"
+            alt="{{ 'layout.header.welcome' | t: customer_name: customer.name | escape }}"
+          >
+        </figure>
+        <div class="grid-item">
+          <span>{{ 'layout.header.welcome' | t: customer_name: customer.first_name }}</span>
+          <span><a href="{{ routes.account_logout_url }}" data-header-account-dropdown-item><span class="button-text">{{ 'layout.header.logout' | t }}</span></a></span>
+        </div>
+      </div>
+
+      <div class="header-account-module header-account-links">
+        <ul>
+          <li><a href="{{ routes.account_url }}" data-header-account-dropdown-item>{{ 'layout.header.orders' | t }}</a></li>
+          <li><a href="{{ routes.account_addresses_url }}" data-header-account-dropdown-item>{{ 'layout.header.addresses' | t }}</a></li>
+        </ul>
+      </div>
+
+      <div class="header-account-module header-account-recent" data-header-account-recent>
+        <button class="module-toggle" tabindex="-1" type="button">
+          {{ 'layout.header.recently_viewed' | t }}
+          <svg><use xlink:href="#icon-arrow-down"></use></svg>
+        </button>
+        <ul data-header-account-recent-items></ul>
+      </div>
+
+      {% if customer.orders.size > 0 %}
+        <div class="header-account-module header-account-history">
+          <button class="module-toggle" tabindex="-1" type="button" data-toggle-account-history>
+            {{ 'layout.header.latest_purchase' | t }}
+            <svg><use xlink:href="#icon-arrow-down"></use></svg>
+          </button>
+          <ul>
+            {% for item in customer.orders[0].line_items %}
+              <li class="grid module-order-item">
+                <figure class="grid-item-30">
+                  <a href="{{ item.url }}" tabindex="-1">
+                    {%-
+                      render 'image',
+                      image_object: item.image,
+                      image_widths: '53, 106, 159',
+                      image_noscript_width: '53x',
+                      image_link: false,
+                      image_additional_content: false,
+                      image_class: false,
+                      image_attributes: false
+                    -%}
+                  </a>
+                </figure>
+                <div class="grid-item-70">
+                  <span><a href="{{ item.url }}" data-header-account-dropdown-item>{{ item.title }}</a></span>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    {% else %}
+      <a class="button hover-animation" href="{{ routes.account_login_url }}" data-header-account-dropdown-item><span class="button-text">{{ 'layout.header.login' | t }}</span></a>
+      <span class="header-account-create"><a href="{{ routes.account_register_url }}" data-header-account-dropdown-item><span class="button-text">{{ 'layout.header.create_account' | t }}</span></a></span>
+    {% endif %}
+  </div>
+
+  {% if section.settings.headerAccountContact %}
+    <div class="module-contact-wrapper">
+      <div class="module-content">
+        <h6 class="header-account-contact-header">{{ 'layout.header.help' | t }}</h6>
+        <ul class="header-account-contact-info">
+          {% if shop.phone != blank %}<li>{{ shop.phone }}</li>{% endif %}
+          {% if shop.email != blank %}<li><a href="mailto:{{ shop.email }}" data-header-account-dropdown-item>{{ shop.email }}</a></li>{% endif %}
+        </ul>
+      </div>
+    </div>
+  {% endif %}
+</div>

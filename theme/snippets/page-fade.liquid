@@ -1,0 +1,23 @@
+<script type="text/javascript">
+// Hide the page content immediately
+document.body.classList.add('loading');
+
+// Show the content when DOM loads
+document.addEventListener('DOMContentLoaded', function () {
+    document.body.classList.remove('loading');
+});
+
+// Hide the content again when unloading
+window.addEventListener('beforeunload', function () {
+  document.body.classList.add('unloading');
+});
+
+window.addEventListener('load', function () {
+  document.body.classList.remove('unloading');
+});
+
+window.addEventListener('pageshow', function () {
+  document.body.classList.remove('unloading');
+});
+
+</script>

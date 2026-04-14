@@ -1,0 +1,104 @@
+<aside class="collection-sidebar {{ sidebarWidth }}" data-collection-sidebar>
+
+  {% if section.settings.collectionSidebarImage and collection.image %}
+    <div class="collection-sidebar__image">
+      {%
+        render 'image',
+        image_object: collection.image,
+        image_widths: '340, 440, 680, 880, 1020, 1320',
+        image_noscript_width: '220x',
+        image_class: false,
+        image_additional_content: false,
+        image_attributes: false
+      %}
+    </div>
+  {% endif %}
+
+  {% if tagFiltersEnabled %}
+    <div class="collection-filters{% if current_tags %} visible{% endif %}" data-collection-filters>
+      <h5 class="collection-filters-title small">
+        {{ "collection.sidebar.filter_products_by" | t }}
+        <button data-collection-filters-toggle><svg><use xlink:href="#icon-close"></use></svg></button>
+      </h5>
+
+      {% if tagFilters and tagFilters != "default" %}
+        {% for block in section.blocks %}
+          {% assign tags = block.settings.collectionFilter-tagNames | replace: ", ", "," | replace: " ,", "," | split: "," %}
+          {% if tags != blank or block.settings.collectionFilter-option != blank %}
+            {%
+              render 'collection-filters',
+              title: block.settings.collectionFilter-option,
+              filterTags: tags,
+            %}
+          {% endif %}
+        {% endfor %}
+      {% elsif tagFilters == "default" %}
+        <div class="collection-sidebar-filter" data-filter-wrapper>
+          <div class="form-field form-field-filters">
+            <h5 class="form-field-title">
+              <button data-filter-toggle>
+                {{ 'collection.sidebar.tag' | t }}
+                <svg><use xlink:href="#icon-arrow-down"></use></svg>
+              </button>
+            </h5>
+            <div class="form-filter-wrapper">
+
+              {% comment %}
+              Remove the 'badge__' string from any custom tags so they can be sorted alphabetically.
+              {% endcomment %}
+              {% assign debadged_tags = '' %}
+              {% for tag in collection.tags %}
+                {% if tag contains 'badge__' %}
+                  {% assign renamed = tag | replace: 'badge__', '' | append: '--hasbadge--' %}
+                  {% assign debadged_tags = debadged_tags | append: renamed | append: '||' %}
+                {% else %}
+                  {% assign debadged_tags = debadged_tags | append: tag | append: '||' %}
+                {% endif %}
+              {% endfor %}
+
+              {% assign split_debadged = debadged_tags | split: '||' %}
+              {% assign alpha_tags = split_debadged | sort_natural %}
+
+              {% for tag in alpha_tags %}
+                {% if tag contains '--hasbadge--' %}
+                  {% assign tag_for_filter = tag | replace: '--hasbadge--', '' | prepend: 'badge__' %}
+                {% else %}
+                  {% assign tag_for_filter = tag %}
+                {% endif %}
+                <a
+                  class="collection-filter{% if current_tags contains tag_for_filter %} active{% endif %}"
+                  href="{{ collection.url }}/{{ tag_for_filter | handle }}"
+                  data-filter="{% if current_tags contains tag_for_filter %}true{% endif %}"
+                  data-filter-tag="{{ tag_for_filter | handle }}">{{ tag | replace: '--hasbadge--', '' }}</a>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="collection-filters-tags small" data-filter-tag-boxes>
+        {% if current_tags %}
+          {% for tag in current_tags %}
+            <span class="collection-filters-tag-box" data-filter-tag-box="{{ tag | handle }}">
+              {{ tag | replace: 'badge__', '' | replace: "_", ": " }}
+              <span>&times;</span>
+              {{ "" | link_to_remove_tag: tag }}
+            </span>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+    </div>
+  {% endif %}
+
+  {% if section.settings.collectionSidebarText != blank %}
+    <div class="collection-sidebar-note">{{ section.settings.collectionSidebarText }}</div>
+  {% endif %}
+
+  {% if section.settings.collectionPosition == 'sidebar'%}
+    {% if collection.description != blank %}
+      <div class="collection-sidebar-description{% if section.settings.collectionPosition == 'sidebar' %} collection-sidebar-border{% endif %}">{{ collection.description }}</div>
+    {% endif %}
+  {% endif %}
+
+</aside>

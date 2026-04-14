@@ -1,0 +1,38 @@
+{% if filterTags.size > 0 %}
+  <div class="collection-sidebar-filter is-custom" data-filter-wrapper>
+    <div class="form-field form-field-filters">
+      <h5 class="form-field-title">
+        <button data-filter-toggle>
+          {{ title }}
+          <svg><use xlink:href="#icon-arrow-down"></use></svg>
+        </button>
+      </h5>
+
+      {% assign isColor = false %}
+      {% if title == settings.productColorSwatches %}
+       {% assign isColor = true %}
+      {% endif %}
+
+      {% for tag in filterTags %}
+        <div class="form-filter-wrapper {{ tag | handle }}">
+          {% assign tagName = tag | split: 'badge__' | last %}
+          <a
+            class="collection-filter{% if current_tags contains tag %} active{% endif %}"
+            href="{{ collection.url }}/{{ tag | handle | downcase }}"
+            data-filter="{% if current_tags contains tag %}true{% endif %}"
+            data-filter-tag="{{ tag | handle }}"
+          >
+            {% if isColor %}
+              <span
+                class="collection-filter-color"
+                style="background-color: {{ tag | split: ' ' | join: '' }}; background-image: url({{ tag | handle | append: '.png' | file_url }});background-size:cover;background-repeat:no-repeat;"
+                aria-label="{{ value | escape }}"
+              ></span>
+            {% endif %}
+            {{- tagName | capitalize -}}
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}

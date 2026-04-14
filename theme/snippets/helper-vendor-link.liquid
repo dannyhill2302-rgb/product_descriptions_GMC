@@ -1,0 +1,21 @@
+{% assign collectionHandle = 'all' %}
+{% if collection.url %}
+  {% assign collectionHandle = collection.handle %}
+{% endif %}
+
+{%- comment -%}
+  Vendor page lookup: if a page with the vendor's handle exists (e.g. /pages/nike),
+  link there instead of the ?vendor= query URL.
+{%- endcomment -%}
+{% assign vendor_page_handle = item.vendor | handle %}
+{% assign vendor_page = pages[vendor_page_handle] %}
+
+{% if vendor_page.url %}
+  {% capture vendorLink %}{{ item.vendor | link_to: vendor_page.url }}{% endcapture %}
+{% elsif settings.productItemVendorCollection %}
+  {% capture url %}/collections/{{ collectionHandle }}/{{ item.vendor | handle }}{% endcapture %}
+  {% capture vendorLink %}{{ item.vendor | link_to: url }}{% endcapture %}
+{% else %}
+  {% capture url %}{{ item.vendor | url_for_vendor }}{% endcapture %}
+  {% capture vendorLink %}{{ item.vendor | link_to_vendor }}{% endcapture %}
+{% endif %}

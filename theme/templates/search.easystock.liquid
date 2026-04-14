@@ -1,0 +1,17 @@
+{% comment %} DO NOT EDIT! This snippet is automatically added by EasyStock app, all changes will be overwritten {% endcomment %}
+
+{% layout none %}
+
+{% assign handles = search.terms | split: ',' %}
+
+{% capture products %}
+    {% for handle in handles %}
+        "{{ handle | url_encode }}": {% render 'easystock-product' with product: all_products[handle] %}{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+{% endcapture %}
+
+{
+    "products": {
+        {{ products }}
+    }
+}

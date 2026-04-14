@@ -1,0 +1,474 @@
+{% assign main_dot_count = 0 %}
+{% assign item_index_count = 0 %}
+
+{% capture plus_svg %}
+  <svg  viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg" class="plus"><g transform="translate(.537 .165)" stroke="#000" fill="none" fill-rule="evenodd"><circle fill="#FFF" cx="12" cy="12" r="11.5"/><g stroke-linecap="square"><path d="M6.769 11.752h10.5M11.943 6.381v10.5"/></g></g></svg>
+{% endcapture %}
+
+{% capture minus_svg %}
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" class="minus"><g transform="translate(.537 .165)"><circle cx="12" cy="12" r="11.5" fill-rule="evenodd" clip-rule="evenodd" fill="#fff" stroke="#000"/><path fill="none" stroke="#333230" stroke-linecap="square" d="M6.8 11.8h10.5"/></g></svg>
+{% endcapture %}
+
+{% capture shop_the_look__description %}
+  {% if section.settings.stl__subheading != blank %}
+    <p class="stl__subheading h4">{{ section.settings.stl__subheading | escape }}</p>
+  {% endif %}
+
+  {% if section.settings.stl__heading != blank %}
+    <h2 class="stl__heading">{{ section.settings.stl__heading | escape }}</h2>
+  {% endif %}
+
+  {% if section.settings.stl__description != blank %}
+    <div class="stl__desc--text">{{ section.settings.stl__description }}</div>
+  {% endif %}
+
+  {% if section.settings.button__text != blank and section.settings.link != blank %}
+    <a class="button hover-animation" href="{% if section.settings.link != blank%}{{ section.settings.link }}{% endif %}"><span class="button-text">{{ section.settings.button__text  }}</span></a>
+  {% endif %}
+{% endcapture %}
+
+<section
+  class="index-shop-the-look--wrapper"
+  data-section-id="{{ section.id }}"
+  data-section-type="home"
+  data-section-child="shop-the-look"
+>
+  <div class="index-shop-the-look--inner" data-shop-the-look-inner>
+    <div class="stl__main {{ section.settings.image__position }}">
+      <div class="stl__image-container">
+        <div class="stl__image">
+
+          {% if section.settings.image != blank %}
+            {% for block in section.blocks %}
+            {% assign main_dot_count = main_dot_count | plus: 1 %}
+              {% if block.settings.product != blank %}
+                {% assign thisProduct = all_products[block.settings.product] %}
+                {% if block.settings.product != blank %}
+                  <div class="stl__dot--container" style="top:{{ block.settings.top }}%; left:{{ block.settings.left }}%;" data-index="{{ main_dot_count }}">
+                    <button aria-label="{{ thisProduct.title }}" class="stl__dot" data-index="{{ main_dot_count }}" type="button">{{ plus_svg }}{{ minus_svg }}</button>
+                  </div>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+
+            {%-
+              render 'image',
+              image_object: section.settings.image,
+              image_widths: '375, 750, 500, 1000, 720, 960, 1060, 1200',
+              image_noscript_width: '1060x',
+              image_link: false,
+              image_additional_content: false,
+              image_class: '',
+              image_attributes: false
+            -%}
+          {% else %}
+            {% for block in section.blocks %}
+              {% assign main_dot_count = main_dot_count | plus: 1 %}
+              {% assign thisProduct = all_products[block.settings.product] %}
+              <div class="stl__dot--container" style="top:{{ block.settings.top }}%; left:{{ block.settings.left }}%;" data-index="{{ main_dot_count }}">
+                <button aria-label="{{ thisProduct.title }}" class="stl__dot" data-index="{{ main_dot_count }}" type="button">{{ plus_svg }}{{ minus_svg }}</button>
+              </div>
+            {% endfor %}
+
+            {{ 'collection-1' | append: current | placeholder_svg_tag: 'icon--placeholder stl__image' }}
+          {% endif %}
+        </div>
+      </div>
+
+      {% if section.settings.stl__heading != blank and section.settings.stl__description != blank %}
+        <div class="stl__description-container">
+          <div class="stl__description-inner alignment-{{ section.settings.description_alignment }}">
+            {{ shop_the_look__description }}
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="stl__outer-products-container">
+        <div class="stl__products-container">
+          {% for block in section.blocks %}
+            {% assign item_index_count = item_index_count | plus: 1 %}
+
+            {% if block.settings.product != blank %}
+              {% assign thisProduct = all_products[block.settings.product] %}
+              <div class="stl__products" id="product_{{ item_index_count }}" data-index="{{ item_index_count }}">
+                {%-
+                  render 'product-item',
+                  item: thisProduct,
+                  grid: 'grid-item-100',
+                  productsPerRow: 1,
+                  image_default_width: '1000x',
+                  additionalInfo: '',
+                  productInfoSetting: '',
+                  isSearch: false
+                -%}
+              </div>
+            {% else %}
+              <div class="stl__products" data-index="{{ item_index_count }}">
+                <div class="indiv-product">
+                  <a href="{{ product.url }}" title="{{product.title}}">
+                    {% capture current %}{% cycle 1, 2, 3, 4, 5, 6 %}{% endcapture %}
+                    {{ 'product-' | append: current | placeholder_svg_tag: 'icon--placeholder' }}
+                  </a>
+                  <div class="hp-title">
+                    <a href="{{ product.url }}">
+                      <span class="indiv-product-title-text" id="product_{{ current }}">{{ 'layout.onboarding.product_title' | t }}</span>
+                      <span class="money money-styling">
+                        {{ 1999 | money }}
+                      </span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  @-webkit-keyframes shopTheLookDotKeyframe {
+    0%, 100% {
+      border: 1px solid #000;
+      opacity: 0;
+    }
+    50% {
+      border: 1px solid #000;
+      opacity: 0.8;
+    }
+  }
+
+  @keyframes shopTheLookDotKeyframe {
+    0%, 100% {
+      border: 1px solid #000;
+      opacity: 0;
+    }
+    50% {
+      border: 1px solid #000;
+      opacity: 0.8;
+    }
+  }
+
+  .stl__dot,
+  .stl__dot-num {
+    background-color: #000;
+  }
+
+  .stl__dot--active .stl__dot,
+  .stl__dot--container:hover .stl__dot {
+    box-shadow: 0px 0px 20px -2px #000;
+  }
+
+</style>
+
+{% schema %}
+  {
+  "name": {
+    "en": "Shop the look",
+    "de": "Hol dir den Look",
+    "es": "Compra este look",
+    "fr": "Acheter le look",
+    "pt-PT": "Compre a aparência"
+  },
+  "class": "section-index-shop-the-look-wrapper",
+  "max_blocks": 4,
+  "settings": [
+    {
+      "type": "header",
+      "content": {
+        "en": "Description",
+        "de": "Beschreibung",
+        "es": "Descripción",
+        "fr": "Description",
+        "pt-PT": "Descrição"
+      }
+    },
+    {
+      "type": "text",
+      "id": "stl__subheading",
+      "label": {
+        "en": "Subheading",
+        "de": "Unterüberschrift",
+        "es": "Subencabezado",
+        "fr": "Sous-rubrique",
+        "pt-PT": "Subtítulo"
+      }
+    },
+    {
+      "type": "text",
+      "id": "stl__heading",
+      "label": {
+        "en": "Heading",
+        "de": "Überschrift",
+        "es": "Encabezado",
+        "fr": "Rubrique",
+        "pt-PT": "Título"
+      },
+      "default": {
+        "en": "Shop the look",
+        "de": "Hol dir den Look",
+        "es": "Compra este look",
+        "fr": "Acheter le look",
+        "pt-PT": "Compre a aparência"
+      }
+    },
+    {
+      "type": "richtext",
+      "id": "stl__description",
+      "label": {
+        "en": "Description",
+        "de": "Beschreibung",
+        "es": "Descripción",
+        "fr": "Description",
+        "pt-PT": "Descrição"
+      },
+      "default": {
+        "en": "<p>Add a description of your shop the look section to encourage your customers to purchase.</p>",
+        "de": "<p>Ihrem Abschnitt „Hol dir den Look“ eine Beschreibung hinzufügen, um Ihre Kunden zum Kauf zu ermutigen.</p>",
+        "es": "<p>Incluye en la descripción de tu tienda un apartado con los looks para animar a tus clientes a comprarlos.</p>",
+        "fr": "<p>Ajoutez une description de votre section « acheter le look » pour inciter vos clients à acheter.</p>",
+        "pt-PT": "<p>Adicione uma descrição da sua secção compre a aparência para encorajar os seus clientes a comprar.</p>"
+      }
+    },
+    {
+      "type": "select",
+      "id": "description_alignment",
+      "label": {
+        "en": "Alignment",
+        "de": "Ausrichtung",
+        "es": "Alineación",
+        "fr": "Alignement",
+        "pt-PT": "Alinhamento"
+      },
+      "options": [
+        {
+          "value": "left",
+          "label": {
+            "en": "Left",
+            "de": "Links",
+            "es": "Izquierda",
+            "fr": "Gauche",
+            "pt-PT": "Esquerda"
+          }
+        },
+        {
+          "value": "center",
+          "label": {
+            "en": "Center",
+            "de": "Mitte",
+            "es": "Centro",
+            "fr": "Centre",
+            "pt-PT": "Centro"
+          }
+        },
+        {
+          "value": "right",
+          "label": {
+            "en": "Right",
+            "de": "Rechts",
+            "es": "Derecha",
+            "fr": "Droite",
+            "pt-PT": "Direita"
+          }
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": {
+        "en": "Image",
+        "de": "Bild",
+        "es": "Imagen",
+        "fr": "Image",
+        "pt-PT": "Imagem"
+      }
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": {
+        "en": "Image",
+        "de": "Bild",
+        "es": "Imagen",
+        "fr": "Image",
+        "pt-PT": "Imagem"
+      },
+      "info": {
+        "en": "2000 x 900px recommended",
+        "de": "2000 x 900 px empfohlen",
+        "es": "Recomendado 2000 x 900 px",
+        "fr": "2000 x 900 px recommandé",
+        "pt-PT": "2000 x 900px, recomendado"
+      }
+    },
+    {
+      "type": "select",
+      "id": "image__position",
+      "label": {
+        "en": "Image position",
+        "de": "Bildposition",
+        "es": "Posición de la imagen",
+        "fr": "Position de l'mage",
+        "pt-PT": "Posição da imagem"
+      },
+      "default": "image--left",
+      "options": [
+        {
+          "value": "image--left",
+          "label": {
+            "en": "Left",
+            "de": "Links",
+            "es": "Izquierda",
+            "fr": "Gauche",
+            "pt-PT": "Esquerda"
+          }
+        },
+        {
+          "value": "image--right",
+          "label": {
+            "en": "Right",
+            "de": "Rechts",
+            "es": "Derecha",
+            "fr": "Droite",
+            "pt-PT": "Direita"
+          }
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": {
+        "en": "Button",
+        "de": "Button",
+        "es": "Botón",
+        "fr": "Bouton",
+        "pt-PT": "Botão"
+      }
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": {
+        "en": "Button link",
+        "de": "Buttonlink",
+        "es": "Enlace del botón",
+        "fr": "Lien du bouton",
+        "pt-PT": "Ligação do botão"
+      },
+      "default": "/collections/all"
+    },
+    {
+      "type": "text",
+      "id": "button__text",
+      "label": {
+        "en": "Button text",
+        "de": "Buttontext",
+        "es": "Texto del botón",
+        "fr": "Texte des boutons",
+        "pt-PT": "Texto do botão"
+      },
+      "default": {
+        "en": "Shop now",
+        "de": "Jetzt einkaufen",
+        "es": "Comprar ahora",
+        "fr": "Acheter maintenant",
+        "pt-PT": "Comprar agora"
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": {
+        "en": "Product",
+        "de": "Produkt",
+        "es": "Producto",
+        "fr": "Produit",
+        "pt-PT": "Produto"
+      },
+      "settings": [
+        {
+          "id": "product",
+          "type": "product",
+          "label": {
+            "en": "Product",
+            "de": "Produkt",
+            "es": "Producto",
+            "fr": "Produit",
+            "pt-PT": "Produto"
+          }
+        },
+        {
+          "type": "range",
+          "id": "top",
+          "label": {
+            "en": "Position from top",
+            "de": "Position von oben",
+            "es": "Posición desde la parte superior",
+            "fr": "Placer en haut",
+            "pt-PT": "Posição a partir do topo"
+          },
+          "step": 1,
+          "min": 0,
+          "max": 95,
+          "unit": "%",
+          "default": 0
+        },
+        {
+          "type": "range",
+          "id": "left",
+          "label": {
+            "en": "Position from left",
+            "de": "Position von links",
+            "es": "Posición desde la izquierda",
+            "fr": "Placer à gauche",
+            "pt-PT": "Posição a partir da esquerda"
+          },
+          "step": 1,
+          "min": 0,
+          "max": 90,
+          "unit": "%",
+          "default": 0
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": {
+        "en": "Shop the look",
+        "de": "Hol dir den Look",
+        "es": "Compra este look",
+        "fr": "Acheter le look",
+        "pt-PT": "Compre a aparência"
+      },
+      "category": {
+        "en": "Product",
+        "de": "Produkt",
+        "es": "Producto",
+        "fr": "Produit",
+        "pt-PT": "Produto"
+      },
+      "blocks": [
+        {
+          "type": "product",
+          "settings": {
+            "top": 46,
+            "left": 30
+          }
+        },
+        {
+          "type": "product",
+          "settings": {
+            "top": 63,
+            "left": 51
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

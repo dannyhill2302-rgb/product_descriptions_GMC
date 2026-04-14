@@ -1,0 +1,109 @@
+{% if settings.popupEnable %}
+  <script>
+    /*
+     * Newsletter popup — page-view gate
+     * The popup is suppressed until the visitor has viewed at least 3 pages
+     * in this browser session (or across sessions; uses localStorage).
+     *
+     * We piggy-back on the existing 'wetheme-popup' localStorage key used by
+     * theme.js: if we set a far-future expiry with a `pageViewBlock: true`
+     * marker, theme.js's _isExpiredOrNotSet() returns false and skips the
+     * popup. On the 3rd page view we remove the block so the popup can run.
+     */
+    (function () {
+      try {
+        var VIEW_KEY  = 'wetheme-popup-views';
+        var POPUP_KEY = 'wetheme-popup';
+        var MIN_VIEWS = 3;
+
+        var views = parseInt(localStorage.getItem(VIEW_KEY) || '0', 10) + 1;
+        localStorage.setItem(VIEW_KEY, String(views));
+
+        if (views < MIN_VIEWS) {
+          // Block the popup for this and the next page view(s)
+          localStorage.setItem(POPUP_KEY, JSON.stringify({
+            expiry: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+            pageViewBlock: true
+          }));
+        } else {
+          // On 3rd view (or later): clear the block so the popup can show normally
+          var existing = localStorage.getItem(POPUP_KEY);
+          if (existing) {
+            try {
+              var stored = JSON.parse(existing);
+              if (stored.pageViewBlock) {
+                localStorage.removeItem(POPUP_KEY);
+              }
+            } catch (e) { /* ignore corrupt data */ }
+          }
+        }
+      } catch (e) { /* localStorage unavailable — do nothing */ }
+    })();
+  </script>
+
+  <div class="popup-container{% if settings.popupImage != blank %} has-image{% endif %}" id="popup" aria-hidden="true" data-popup-time="{{ settings.popupTime }}" data-popup-delay="{{ settings.popupDelay }}" data-popup-test-mode="{{ settings.popupTestMode }}">
+    <div class="popup-outer" tabindex="-1">
+      <div class="popup-inner"role="dialog" aria-modal="true" aria-labelledby="popup-title" >
+        <button type="button" class="popup-inner__btn" aria-label="Close popup" data-micromodal-close>
+          <svg><use xlink:href="#icon-close"></use></svg>
+        </button>
+
+        <div class="popup-inner__text-wrapper">
+          {% if settings.popupHeading != blank %}
+            <h2 class="popup-heading" id="popup-title">{{ settings.popupHeading }}</h2>
+          {% endif %}
+
+          {% if settings.popupText != blank %}
+            <div class="popup-text">{{ settings.popupText }}</div>
+          {% endif %}
+
+          {% if settings.popupShowNewsletter %}
+            <div class="popup-form">
+              {% form "customer" %}         
+                <div class="form-errors">
+                  {{ form.errors | default_errors }}
+                </div>
+            
+                {% if form.posted_successfully? %}
+                  <p class="form-success">{{ 'password.mailing_list.success' | t }}</p>
+                {% else %}
+            
+                  <div class="form-field">
+                      <input type="hidden" name="contact[tags]" value="" data-mailing-list-tags>
+            
+                    <label class="form-label" for="mailing-list-email" aria-label="{{ 'modules.mailing_list.email' | t }}">
+                      <input class="form-input form-full" type="email" name="contact[email]" id="mailing-list-email" placeholder="{{ 'modules.mailing_list.email' | t }}" value="{{ customer.email }}" required>
+                    </label>
+                  </div>
+            
+                  <div class="form-actions">
+                    <input class="button" type="submit" value="{{ 'modules.mailing_list.join' | t }}" aria-label="{{ 'modules.mailing_list.join' | t }}">
+                  </div>
+                {% endif %}         
+              {% endform %}
+            </div>
+          {% endif %}
+
+          {% if settings.popupShowSocial %}
+            {% render 'social', settings: settings %}
+          {% endif %}
+        </div>
+
+        {% if settings.popupImage != blank %}
+          <div class="popup-inner__image-wrapper">
+            {%
+              render 'image-bg',
+              image: settings.popupImage,
+              image_class: 'popup-image',
+              image_default: false,
+              image_sizes: false,
+              image_additional_content: false,
+              image_dimension: false,
+              image_link: false
+            %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endif %}

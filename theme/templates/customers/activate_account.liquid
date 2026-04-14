@@ -1,0 +1,34 @@
+
+<div class="account-activate-account-wrapper">
+  <h1 class="page-header">{{ 'customer.activate_account.title' | t }}</h1>
+
+  <p>{{ 'customer.activate_account.subtext' | t }}</p>
+
+  {% form 'activate_customer_password', class: 'form' %}
+
+    {% if form.errors %}
+      <div class="form-error">
+        {{ form.errors | default_errors }}
+      </div>
+    {% endif %}
+
+    <div class="form-field">
+      <label class="form-label" for="customer-password" aria-label="{{ 'customer.activate_account.password' | t }}">
+        <span class="form-field-title">{{ 'customer.activate_account.password' | t }}</span>
+        <input class="form-input form-full" type="password" value="" name="customer[password]" id="customer-password" placeholder="{{ 'customer.activate_account.password' | t }}">
+      </label>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label" for="customer-password-confirm" aria-label="{{ 'customer.activate_account.confirm_password' | t }}">
+        <span class="form-field-title">{{ 'customer.activate_account.confirm_password' | t }}</span>
+        <input class="form-input form-full" type="password" value="" name="customer[password_confirmation]" id="customer-password-confirm" placeholder="{{ 'customer.activate_account.confirm_password' | t }}">
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button class="button hover-animation leader" type="submit" value="{{ 'customer.activate_account.submit' | t }}" aria-label="{{ 'customer.activate_account.submit' | t }}"><span class="button-text">{{ 'customer.activate_account.submit' | t }}</span></button>
+      <input class="button sidekick" type="submit" name="decline" value="{{ 'customer.activate_account.cancel' | t }}" aria-label="{{ 'customer.activate_account.cancel' | t }}">
+    </div>
+  {% endform %}
+</div>

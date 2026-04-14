@@ -1,0 +1,312 @@
+{%- comment -%}
+  Google Reviews Section
+  Displays reviews pulled from a Google Business (Maps) listing via the
+  Google Places JavaScript API (New).
+
+  HOW TO SET UP:
+  1. Create a Google Cloud project and enable the "Places API (New)".
+  2. Create an API key restricted to your domain and the Places API.
+  3. Enter your Place ID (find it at: https://developers.google.com/maps/documentation/javascript/examples/places-placeid-finder)
+  4. Enter your API key in the section settings.
+  5. Add this section to any page from the Shopify theme editor.
+
+  The section renders a loading skeleton, then fetches up to 5 reviews
+  via the Places API and renders them client-side.
+{%- endcomment -%}
+
+{% if section.settings.place_id != blank and section.settings.api_key != blank %}
+<div
+  class="google-reviews-section"
+  data-google-reviews
+  data-place-id="{{ section.settings.place_id | escape }}"
+  data-api-key="{{ section.settings.api_key | escape }}"
+  data-min-rating="{{ section.settings.min_rating }}"
+>
+  {% if section.settings.heading != blank %}
+    <h2 class="google-reviews__heading">{{ section.settings.heading | escape }}</h2>
+  {% endif %}
+
+  <div class="google-reviews__summary" data-reviews-summary style="display:none;">
+    <span class="google-reviews__rating-value" data-rating-value></span>
+    <span class="google-reviews__stars" data-rating-stars aria-hidden="true"></span>
+    <span class="google-reviews__total" data-rating-total></span>
+  </div>
+
+  <div class="google-reviews__grid" data-reviews-grid>
+    {{- 'Loading reviews…' -}}
+  </div>
+
+  <div class="google-reviews__cta" data-reviews-cta style="display:none;">
+    <a
+      class="google-reviews__cta-link button"
+      data-reviews-place-link
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {{ section.settings.cta_text | default: 'See all reviews on Google' | escape }}
+    </a>
+  </div>
+</div>
+
+<style>
+  .google-reviews-section {
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .google-reviews__heading {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .google-reviews__summary {
+    text-align: center;
+    margin-bottom: 24px;
+    font-size: 1.1em;
+  }
+  .google-reviews__rating-value {
+    font-size: 2em;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .google-reviews__stars {
+    color: #f5a623;
+    font-size: 1.4em;
+    vertical-align: middle;
+  }
+  .google-reviews__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .google-review-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    background: #fff;
+  }
+  .google-review-card__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .google-review-card__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .google-review-card__name {
+    font-weight: 600;
+    font-size: 0.95em;
+  }
+  .google-review-card__stars {
+    color: #f5a623;
+  }
+  .google-review-card__time {
+    font-size: 0.8em;
+    color: #888;
+    margin-top: 2px;
+  }
+  .google-review-card__text {
+    font-size: 0.9em;
+    line-height: 1.5;
+    color: #333;
+  }
+  .google-reviews__cta {
+    text-align: center;
+    margin-top: 28px;
+  }
+  .google-reviews__error {
+    text-align: center;
+    color: #888;
+    font-size: 0.9em;
+    padding: 20px;
+  }
+</style>
+
+<script>
+(function () {
+  var container = document.querySelector('[data-google-reviews]');
+  if (!container) return;
+
+  var placeId   = container.dataset.placeId;
+  var apiKey    = container.dataset.apiKey;
+  var minRating = parseFloat(container.dataset.minRating) || 0;
+  var grid      = container.querySelector('[data-reviews-grid]');
+  var summary   = container.querySelector('[data-reviews-summary]');
+  var cta       = container.querySelector('[data-reviews-cta]');
+  var ctaLink   = container.querySelector('[data-reviews-place-link]');
+
+  function starString(rating) {
+    var full  = Math.round(rating);
+    var stars = '';
+    for (var i = 0; i < 5; i++) stars += i < full ? '★' : '☆';
+    return stars;
+  }
+
+  function timeSince(epochSeconds) {
+    var diff = Math.floor(Date.now() / 1000) - epochSeconds;
+    if (diff < 60)        return 'Just now';
+    if (diff < 3600)      return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400)     return Math.floor(diff / 3600) + 'h ago';
+    if (diff < 2592000)   return Math.floor(diff / 86400) + 'd ago';
+    if (diff < 31536000)  return Math.floor(diff / 2592000) + ' months ago';
+    return Math.floor(diff / 31536000) + ' years ago';
+  }
+
+  // Use the Places API (New) — fieldMask limits billed data
+  var url = 'https://places.googleapis.com/v1/places/' + encodeURIComponent(placeId)
+    + '?fields=displayName,rating,userRatingCount,reviews,googleMapsUri'
+    + '&key=' + encodeURIComponent(apiKey)
+    + '&languageCode={{ shop.locale | default: "en" }}';
+
+  fetch(url, {
+    headers: { 'Content-Type': 'application/json' }
+  })
+  .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+  .then(function (data) {
+    var reviews = (data.reviews || []).filter(function (r) {
+      return r.rating >= minRating;
+    });
+
+    // Summary bar
+    if (data.rating) {
+      container.querySelector('[data-rating-value]').textContent = data.rating.toFixed(1);
+      container.querySelector('[data-rating-stars]').textContent = starString(data.rating);
+      container.querySelector('[data-rating-total]').textContent =
+        '(' + (data.userRatingCount || 0) + ' reviews)';
+      summary.style.display = '';
+    }
+
+    // CTA link
+    if (data.googleMapsUri && ctaLink) {
+      ctaLink.href = data.googleMapsUri;
+      cta.style.display = '';
+    }
+
+    if (!reviews.length) {
+      grid.innerHTML = '<p class="google-reviews__error">No reviews to display yet.</p>';
+      return;
+    }
+
+    grid.innerHTML = reviews.map(function (r) {
+      var avatar = r.authorAttribution && r.authorAttribution.photoUri
+        ? '<img class="google-review-card__avatar" src="' + r.authorAttribution.photoUri + '" alt="" loading="lazy">'
+        : '<span class="google-review-card__avatar" style="background:#e0e0e0;display:inline-block;"></span>';
+      var name = r.authorAttribution ? (r.authorAttribution.displayName || 'Google User') : 'Google User';
+      var time = r.publishTime ? timeSince(Math.floor(new Date(r.publishTime).getTime() / 1000)) : '';
+      var text = r.text && r.text.text ? r.text.text : '';
+
+      return '<div class="google-review-card">'
+        + '<div class="google-review-card__header">'
+        + avatar
+        + '<div>'
+        + '<div class="google-review-card__name">' + name + '</div>'
+        + '<div class="google-review-card__stars">' + starString(r.rating) + '</div>'
+        + (time ? '<div class="google-review-card__time">' + time + '</div>' : '')
+        + '</div>'
+        + '</div>'
+        + (text ? '<p class="google-review-card__text">' + text.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</p>' : '')
+        + '</div>';
+    }).join('');
+  })
+  .catch(function (err) {
+    console.warn('Google Reviews: fetch failed', err);
+    grid.innerHTML = '<p class="google-reviews__error">Reviews could not be loaded.</p>';
+  });
+})();
+</script>
+
+{% else %}
+  {%- comment -%}
+    Section is visible in the theme editor but needs configuration.
+    Show a placeholder so editors know what to fill in.
+  {%- endcomment -%}
+  {% if request.design_mode %}
+    <div style="padding:40px;text-align:center;border:2px dashed #ccc;color:#888;">
+      <strong>Google Reviews</strong><br>
+      Enter your Google Place ID and API key in the section settings to display reviews.
+    </div>
+  {% endif %}
+{% endif %}
+
+{% schema %}
+{
+  "name": {
+    "en": "Google Reviews",
+    "nl": "Google Recensies"
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": {
+        "en": "Heading",
+        "nl": "Titel"
+      },
+      "default": {
+        "en": "What our customers say",
+        "nl": "Wat onze klanten zeggen"
+      }
+    },
+    {
+      "type": "text",
+      "id": "place_id",
+      "label": {
+        "en": "Google Place ID",
+        "nl": "Google Place ID"
+      },
+      "info": {
+        "en": "Find your Place ID at: https://developers.google.com/maps/documentation/javascript/examples/places-placeid-finder",
+        "nl": "Vind je Place ID op: https://developers.google.com/maps/documentation/javascript/examples/places-placeid-finder"
+      }
+    },
+    {
+      "type": "text",
+      "id": "api_key",
+      "label": {
+        "en": "Google API Key",
+        "nl": "Google API sleutel"
+      },
+      "info": {
+        "en": "Create a restricted Places API key in Google Cloud Console. Restrict it to your domain.",
+        "nl": "Maak een beperkte Places API sleutel aan in de Google Cloud Console. Beperk deze tot je domein."
+      }
+    },
+    {
+      "type": "range",
+      "id": "min_rating",
+      "label": {
+        "en": "Minimum star rating to show",
+        "nl": "Minimale sterrenrating om te tonen"
+      },
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": {
+        "en": "Link button text",
+        "nl": "Knoptekst link"
+      },
+      "default": {
+        "en": "See all reviews on Google",
+        "nl": "Bekijk alle recensies op Google"
+      }
+    }
+  ],
+  "presets": [
+    {
+      "name": {
+        "en": "Google Reviews",
+        "nl": "Google Recensies"
+      }
+    }
+  ]
+}
+{% endschema %}

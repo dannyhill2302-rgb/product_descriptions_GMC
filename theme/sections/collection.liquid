@@ -1,0 +1,536 @@
+{% assign sidebarDescription = false %}
+{% if section.settings.collectionPosition == 'sidebar' and collection.description != blank %}
+  {% assign sidebarDescription = true %}
+{% endif %}
+
+{% assign sidebarImage = false %}
+{% if section.settings.collectionSidebarImage and collection.image %}
+  {% assign sidebarImage = true %}
+{% endif %}
+
+{% assign collageLayoutEnabled = false %}
+{% if section.settings.collageLayoutEnabled %}
+  {% assign collageLayoutEnabled = true %}
+{% endif %}
+
+{% assign tagFiltersEnabled = false %}
+{% assign tagFilters = false %}
+{% assign delayAmount = 100 %}
+
+{% if collection.all_tags.size > 0 %}
+  {% if section.settings.collectionFilter-tags == 'show_all_tags' %}
+    {% assign tagFiltersEnabled = true %}
+    {% assign tagFilters = "default" %}
+  {% elsif section.settings.collectionFilter-tags == 'custom_filter_tags' and section.blocks.size > 0 %}
+    {% assign tagFiltersEnabled = true %}
+    {% assign sidebar = false %}
+    {% assign tagFilters = true %}
+
+    <script type="application/json" id="wetheme-collection-all-tags">
+      {
+        "all_collection_tags": {{ collection.all_tags | json }}
+      }
+    </script>
+    <script type="application/json" id="wetheme-collection-custom-tags">
+      {
+        {% for block in section.blocks %}
+        "block-{{ forloop.index }}": {
+          "custom_tags": {{ block.settings.collectionFilter-tagNames | replace: ", ", "," | replace: " ,", "," | split: "," | json }}
+        }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      }
+    </script>
+
+  {% endif %}
+{% endif %}
+
+{% assign sidebarEnabled = false %}
+{% if sidebarDescription or sidebarImage or tagFiltersEnabled or section.settings.collectionSidebarText != blank %}
+  {% assign sidebarEnabled = true %}
+{% endif %}
+
+<div class="collection-main-wrapper" data-section-id="{{ section.id }}" data-section-type="collection">
+
+  {% assign contentWidth = "grid-item-100" %}
+  {% case section.settings.collectionProductsPerRow %}
+    {% when 3 %}
+      {% assign image_default_width = '360x' %}
+      {% assign gridItem = "grid-item-33" %}
+      {% if sidebarEnabled %}
+        {% assign sidebarWidth = "grid-item-25" %}
+        {% assign contentWidth = "grid-item-75" %}
+        {% assign image_default_width = '260x' %}
+      {% endif %}
+
+      {% if collageLayoutEnabled %}
+        {% assign gridItemAlt = "grid-item-50" %}
+      {% endif %}
+
+      {% assign numProducts = section.settings.collectionProductsPerRow | times: 8 %}
+
+    {% when 4 %}
+      {% assign image_default_width = '260x' %}
+      {% assign gridItem = "grid-item-25" %}
+      {% if sidebarEnabled %}
+        {% assign sidebarWidth = "grid-item-16" %}
+        {% assign contentWidth = "grid-item-83" %}
+        {% assign image_default_width = '230x' %}
+      {% endif %}
+
+      {% if collageLayoutEnabled %}
+        {% assign gridItemAlt = "grid-item-33" %}
+        {% assign gridItemAltMobile = "grid-item-50 TEST" %}
+      {% endif %}
+
+      {% assign numProducts = section.settings.collectionProductsPerRow | times: 12 %}
+
+    {% when 5 %}
+      {% assign image_default_width = '210x' %}
+      {% assign gridItem = "grid-item-20" %}
+      {% if sidebarEnabled %}
+        {% assign sidebarWidth = "grid-item-16" %}
+        {% assign contentWidth = "grid-item-83" %}
+        {% assign gridItem = "grid-item-20" %}
+      {% endif %}
+
+      {% if collageLayoutEnabled %}
+        {% assign gridItemAlt = "grid-item-25" %}
+      {% endif %}
+
+      {% assign numProducts = section.settings.collectionProductsPerRow | times: 10 %}
+  {% endcase %}
+
+  {% paginate collection.products by 24 %}
+
+    <div class="collection-items-header {% if sidebarEnabled %}has-sidebar{% endif %} medium">
+      {% if sidebarEnabled or collection.products.size > 0 %}
+        <div class="collection-items-header-content {% if sidebarEnabled %}{{ contentWidth }}{% else %}grid-item-100{% endif %}">
+          <div class="collection-items-header-content-inner">
+            <header>
+              <h1 class="collection-title">{{ collection.title }}</h1>
+            </header>
+
+            {% if sidebarEnabled and section.settings.collectionSidebarImage and collection.image %}
+              <div class="collection-sidebar__image--small">
+                {%
+                  render 'image',
+                  image_object: collection.image,
+                  image_widths: '340, 440, 680, 880, 1020, 1320',
+                  image_noscript_width: '220x',
+                  image_class: false,
+                  image_additional_content: false,
+                  image_attributes: false
+                %}
+              </div>
+            {% endif %}
+
+            {% if sidebarEnabled and section.settings.collectionSidebarText != blank %}
+              <div class="collection-sidebar-note--small">{{ section.settings.collectionSidebarText }}</div>
+            {% endif %}
+
+            {% if sidebarEnabled and tagFiltersEnabled %}
+              {% if current_tags or collection.products.size > 0 %}
+                  <div class="collection-filter-and-sort--wrapper">
+                    <button class="button button-small collection-filters-toggle {% unless section.settings.collectionSort %}filter-button-full-width{% endunless %}" data-collection-filters-toggle>{{ 'collection.sidebar.filter_products' | t }}</button>
+                  {% if section.settings.collectionSort %}
+                      {% render 'collection-sort', collection: collection %}
+                  {% endif %}
+                  </div>
+              {% endif %}
+            {% elsif section.settings.collectionSort %}
+              {% render 'collection-sort', collection: collection %}
+            {% endif %}
+
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    {% assign pageCount = collection.all_products_count | divided_by: numProducts %}
+    {% assign productOverflow = collection.all_products_count | modulo: numProducts %}
+    {% if productOverflow != 0 %}{% assign pageCount = pageCount | plus: 1 %}{% endif %}
+
+    <div class="collection-main grid {% if sidebarEnabled %}has-sidebar{% endif %}">
+      {% if sidebarEnabled %}
+        {%
+          render 'collection-sidebar',
+          sidebarWidth: sidebarWidth,
+          section: section,
+          tagFiltersEnabled: tagFiltersEnabled,
+          tagFilters: tagFilters
+        %}
+      {% endif %}
+
+      <main class="collection-wrapper {% if sidebarEnabled %}{{ contentWidth }}{% endif %}">
+        {% if collection.description != blank and section.settings.collectionPosition == 'above_products' %}
+          <div class="collection-description">{{ collection.description }}</div>
+        {% endif %}
+
+        {% if current_tags %}
+          <div class="collection-current-tags">
+            {% for tag in current_tags %}
+              <span class="collection-current-tag">
+                {{ tag | replace: 'badge__', '' | replace: '_', ': ' | replace: '-', ' ' }}
+                <span>&times;</span>
+                {{ "" | link_to_remove_tag: tag | replace: 'badge__', '' }}
+              </span>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <div data-sectionId="{% if section.id %}{{section.id}}{% endif %}" data-settings='{% if section.settings %}{{section.settings | json}}{% endif %}' id="gf-products" class="collection grid" data-collection="{{ collection.handle }}" data-product-item-wrapper>
+          {% for item in collection.products %}
+                {% if collageLayoutEnabled %}
+
+                    {% case section.settings.collectionProductsPerRow %}
+                        {% when 3 %}
+                            {% capture arrangement %}{% cycle '', '', '', 'alt', 'alt' %}{% endcapture %}
+                        {% when 4 %}
+                            {% capture arrangement %}{% cycle '', '', '', '', 'alt', 'alt', 'alt' %}{% endcapture %}
+                        {% when 5 %}
+                            {% capture arrangement %}{% cycle '', '', '', '', '', 'alt', 'alt', 'alt', 'alt' %}{% endcapture %}
+                    {% endcase %}
+
+                    {% if arrangement == 'alt' %}
+                        {%
+                            render 'product-item',
+                            item: item,
+                            grid: gridItemAlt,
+                            additionalInfo: true,
+                            collection: collection,
+                            image_default_width: image_default_width,
+                            productInfoSetting: '',
+                            isSearch: false,
+                            delayAmount: delayAmount
+                        %}
+                     {% else %}
+                         {%
+                             render 'product-item',
+                             item: item,
+                             grid: gridItem,
+                             additionalInfo: true,
+                             collection: collection,
+                             image_default_width: image_default_width,
+                             productInfoSetting: '',
+                             isSearch: false,
+                             delayAmount: delayAmount
+                        %}
+                    {% endif %}
+
+                {% else %}
+                    {%
+                        render 'product-item',
+                        item: item,
+                        grid: gridItem,
+                        additionalInfo: true,
+                        collection: collection,
+                        image_default_width: image_default_width,
+                        productInfoSetting: '',
+                        isSearch: false,
+                        delayAmount: delayAmount
+                    %}
+                {% endif %}
+
+            {% else %}
+              <div class="collection-empty grid-item-100" data-collection-empty>
+                {% if current_tags %}
+                  {{ 'collection.main.none_in_search' | t }}
+                {% else %}
+                  {{ 'collection.main.empty' | t }}
+                {% endif %}
+              </div>
+            {% endfor %}
+        </div>
+
+        {% render 'pagination', paginate: paginate, width: 'full-width' %}
+      </main>
+    </div>
+
+    {% if collection.description != blank %}
+      {% if section.settings.collectionPosition == 'below_products' or sidebarDescription %}
+        <div class="collection-footer">
+          <div class="collection-description{% if sidebarDescription %} has-sidebar-description{% endif %}">{{ collection.description }}</div>
+        </div>
+      {% endif %}
+    {% endif %}
+
+  {% endpaginate %}
+
+</div>
+
+{%- comment -%}
+  Bottom SEO / editorial text block.
+  Populated from the theme editor: Online Store > Themes > Customise >
+  Collections > Collection > "Bottom text" setting.
+  Leave blank to hide the block entirely.
+{%- endcomment -%}
+{% if section.settings.collection_bottom_text != blank %}
+  <div class="collection-bottom-text rte">
+    {{ section.settings.collection_bottom_text }}
+  </div>
+{% endif %}
+
+<style>
+  :root {
+    --products-per-row: {{ section.settings.collectionProductsPerRow | default: "5" }};
+  }
+</style>
+
+{% schema %}
+{
+    "name": {
+        "en": "Collection",
+        "de": "Kollektion",
+        "es": "Colección",
+        "fr": "Collection",
+        "pt-PT": "Coleção"
+    },
+    "settings": [
+        {
+            "type": "richtext",
+            "id": "collection_bottom_text",
+            "label": {
+                "en": "Bottom text",
+                "nl": "Tekst onderaan"
+            },
+            "info": {
+                "en": "Optional SEO or editorial text shown below the product grid. Leave blank to hide.",
+                "nl": "Optionele SEO- of redactionele tekst onder het productraster. Leeg laten om te verbergen."
+            }
+        },
+        {
+            "type": "range",
+            "id": "collectionProductsPerRow",
+            "label": {
+                "en": "Products per row",
+                "de": "Produkte pro Zeile",
+                "es": "Productos por fila",
+                "fr": "Produits par ligne",
+                "pt-PT": "Produtos por linha"
+            },
+            "min": 3,
+            "max": 5,
+            "step": 1,
+            "default": 4
+        },
+        {
+          "type": "select",
+          "id": "collectionPosition",
+          "options": [
+              {
+                  "value": "hide",
+                  "label": {
+                      "en": "Hidden",
+                      "de": "Versteckt",
+                      "es": "Oculto",
+                      "fr": "Caché",
+                      "pt-PT": "Escondido"
+                  }
+              },
+              {
+                  "value": "sidebar",
+                  "label": {
+                      "en": "Show in sidebar",
+                      "de": "In Seitenleiste anzeigen",
+                      "es": "Mostrar en la barra lateral",
+                      "fr": "Afficher dans la barre latérale",
+                      "pt-PT": "Mostrar na barra lateral"
+                  }
+              },
+              {
+                  "value": "above_products",
+                  "label": {
+                      "en": "Show above products",
+                      "de": "Über Produkten anzeigen",
+                      "es": "Mostrar productos",
+                      "fr": "Voir les produits ci-dessus",
+                      "pt-PT": "Mostrar acima dos produtos"
+                  }
+              },
+              {
+                  "value": "below_products",
+                  "label": {
+                      "en": "Show below products",
+                      "de": "Unter Produkten anzeigen",
+                      "es": "Mostrar los productos",
+                      "fr": "Voir les produits ci-dessous",
+                      "pt-PT": "Mostrar abaixo dos produtos"
+                  }
+              }
+          ],
+          "label": {
+              "en": "Collection description position",
+              "de": "Position der Sammlungsbeschreibung",
+              "es": "Descripción de la colección",
+              "fr": "Position de la description de la collection",
+              "pt-PT": "Posição da descrição da coleção"
+          },
+          "default": "above_products"
+        },
+        {
+            "type": "checkbox",
+            "id": "collageLayoutEnabled",
+            "label": {
+                "en": "Enable collage layout on desktop",
+                "de": "Collagenlayout auf Desktop-Geräten aktivieren",
+                "es": "Habilitar el diseño de «collage» en el escritorio",
+                "fr": "Activer la mise en page du collage sur le bureau",
+                "pt-PT": "Ativar a disposição da colagem no ambiente de trabalho"
+            },
+            "info": {
+                "en": "An editorial-inspired layout that alternates the products per row value.",
+                "de": "Ein von Zeitungen inspiriertes Layout, bei dem in jeder Zeile unterschiedlich viele Produkte angezeigt werden.",
+                "es": "Un diseño de inspiración editorial que alterna los productos por valor de fila.",
+                "fr": "Une mise en page d'inspiration éditoriale qui alterne les produits par valeur de ligne.",
+                "pt-PT": "Um esquema de inspiração editorial que alterna os produtos por valor de linha."
+            },
+            "default": false
+        },
+        {
+            "type": "checkbox",
+            "id": "collectionSort",
+            "label": {
+                "en": "Enable collection sorting",
+                "de": "Sortieren von Sammlungen aktivieren",
+                "es": "Permitir la clasificación de las colecciones",
+                "fr": "Permettre le tri de la collection",
+                "pt-PT": "Ativar ordenação de coleções"
+            },
+            "info": {
+                "en": "Allows customers to sort collections by certain product parameters (e.g., price, age, popularity).",
+                "de": "Erlaubt Kunden, Sammlungen nach bestimmten Produktparametern zu sortieren (z. B. nach Preis, Alter, Beliebtheit).",
+                "es": "Permite a los clientes clasificar las colecciones según ciertos parámetros del producto (por ejemplo, precio, edad, popularidad).",
+                "fr": "Permet aux clients de trier les collections selon certains paramètres du produit (p. ex., prix, âge, popularité).",
+                "pt-PT": "Permite aos clientes ordenarem as coleções por certos parâmetros de produto (por exemplo, preço, idade, popularidade)."
+            }
+        },
+        {
+          "type": "header",
+          "content": {
+            "en": "Sidebar",
+            "de": "Seitenleiste",
+            "es": "Barra lateral",
+            "fr": "Barre latérale",
+            "pt-PT": "Barra lateral"
+
+          }
+        },
+        {
+            "type": "checkbox",
+            "id": "collectionSidebarImage",
+            "label": {
+                "en": "Show collection image",
+                "de": "Kollektionsbild anzeigen",
+                "es": "Mostar la imagen de la colección",
+                "fr": "Afficher l'image de la collection",
+                "pt-PT": "Mostrar imagem da coleção"
+            }
+        },
+        {
+            "type": "richtext",
+            "id": "collectionSidebarText",
+            "label": {
+                "en": "Show custom text",
+                "de": "Benutzerdefinierten Text anzeigen",
+                "es": "Mostrar texto personalizado",
+                "fr": "Afficher le texte personnalisé",
+                "pt-PT": "Mostrar texto personalizado"
+            }
+        },
+        {
+            "type": "select",
+            "id": "collectionFilter-tags",
+            "label": {
+                "en": "Tag filtering",
+                "de": "Tag-Filterung",
+                "es": "Filtrado de etiquetas",
+                "fr": "Filtrage des balises",
+                "pt-PT": "Filtragem de etiquetas"
+            },
+            "info": {
+              "en": "Choose specific tags to display in the 'Collection filter groups' blocks above. [Learn more](https://support.weareeight.com/hc/en-us/articles/360020170818-Collection-Page-Filtering)",
+              "de": "Wählen Sie bestimmte Tags aus, die oben in den 'Sammlungsfiltergruppen'-Blöcken angezeigt werden sollen. [Mehr erfahren](https://support.weareeight.com/hc/en-us/articles/360020170818-Collection-Page-Filtering)",
+              "es": "Elija etiquetas específicas para mostrar en los bloques de 'Grupos de filtros de colección' arriba. [Más información](https://support.weareeight.com/hc/en-us/articles/360020170818-Collection-Page-Filtering)",
+              "fr": "Choisissez des balises spécifiques à afficher dans les blocs « Collection de groupes de filtres » ci-dessus. [En savoir plus](https://support.weareeight.com/hc/en-us/articles/360020170818-Collection-Page-Filtering)",
+              "pt-PT": "Escolha etiquetas específicas para exibir nos blocos 'Grupos de filtros da coleção' acima. [Saber mais](https://support.weareeight.com/hc/en-us/articles/360020170818-Collection-Page-Filtering)"
+            },
+            "options": [
+              {
+                "value": "hidden",
+                "label": {
+                  "en": "Hidden",
+                  "de": "Versteckt",
+                  "es": "Oculto",
+                  "fr": "Caché",
+                  "pt-PT": "Escondido"
+                }
+              },
+              {
+                "value": "show_all_tags",
+                "label": {
+                  "en": "All tags",
+                  "de": "Alle Tags",
+                  "es": "Todas las etiquetas",
+                  "fr": "Toutes les balises",
+                  "pt-PT": "Todas as etiquetas"
+                }
+              },
+              {
+                "value": "custom_filter_tags",
+                "label": {
+                  "en": "Specify tags",
+                  "de": "Geben Sie die Tags an",
+                  "es": "Especifique las etiquetas",
+                  "fr": "Spécifiez les balises",
+                  "pt-PT": "Especifique as etiquetas"
+                }
+              }
+            ]
+      }
+    ],
+    "max_blocks": 5,
+    "blocks": [
+        {
+            "name": {
+                "en": "Collection filter group",
+                "de": "Sammlungsfiltergruppe",
+                "es": "Grupo de filtro de colección",
+                "fr": "Groupe de filtres de collection",
+                "pt-PT": "Grupo de filtros de coleção"
+            },
+            "type": "filter",
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "collectionFilter-option",
+                    "label": {
+                        "en": "Group title",
+                        "de": "Gruppentitel",
+                        "es": "Título del grupo",
+                        "fr": "Titre du groupe",
+                        "pt-PT": "Título do grupo"
+                    }
+                },
+                {
+                    "type": "text",
+                    "id": "collectionFilter-tagNames",
+                    "label": {
+                        "en": "Tag names",
+                        "de": "Tag-Namen",
+                        "es": "Nombres de etiquetas",
+                        "fr": "Noms d'étiquettes",
+                        "pt-PT": "Nomes de etiquetas"
+                    },
+                    "info": {
+                        "en": "Separate tag names with a comma",
+                        "de": "Tag-Namen mit einem Komma trennen",
+                        "es": "Separa los nombres de las etiquetas con una coma",
+                        "fr": "Séparez les noms des balises par une virgule",
+                        "pt-PT": "Separe os nomes de etiquetas com uma vírgula"
+                    }
+                }
+            ]
+        }
+    ]
+}
+{% endschema %}

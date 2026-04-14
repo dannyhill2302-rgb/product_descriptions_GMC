@@ -1,0 +1,89 @@
+<h1 class="page-header">{{ 'cart.general.title' | t }}</h1>
+
+<div class="page-wrapper">
+  {% if cart.items != blank %}
+    <form class="form cart-form grid" action="{{ routes.cart_url }}" method="post" data-cart data-section-id="{{ section.id }}" data-section-type="cart">
+      {% render 'cart-content' %}
+
+      {% if cart.item_count > 0 %}
+        {% render 'cart-totals' %}
+      {% endif %}
+    </form>
+  {% else %}
+    <div class="cart-empty">{{ "cart.content.empty" | t }} <a href="{{ routes.root_url }}">{{ "cart.content.continue" | t }}</a>.</div>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+    "name": {
+        "en": "Cart",
+        "fr": "Panier",
+        "de": "Einkaufswagen",
+        "es": "Carrito",
+        "pt-PT": "Carrinho"
+    },
+    "settings": [
+        {
+            "type": "header",
+            "content": {
+                "en": "Shipping rate calculator",
+                "de": "Versandkostenrechner",
+                "es": "Calculadora de tarifas de envío",
+                "fr": "Calculateur de frais d'expédition",
+                "pt-PT": "Calculadora de taxa de envio"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "cartShippingCalculator",
+            "label": {
+                "en": "Enable",
+                "de": "Aktivieren",
+                "es": "Habilitar",
+                "fr": "Activer",
+                "pt-PT": "Ativar efeito de paralaxe"
+            }
+        },
+        {
+            "type": "text",
+            "id": "cartShippingCountry",
+            "label": {
+                "en": "Default country",
+                "de": "Standardland",
+                "es": "País por defecto",
+                "fr": "Pays par défaut",
+                "pt-PT": "País predefinido"
+            },
+            "default": {
+                "en": "United States",
+                "de": "USA",
+                "es": "Estados Unidos",
+                "fr": "États-Unis",
+                "pt-PT": "Estados Unidos"
+            }
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Order message",
+                "de": "Bestellnachricht",
+                "es": "Mensaje de pedido",
+                "fr": "Message de commande",
+                "pt-PT": "Mensagem de encomenda"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "cartNote",
+            "label": {
+                "en": "Enable",
+                "de": "Aktivieren",
+                "es": "Habilitar",
+                "fr": "Activer",
+                "pt-PT": "Ativar efeito de paralaxe"
+            }
+        }
+    ]
+}
+{% endschema %}

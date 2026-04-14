@@ -1,0 +1,133 @@
+{% assign commentCount = article.comments_count %}
+
+{% if comment and comment.created_at %}
+  {% assign commentCount = article.comments_count | plus: 1 %}
+{% endif %}
+
+<header class="page-header-wrapper">
+  <time class="article-published">{{ article.published_at | date: format: 'month_day_year' }}</time>
+  <h1 class="page-header">{{ article.title }}</h1>
+
+  {% if blog.previous_article or blog.next_article %}
+    {% if blog.previous_article %}
+      <a class="article-previous" href="{{ blog.previous_article }}">
+        <svg><use xlink:href="#icon-arrow-prev"></use></svg>
+      </a>
+    {% else %}
+      <span class="article-previous">
+        <svg><use xlink:href="#icon-arrow-prev"></use></svg>
+      </span>
+    {% endif %}
+
+    {% if blog.next_article %}
+      <a class="article-next" href="{{ blog.next_article }}">
+        <svg><use xlink:href="#icon-arrow-next"></use></svg>
+      </a>
+    {% else %}
+      <span class="article-next">
+        <svg><use xlink:href="#icon-arrow-next"></use></svg>
+      </span>
+    {% endif %}
+  {% endif %}
+</header>
+
+<main class="page-wrapper article-wrapper">
+  {% if article.image %}
+    <figure class="article-image">
+      {{ article.image | img_url: "1024x" | img_tag }}
+    </figure>
+  {% endif %}
+
+  <div class="article-content-wrapper grid-item-66">
+    <div class="article-content">
+      {{ article.content }}
+    </div>
+
+    <div class="article-author">&mdash; {{ article.author }}</div>
+
+    {% if article.tags.size > 0 %}
+      <div class="article-tags">
+        {{ "blogs.blog.tagged" | t }}
+        {% for tag in article.tags %}
+          {{ tag | link_to_tag: tag }}{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% render 'share', url: article.url, title: article.title, image: article.image, collection: blog.title %}
+
+    {% if blog.comments_enabled? %}
+      {% paginate article.comments by 10 %}
+
+        <section class="article-comments-wrapper" id="comments">
+          <div class="article-comments">
+            <h3>{{ 'blogs.comments.title' | t: count: article.comments_count }}</h3>
+
+            {% if commentCount > 0 %}
+              {% for comment in article.comments %}
+                <blockquote>
+                  {{ comment.content }}
+                  <cite>{{ comment.author }}</cite>
+                </blockquote>
+              {% endfor %}
+            {% endif %}
+
+            {% if paginate.pages > 1 %}
+              {% render "pagination", paginate: paginate, width: "full-width" %}
+            {% endif %}
+          </div>
+
+          <div class="article-comments-form" id="comment_form">
+            {% form 'new_comment', article %}
+
+              {% if comment and comment.created_at %}
+                <p class="form-success">
+                  {% if blog.moderated? %}
+                    {{ 'blogs.comments.success_moderated' | t }}
+                  {% else %}
+                    {{ 'blogs.comments.success' | t }}
+                  {% endif %}
+                </p>
+              {% endif %}
+
+              <div class="form-error">
+                {{ form.errors | default_errors }}
+              </div>
+
+              <div class="form-row grid">
+                <div class="form-field grid-item-50">
+                  <label class="form-label" for="blog-comment-name" aria-label="{{ 'blogs.comments.name' | t }}">
+                    <span class="form-field-title">{{ 'blogs.comments.name' | t }}</span>
+                    <input type="text" name="comment[author]" class="form-input form-full {% if form.errors contains 'author' %}error{% endif %}" id="blog-comment-name" placeholder="{{ 'blogs.comments.name_placeholder' | t }}" value="{{ form.author }}" autocapitalize="words">
+                  </label>
+                </div>
+
+                <div class="form-field grid-item-50">
+                  <label class="form-label" for="blog-comment-email" aria-label="{{ 'blogs.comments.email' | t }}">
+                    <span class="form-field-title">{{ 'blogs.comments.email' | t }}</span>
+                    <input type="email" name="comment[email]" class="form-input form-full {% if form.errors contains 'email' %}error{% endif %}" id="blog-comment-email" placeholder="{{ 'blogs.comments.email_placeholder' | t }}" value="{{ form.email }}" autocorrect="off" autocapitalize="off">
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-field form-field-textarea">
+                <label class="form-label" for="blog-comment-message" aria-label="{{ 'blogs.comments.message' | t }}">
+                  <span class="form-field-title">{{ 'blogs.comments.message' | t }}</span>
+                  <textarea name="comment[body]" class="form-input form-full {% if form.errors contains 'body' %}error{% endif %}" id="blog-comment-message" placeholder="{{ 'blogs.comments.message_placeholder' | t }}">{{ form.body }}</textarea>
+                </label>
+              </div>
+
+              {% if blog.moderated? %}
+                <p class="article-comments-moderation">{{ 'blogs.comments.moderated' | t }}</p>
+              {% endif %}
+
+              <button class="button hover-animation" type="submit" value="{{ 'blogs.comments.submit' | t }}" aria-label="{{ 'blogs.comments.submit' | t }}"><span class="button-text">{{ 'blogs.comments.submit' | t }}</span></button>
+            {% endform %}
+          </div>
+        </section>
+
+      {% endpaginate %}
+    {% endif %}
+  </div>
+
+</main>

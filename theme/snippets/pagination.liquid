@@ -1,0 +1,48 @@
+{% if paginate.previous or paginate.next %}
+  {% capture previousButton %}
+    <svg><use xlink:href="#icon-arrow-prev"></use></svg>
+    {{ 'layout.pagination.previous' | t }}
+  {% endcapture %}
+
+  {% capture nextButton %}
+    {{ 'layout.pagination.next' | t }}
+    <svg><use xlink:href="#icon-arrow-next"></use></svg>
+  {% endcapture %}
+
+  <div class="pagination pagination-{{ width }} grid">
+
+    <div class="pagination-previous grid-item-25">
+      {% if paginate.previous.is_link %}
+        <a href="{{ paginate.previous.url }}">
+          {{ previousButton }}
+        </a>
+      {% else %}
+        <span>
+          {{ previousButton }}
+        </span>
+      {% endif %}
+    </div>
+
+    <div class="pagination-parts grid-item-50">
+      {% for part in paginate.parts %}
+        {% if part.is_link %}
+          <a href="{{ part.url }}">{{ part.title }}</a>
+        {% else %}
+          <span>{{ part.title }}</span>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="pagination-next grid-item-25">
+      {% if paginate.next.is_link %}
+        <a href="{{ paginate.next.url }}">
+          {{ nextButton }}
+        </a>
+      {% else %}
+        <span>
+          {{ nextButton }}
+        </span>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}

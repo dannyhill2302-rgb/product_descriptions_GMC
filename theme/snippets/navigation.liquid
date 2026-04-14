@@ -1,0 +1,153 @@
+{% assign megaMenuTitles = "" %}
+{% for block in section.blocks %}
+  {% assign currentMegaMenuTitle = block.settings.navigationItem %}
+  {% assign megaMenuTitles = megaMenuTitles | append: "|" | append: currentMegaMenuTitle %}
+{% endfor %}
+{% assign megaMenuTitles = megaMenuTitles | remove_first: "|" | split: "|" %}
+
+<div class="main-navigation-wrapper{% if section.settings.navigation_placement == 'center' %} main-navigation-wrapper--center{% endif %}{% if section.settings.full-width %} main-navigation-wrapper--full-width{% endif %}" data-section-id="{{ section.id }}" data-section-type="navigation">
+  <nav class="main-navigation" data-main-navigation>
+    <span class="scroll-left"></span>
+
+    <ul class="navigation-list" data-navigation-list>
+      {% for link in linklists[section.settings.navigationMainMenu].links %}
+
+        {% assign isMegaMenu = false %}
+        {% if megaMenuTitles contains link.title %}
+          {% assign isMegaMenu = true %}
+        {% endif %}
+
+        {% assign hasChildren = false %}
+        {% if link.levels > 0 %}
+          {% assign hasChildren = true %}
+        {% endif %}
+
+        <li class="navigation-list-item {% if hasChildren %}has-dropdown{% endif %} {% if isMegaMenu %}has-super-nav{% endif %} {% render 'sale-checker', item: link %}" data-navigation-item>
+          <a href="{{ link.url }}" {% if hasChildren %}data-navigation-dropdown="{{ link.title | handle }}" aria-haspopup="true"{% endif %} class="header--font">
+            {{ link.title }}
+            {% if hasChildren or isMegaMenu %}
+              <span class="navigation-dropdown-toggle">
+                <svg><use xlink:href="#icon-arrow-down"></use></svg>
+              </span>
+            {% endif %}
+          </a>
+
+          {% if isMegaMenu %}
+
+            {% for block in section.blocks %}
+              {% if block.settings.navigationItem == link.title %}
+                {% assign departmentsLinklist = linklists[section.settings.navigationMainMenu] %}
+                {% assign currentBlock = block %}
+                {% break %}
+              {% endif %}
+            {% endfor %}
+
+            <div class="navigation-super-wrapper" data-navigation-super="{{ link.handle }}" {{ currentBlock.shopify_attributes }}>
+              <div class="navigation-super grid">
+                <div class="navigation-super-departments {% if currentBlock.settings.navigationMegaImage %}grid-item-75{% else %}grid-item-100{% endif %}" data-navigation-super-departments>
+
+                  {% for link_super in departmentsLinklist.links %}
+                    {% if link_super.title == currentBlock.settings.navigationItem %}
+                      {% if link_super.levels > 0 %}
+                        <div id="navigation-super-{{ forloop.index0 }}" data-navigation-super-collection-parent="{{ link_super.handle }}" aria-label="submenu">
+                          {% for link_super_secondary in link_super.links %}
+                            <div class="navigation-super-collection">
+                              <h4>
+                                <a href="{{ link_super_secondary.url }}" id="{{ link_super_secondary.handle }}">{{ link_super_secondary.title }}</a>
+                              </h4>
+
+                              {% if link_super_secondary.levels > 0 %}
+                                <ul>
+                                  {% for link_super_tertiary in link_super_secondary.links %}
+                                    <li class="{% render 'sale-checker', item: link_super_tertiary %}">
+                                      <a href="{{ link_super_tertiary.url }}" id="{{ link_super_tertiary.handle }}">{{ link_super_tertiary.title }}</a>
+                                    </li>
+                                  {% endfor %}
+                                </ul>
+                              {% endif %}
+                            </div>
+                          {% endfor %}
+                        </div>
+                      {% endif %}
+                    {% endif %}
+                  {% endfor %}
+                </div>
+
+                <div class="navigation-super-collections {% if currentBlock.settings.navigationMegaImage %}grid-item-25{% else %}hidden{% endif %}" data-navigation-super-collections>
+                  {% if currentBlock.settings.navigationMegaImage %}
+                    {% assign image = currentBlock.settings.navigationMegaImage %}
+                    <div class="navigation-super-default visible" data-navigation-super-default>
+                      {% if currentBlock.settings.navigationMegaImageLink != blank %}
+                        {% assign navigationImageLink = currentBlock.settings.navigationMegaImageLink %}
+                      {% endif %}
+
+                      {% if navigationImageLink %}
+                        <a href="{{ navigationImageLink }}" aria-label="{{image.alt}}">
+                      {% else %}
+                        {%- capture image_attributes -%}
+                          tabindex="0" aria-label="{{image.alt}}"
+                        {%- endcapture -%}
+                      {% endif %}
+
+                      {%
+                        render 'image',
+                        image_object: image,
+                        image_widths: '664, 740, 800, 1328, 1480, 1600, 1992, 2220, 2400',
+                        image_noscript_width: '800x',
+                        image_attributes: image_attributes,
+                        image_link: false,
+                        image_additional_content: false,
+                        image_class: false
+                      %}
+
+                      {% if navigationImageLink %}
+                        </a>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% elsif hasChildren %}
+            <ul class="navigation-dropdown-simple" aria-label="submenu">
+              {% for link_secondary in link.links %}
+
+                {% assign hasChildren = false %}
+                {% if link_secondary.levels > 0 %}
+                  {% assign hasChildren = true %}
+                {% endif %}
+
+                <li class="navigation-dropdown-item {% if hasChildren %}has-dropdown{% endif %} {% render 'sale-checker', item: link_secondary %}" data-navigation-dropdown-item>
+                  <a href="{{ link_secondary.url }}" {% if hasChildren %}data-navigation-dropdown="{{ link_secondary.title | handle }}" aria-haspopup="true"{% endif %}>
+                    {{ link_secondary.title }}
+                    {% if hasChildren %}
+                      <span class="navigation-dropdown-toggle">
+                        <svg><use xlink:href="#icon-arrow-right"></use></svg>
+                      </span>
+                    {% endif %}
+                  </a>
+
+                  {% if hasChildren %}
+                    <ul class="navigation-dropdown-simple secondary" aria-hidden="true" aria-label="submenu">
+                      {% for link_tertiary in link_secondary.links %}
+                        <li class="{% render 'sale-checker', item: link_tertiary %}" data-navigation-dropdown-item>
+                          {{ link_tertiary.title | link_to: link_tertiary.url }}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+
+        </li>
+
+      {% endfor %}
+    </ul>
+
+    <span class="scroll-right"></span>
+  </nav>
+</div>
+
+{% render 'navigation-mobile', section: section, megaMenuTitles: megaMenuTitles %}

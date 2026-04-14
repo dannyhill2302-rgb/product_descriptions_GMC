@@ -1,0 +1,56 @@
+{% if section.settings.displayDetails == 'customDetails' %}
+  {% assign useCustomDetails = true %}
+{% else %}
+  {% assign useCustomDetails = false %}
+{% endif %}
+
+{% if section.settings.displayDetails == 'customDetails' and
+section.settings.featuredSubheading == blank and
+section.settings.featuredTitle == blank and
+section.settings.featuredCustomDescription == blank %}
+  {% assign noDetails = true %}
+{% endif %}
+
+{%- assign collection = collections[section.settings.collection] -%}
+
+{% if useCustomDetails %}
+
+  {% unless noDetails %}
+    <header class="index-header">
+      {% if section.settings.featuredSubheading != empty %}
+        <h3 class="index-subheading">{{ section.settings.featuredSubheading }}</h3>
+      {% endif %}
+      
+      {% if section.settings.featuredTitle != empty %}
+        <h2 class="featured-products-heading {% if forloop.first %}active{% endif %}" {% render 'animations', type: 'fadeUpAnim1' %}>
+          {{ section.settings.featuredTitle | escape }}
+        </h2>
+      {% endif %}
+
+      {% if section.settings.featuredCustomDescription != empty %}
+        <p {% if section.settings.featuredTitle != empty or section.settings.featuredSubheading != empty %}{% render 'animations', type: 'fadeUpAnim2' %}{% else %}{% render 'animations', type: 'fadeUpAnim1' %}{% endif %}>{{ section.settings.featuredCustomDescription | newline_to_br }}</p>
+      {% endif %}
+    </header>
+  {% endunless %}
+
+{% else %}
+
+  <header class="index-header">
+    <h2 class="featured-products-heading" {% render 'animations', type: 'fadeUpAnim1' %}>
+      {% if section.settings.collection != blank %}
+        {{ collection.title }}
+      {% else %}
+        {{ 'layout.onboarding.collection_title' | t }}
+      {% endif %}
+    </h2>
+
+    <p {% render 'animations', type: 'fadeUpAnim2' %}>
+      {% if section.settings.collection != blank %}
+        {{ collection.description | truncatewords: 20 | strip_html }}
+      {% else %}
+        {{ 'layout.onboarding.collection_description' | t }}
+      {% endif %}
+    </p>
+  </header>
+
+{% endif %}

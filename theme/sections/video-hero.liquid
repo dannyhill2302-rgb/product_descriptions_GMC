@@ -1,0 +1,655 @@
+{% capture textalignment %}
+    {% case section.settings.textAlignment %}
+    {% when 'top-left' %}
+        text-align-top-left
+    {% when 'top-center' %}
+        text-align-top-center
+    {% when 'top-right' %}
+        text-align-top-right
+    {% when 'center-left' %}
+        text-align-center-left
+    {% when 'center' %}
+        text-align-center
+    {% when 'center-right' %}
+        text-align-center-right
+    {% when 'bottom-left' %}
+        text-align-bottom-left
+    {% when 'bottom-center' %}
+        text-align-bottom-center
+    {% when 'bottom-right' %}
+        text-align-bottom-right
+    {% endcase %}
+{% endcapture %}
+
+{% capture desktopheight %}
+    {% case section.settings.desktopHeight %}
+    {% when '450' %}
+        desktop-height-450
+    {% when '550' %}
+        desktop-height-550
+    {% when '650' %}
+        desktop-height-650
+    {% when '750' %}
+        desktop-height-750
+    {% when 'fullscreen' %}
+        desktop-height-fullscreen
+    {% endcase %}
+{% endcapture %}
+
+{% capture mobileheight %}
+    {% case section.settings.mobileHeight %}
+    {% when '250' %}
+        mobile-height-250
+    {% when '350' %}
+        mobile-height-350
+    {% when '450' %}
+        mobile-height-450
+    {% when '550' %}
+        mobile-height-550
+    {% when 'fullscreen' %}
+        mobile-height-fullscreen
+    {% when 'fit' %}
+        mobile-height-fit
+    {% endcase %}
+{% endcapture %}
+
+{% capture mediatype %}
+    {% if section.settings.url contains "youtube.com" or section.settings.url contains "youtu.be" %}
+        video-hero-type-youtube
+    {% elsif section.settings.url contains "vimeo.com" %}
+        video-hero-type-vimeo
+    {% else %}
+        video-hero-type-mp4
+    {% endif %}
+{% endcapture %}
+
+<section
+    class="video-hero-outer-wrapper {{ mediatype | strip }}"
+    data-section-id="{{ section.id }}"
+    data-section-type="home"
+    data-section-child="video-hero"
+    data-video-hero
+    {% render 'animations', type: 'fadeUpAnim1' %}
+>
+
+    {% capture isplaceholder %}
+        {% if section.settings.url contains "watch?v=_9VUPq3SxOc" %}
+            is-placeholder
+        {% endif %}
+    {% endcapture %}
+
+    {% capture mediaembed %}
+        {% if section.settings.url contains "youtube.com" or section.settings.url contains "youtu.be" %}
+            <div class="video-hero-youtube" id="hero-player--{{ section.id }}">
+                <div class="iframe-placeholder"></div>
+            </div>
+        {% elsif section.settings.url contains "vimeo.com" %}
+            <div class="video-hero-vimeo" id="player--{{ section.id }}">
+                <iframe
+                    allowfullscreen
+                    allowtransparency
+                    allow="autoplay"
+                    frameborder="0"
+                ></iframe>
+            </div>
+        {% else %}
+            <video class="video-hero-mp4" id="player--{{ section.id }}" playsinline controls>
+                <source src="{{ section.settings.url }}" type="video/mp4" />
+            </video>
+        {% endif %}
+    {% endcapture %}
+
+    {% capture settingsdata %}
+        data-mute="true"
+        data-autoplay="true"
+        data-loop="true"
+        data-hide-controls="true"
+        data-videoid="{{ section.settings.url }}"
+    {% endcapture %}
+
+    {% capture media_icon %}
+        <svg viewBox="0 0 61 61">
+            <rect x="0.5" y="0.5" width="60" height="60" fill="none" stroke="currentColor" stroke-opacity="0.05" stroke-miterlimit="10"/>
+            <path d="M25,21.39a1,1,0,0,0-1.51.86V38.64a1,1,0,0,0,1.55.83l13.11-8.67a1,1,0,0,0,0-1.7Z" fill="currentColor"/>
+        </svg>
+    {% endcapture %}
+
+    <div class="homepage-sections-wrapper homepage-content--{{ section.id }} hero-video {{ desktopheight | strip }} {{ mobileheight | strip }} {{ isplaceholder | strip }}">
+        <div class="hero-video--wrapper">
+            <div class="hero-video--overlay"></div>
+            <div class="hero-video--media" {{ settingsdata }}>
+                {{ mediaembed }}
+            </div>
+            {% if section.settings.button_label != blank or section.settings.title != blank or section.settings.text != blank %}
+            <div class="hero-video--text">
+                <div class="hero-video--text-content {{ textalignment | strip }}">
+                    <div class="text-content--inner{% if section.settings.textShadow %} text-shadow{% endif %} wow fadeInUp">
+                        <div class="hero-video--text-title">
+                            {% if section.settings.subheading != blank %}
+                                <h3 class="index-subheading">{{ section.settings.subheading }}</h3>
+                            {% endif %}
+                            <h1 class="text-size-{{ section.settings.heading--text-size }}px wow fadeInUp">{{ section.settings.title }}</h1>
+                        </div>
+                        <div class="hero-video--text-subtitle">
+                            <p class="text-size-{{ section.settings.text--text-size }}px">{{ section.settings.text }}</p>
+                        </div>
+                        {% if section.settings.button_label != blank %}
+                        <div class="hero-video--button">
+                            <a href="{{ section.settings.button_link }}" tabindex="0" class="button hover-animation"><span class="button-text">{{ section.settings.button_label }}</span></a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</section>
+
+<style>
+    .homepage-content--{{ section.id }} .hero-video--text,
+    .homepage-content--{{ section.id }} .hero-video--text h1,
+    .homepage-content--{{ section.id }} .hero-video--text h3 {
+        color: {{ section.settings.textColor }};
+    }
+    .homepage-content--{{ section.id }} .hero-video--button .hover-animation .button-text {
+        color: {{ section.settings.textColorButton }};
+    }
+    .homepage-content--{{ section.id }} .hero-video--button .hover-animation {
+        background-color: {{ section.settings.colorButton }};
+    }
+    .homepage-content--{{ section.id }} .hero-video--button .button::before {
+        {% assign background_lightness = section.settings.colorButton | color_extract: 'lightness' %}
+        {% if background_lightness > 50 %}
+            background-color: {{ section.settings.colorButton | color_darken: 7 | color_saturate: 7 | downcase }};
+        {% else %}
+            background-color: {{ section.settings.colorButton | color_lighten: 5 | color_desaturate: 5 | downcase }};
+        {% endif %}
+    }
+</style>
+
+{% schema %}
+{
+    "name": {
+        "en": "Video with text overlay",
+        "de": "Video mit Texteinblendung",
+        "es": "Vídeo con superposición de texto",
+        "fr": "Vidéo avec superposition de texte",
+        "pt-PT": "Vídeo com sobreposição de texto"
+    },
+    "class": "section-index-video-hero-wrapper",
+    "settings": [
+        {
+            "type": "header",
+            "content": {
+                "en": "Video",
+                "de": "Video",
+                "es": "Vídeo",
+                "fr": "Vidéo",
+                "pt-PT": "Vídeo"
+            }
+        },
+        {
+            "id": "url",
+            "type": "text",
+            "label": {
+                "en": "Video URL",
+                "de": "Video-URL",
+                "es": "URL del vídeo",
+                "fr": "URL de la vidéo",
+                "pt-PT": "URL do Vídeo"
+            },
+            "info": {
+                "en": "Accepts YouTube, Vimeo and .mp4 [read more](https://support.weareeight.com/hc/en-us/articles/360020040457-Product-Media)",
+                "de": "Akzeptiert YouTube, Vimeo und.mp4 [mehr erfahren](https://support.weareeight.com/hc/en-us/articles/360020040457-Product-Media)",
+                "es": "Acepta YouTube, Vimeo y .mp4 [más información](https://support.weareeight.com/hc/en-us/articles/360020040457-Product-Media)",
+                "fr": "Accepte YouTube, Vimeo et .mp4 [en savoir plus](https://support.weareeight.com/hc/en-us/articles/360020040457-Product-Media)",
+                "pt-PT": "Aceita YouTube, Vimeo e .mp4 [ler mais](https://support.weareeight.com/hc/en-us/articles/360020040457-Product-Media)"
+            },
+            "default": "https://www.youtube.com/watch?v=_9VUPq3SxOc"
+        },
+        {
+            "type": "select",
+            "id": "desktopHeight",
+            "label": {
+              "en": "Section height",
+              "de": "Abschnitthöhe",
+              "es": "Altura de la sección",
+              "fr": "Hauteur de section",
+              "pt-PT": "Altura da secção"
+            },
+            "default": "fullscreen",
+            "options": [
+                {
+                    "value": "fullscreen",
+                    "label": {
+                        "en": "Fullscreen",
+                        "de": "Vollbild",
+                        "es": "Pantalla completa",
+                        "fr": "Plein écran",
+                        "pt-PT": "Ecrã inteiro"
+                    }
+                },
+                {
+                    "value": "450",
+                    "label": {
+                        "en": "Small",
+                        "de": "Klein",
+                        "es": "Pequeño",
+                        "fr": "Petite",
+                        "pt-PT": "Pequeno"
+                    }
+                },
+                {
+                    "value": "550",
+                    "label": {
+                        "en": "Medium",
+                        "de": "Mittel",
+                        "es": "Mediano",
+                        "fr": "Moyenne",
+                        "pt-PT": "Médio"
+                    }
+                },
+                {
+                    "value": "650",
+                    "label": {
+                        "en": "Large",
+                        "de": "Groß",
+                        "es": "Grande",
+                        "fr": "Grande",
+                        "pt-PT": "Grande"
+                    }
+                },
+                {
+                    "value": "750",
+                    "label": {
+                        "en": "Extra Large",
+                        "de": "Extra groß",
+                        "es": "Muy grande",
+                        "fr": "Extra grande",
+                        "pt-PT": "Extra Grande"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "select",
+            "id": "mobileHeight",
+            "label": {
+                "en": "Mobile section height",
+                "de": "Höhe des beweglichen Teils",
+                "es": "Altura de la sección móvil",
+                "fr": "Hauteur de la section mobile",
+                "pt-PT": "Altura da secção móvel"
+            },
+            "default": "fullscreen",
+            "options": [
+                {
+                    "value": "fullscreen",
+                    "label": {
+                        "en": "Fullscreen",
+                        "de": "Vollbild",
+                        "es": "Pantalla completa",
+                        "fr": "Plein écran",
+                        "pt-PT": "Ecrã inteiro"
+                    }
+                },
+                {
+                    "value": "fit",
+                    "label": {
+                        "en": "Fit to screen width",
+                        "de": "An Bildschirmbreite anpassen",
+                        "es": "Ajustar al ancho de la pantalla",
+                        "fr": "Ajuster à la largeur de l'écran",
+                        "pt-PT": "Ajustar à largura do ecrã"
+                    }
+                },
+                {
+                    "value": "250",
+                    "label": {
+                        "en": "Small",
+                        "de": "Klein",
+                        "es": "Pequeño",
+                        "fr": "Petite",
+                        "pt-PT": "Pequeno"
+                    }
+                },
+                {
+                    "value": "350",
+                    "label": {
+                        "en": "Medium",
+                        "de": "Mittel",
+                        "es": "Mediano",
+                        "fr": "Moyenne",
+                        "pt-PT": "Médio"
+                    }
+                },
+                {
+                    "value": "450",
+                    "label": {
+                        "en": "Large",
+                        "de": "Groß",
+                        "es": "Grande",
+                        "fr": "Grande",
+                        "pt-PT": "Grande"
+                    }
+                },
+                {
+                    "value": "550",
+                    "label": {
+                        "en": "Extra large",
+                        "de": "Extra groß",
+                        "es": "Muy grande",
+                        "fr": "Extra grande",
+                        "pt-PT": "Extra Grande"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            }
+        },
+        {
+            "type": "text",
+            "id": "subheading",
+            "label": {
+                "en": "Subheading",
+                "de": "Unterüberschrift",
+                "es": "Subencabezado",
+                "fr": "Sous-rubrique",
+                "pt-PT": "Subtítulo"
+            }
+        },
+        {
+            "type": "textarea",
+            "id": "title",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            },
+            "default": {
+                "en": "Share your story",
+                "de": "Teilen Sie Ihre Geschichte",
+                "es": "Comparte tu historia",
+                "fr": "Partagez votre histoire",
+                "pt-PT": "Partilhe a sua história"
+            }
+        },
+        {
+            "type": "textarea",
+            "id": "text",
+            "label": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            },
+            "default": {
+                "en": "Here's your chance to make a great first impression",
+                "de": "Hier ist Ihre Chance, einen großartigen ersten Eindruck zu hinterlassen.",
+                "es": "Esta es tu oportunidad de causar una buena primera impresión",
+                "fr": "C'est le moment ou jamais de faire une excellente première impression",
+                "pt-PT": "Aqui está a sua oportunidade de causar uma excelente primeira impressão"
+            }
+        },
+        {
+            "type": "select",
+            "id": "textAlignment",
+            "label": {
+                "en": "Text position",
+                "de": "Textposition",
+                "es": "Posición del texto",
+                "fr": "Position du texte",
+                "pt-PT": "Posição do texto"
+            },
+            "default": "center",
+            "options": [
+                {
+                    "value": "top-left",
+                    "label": {
+                        "en": "Top left",
+                        "de": "Oben links",
+                        "es": "Esquina superior izquierda",
+                        "fr": "En haut à gauche",
+                        "pt-PT": "Canto superior esquerdo"
+                    }
+                },
+                {
+                    "value": "top-center",
+                    "label": {
+                        "en": "Top center",
+                        "de": "Oben Mitte",
+                        "es": "Zona superior central",
+                        "fr": "En haut au centre",
+                        "pt-PT": "Centro superior"
+                    }
+                },
+                {
+                    "value": "top-right",
+                    "label": {
+                        "en": "Top right",
+                        "de": "Oben rechts",
+                        "es": "Esquina superior derecha",
+                        "fr": "En haut à droite",
+                        "pt-PT": "Canto superior direito"
+                    }
+                },
+                {
+                    "value": "center-left",
+                    "label": {
+                        "en": "Center left",
+                        "de": "Mitte links",
+                        "es": "Zona central izquierda",
+                        "fr": "Centre gauche",
+                        "pt-PT": "Centrar à esquerda"
+                    }
+                },
+                {
+                    "value": "center",
+                    "label": {
+                        "en": "Center",
+                        "de": "Mitte",
+                        "es": "Zona central",
+                        "fr": "Centre",
+                        "pt-PT": "Centro"
+                    }
+                },
+                {
+                    "value": "center-right",
+                    "label": {
+                        "en": "Center right",
+                        "de": "Mitte rechts",
+                        "es": "Zona central derecha",
+                        "fr": "Centre droit",
+                        "pt-PT": "Centrar à direita"
+                    }
+                },
+                {
+                    "value": "bottom-left",
+                    "label": {
+                        "en": "Bottom left",
+                        "de": "unten links",
+                        "es": "esquina inferior izquierda",
+                        "fr": "en bas à gauche",
+                        "pt-PT": "Canto inferior esquerdo"
+                    }
+                },
+                {
+                    "value": "bottom-center",
+                    "label": {
+                        "en": "Bottom center",
+                        "de": "unten Mitte",
+                        "es": "Zona inferior central",
+                        "fr": "en bas au centre",
+                        "pt-PT": "Centro inferior"
+                    }
+                },
+                {
+                    "value": "bottom-right",
+                    "label": {
+                        "en": "Bottom right",
+                        "de": "Unten rechts",
+                        "es": "Esquina inferior derecha",
+                        "fr": "En bas à droite",
+                        "pt-PT": "Canto inferior direito"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "color",
+            "id": "textColor",
+            "label": {
+                "en": "Text color",
+                "de": "Textfarbe",
+                "es": "Color del texto",
+                "fr": "Couleur du texte",
+                "pt-PT": "Cor do texto"
+            },
+            "default": "#000000"
+        },
+        {
+            "type": "checkbox",
+            "id": "textShadow",
+            "label": {
+                "en": "Text shadow",
+                "de": "Textschatten",
+                "es": "Sombra del texto",
+                "fr": "Ombre de texte",
+                "pt-PT": "Sombra do texto"
+            },
+            "default": false
+        },
+        {
+            "type": "range",
+            "id": "heading--text-size",
+            "min": 16,
+            "max": 60,
+            "step": 2,
+            "unit": {
+                "en": "px",
+                "de": "px",
+                "es": "px",
+                "fr": "px",
+                "pt-PT": "px"
+            },
+            "label": {
+                "en": "Heading size",
+                "de": "Überschift-Größe",
+                "es": "Tamaño del encabezado",
+                "fr": "Taille de la rubrique",
+                "pt-PT": "Tamanho do título"
+            },
+            "default": 50
+        },
+        {
+            "type": "range",
+            "id": "text--text-size",
+            "min": 12,
+            "max": 30,
+            "step": 2,
+            "unit": {
+                "en": "px",
+                "de": "px",
+                "es": "px",
+                "fr": "px",
+                "pt-PT": "px"
+            },
+            "label": {
+                "en": "Text size",
+                "de": "Größe der Unterrubrik",
+                "es": "Tamaño del subtítulo",
+                "fr": "Taille du sous-titre",
+                "pt-PT": "Tamanho do subtítulo"
+            },
+            "default": 24
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Button",
+                "de": "Button",
+                "es": "Botón",
+                "fr": "Bouton",
+                "pt-PT": "Botão"
+            }
+        },
+        {
+            "type": "url",
+            "id": "button_link",
+            "label": {
+                "en": "Button link",
+                "de": "Buttonlink",
+                "es": "Enlace del botón",
+                "fr": "Lien du bouton",
+                "pt-PT": "Ligação do botão"
+            }
+        },
+        {
+            "type": "text",
+            "id": "button_label",
+            "label": {
+                "en": "Button text",
+                "de": "Buttontext",
+                "es": "Texto del botón",
+                "fr": "Texte des boutons",
+                "pt-PT": "Texto do botão"
+            }
+        },
+        {
+            "type": "color",
+            "id": "textColorButton",
+            "label": {
+                "en": "Button text color",
+                "de": "Farbe des Buttontextes",
+                "es": "Color del texto del botón",
+                "fr": "Couleur du texte du bouton",
+                "pt-PT": "Cor do texto do botão"
+            },
+            "default": "#ffffff"
+        },
+        {
+            "type": "color",
+            "id": "colorButton",
+            "label": {
+                "en": "Button background color",
+                "de": "Farbe des Buttonhintergrunds",
+                "es": "Color de fondo del botón",
+                "fr": "Couleur d'arrière-plan du bouton",
+                "pt-PT": "Cor de fundo do botão"
+            },
+            "default": "#333333"
+        }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Video with text overlay",
+                "de": "Video mit Texteinblendung",
+                "es": "Vídeo con superposición de texto",
+                "fr": "Vidéo avec superposition de texte",
+                "pt-PT": "Vídeo com sobreposição de texto"
+            },
+            "category": {
+                "en": "Video",
+                "de": "Video",
+                "es": "Vídeo",
+                "fr": "Vidéo",
+                "pt-PT": "Vídeo"
+            }
+        }
+    ]
+}
+{% endschema %}

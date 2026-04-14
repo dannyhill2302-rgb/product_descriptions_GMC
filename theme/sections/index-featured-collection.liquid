@@ -1,0 +1,298 @@
+<section
+  class="featured-products-wrapper
+    {% if section.settings.style == 'grid' %}is-grid{% else %}is-slider{% endif %}"
+  data-section-id="{{ section.id }}"
+  data-section-type="home"
+  data-section-child="featured-products"
+  data-section-style="{{ section.settings.style }}"
+>
+
+
+  {% if section.settings.style == 'grid' %}
+    {% render 'index-collection-grid', section: section %}
+  {% elsif section.settings.style == 'slider' %}
+    {% render 'index-collection-slider', section: section %}
+  {% endif %}
+
+</section>
+
+{% schema %}
+{
+    "name": {
+        "en": "Featured collection",
+        "de": "Vorgestellte Kollektionen",
+        "es": "Colecciones destacadas",
+        "fr": "Collections en vedette",
+        "pt-PT": "Coleções em destaque"
+    },
+    "class": "section-index-products",
+    "settings": [
+        {
+            "type": "select",
+            "id": "style",
+            "label": {
+                "en": "Style",
+                "de": "Stil",
+                "es": "Estilo",
+                "fr": "Style",
+                "pt-PT": "Estilo"
+            },
+            "default": "grid",
+            "options": [
+                {
+                    "value": "grid",
+                    "label": {
+                        "en": "Grid",
+                        "de": "Raster",
+                        "es": "Cuadrícula",
+                        "fr": "Grille",
+                        "pt-PT": "Grelha"
+                    }
+                },
+                {
+                    "value": "slider",
+                    "label": {
+                        "en": "Slider",
+                        "de": "Schieberegler",
+                        "es": "Deslizador",
+                        "fr": "Curseur",
+                        "pt-PT": "Controlo de deslize"
+                    }
+                }
+            ]
+        },
+        {
+          "id": "collection",
+          "type": "collection",
+          "label": {
+              "en": "Collection",
+              "de": "Sammlung",
+              "es": "Colección",
+              "fr": "Collection",
+              "pt-PT": "Coleção"
+          }
+        },
+        {
+          "type": "select",
+          "id": "product-info",
+          "label": {
+              "en": "Product information",
+              "de": "Produktinformationen",
+              "es": "Información del producto",
+              "fr": "Informations produit",
+              "pt-PT": "Informações do produto"
+          },
+          "default": "below",
+          "options": [
+            {
+              "value": "below",
+              "label": {
+                  "en": "Below",
+                  "de": "Darunter",
+                  "es": "Abajo",
+                  "fr": "Dessous",
+                  "pt-PT": "Abaixo"
+              }
+            },
+            {
+              "value": "show-on-hover",
+              "label": {
+                  "en": "Show on hover",
+                  "de": "Beim Darüberfahren anzeigen",
+                  "es": "Mostrar el cursor",
+                  "fr": "Afficher en survol",
+                  "pt-PT": "Exibir em modo de pairar"
+              }
+            },
+            {
+              "value": "hide",
+              "label": {
+                  "en": "Hide",
+                  "de": "Verbergen",
+                  "es": "Ocultar",
+                  "fr": "Cacher",
+                  "pt-PT": "Ocultar"
+              }
+            }
+          ],
+          "info": {
+            "en": "'Show on hover' option disables showing secondary image on hover",
+            "de": "Die Option 'Hover-Anzeige' deaktiviert die Anzeige eines zweiten Bildes, wenn der Mauszeiger darüberfährt",
+            "es": "La opción 'Mostrar al pasar el ratón' desactiva la visualización de la imagen secundaria al pasar el ratón",
+            "fr": "L'option « Afficher en survol » désactive l'affichage de l'image secondaire en survol",
+            "pt-PT": "A opção 'Mostrar ao passar o rato' desativa a exibição da imagem secundária ao passar o rato"
+          }
+        },
+        {
+          "type": "range",
+          "id": "productsPerRow",
+          "min": 2,
+          "max": 6,
+          "step": 1,
+          "default": 3,
+          "label": {
+            "en": "Products per row (desktop)",
+            "de": "Produkte pro Zeile (Desktop)",
+            "es": "Productos por fila (escritorio)",
+            "fr": "Produits par ligne (ordinateur de bureau)",
+            "pt-PT": "Produtos por linha (ambiente de trabalho)"
+          }
+        },
+        {
+           "type": "radio",
+           "id": "displayDetails",
+           "label": {
+               "en": "Section details",
+               "de": "Bereichsdetails",
+               "es": "Detalles de la sección",
+               "fr": "Détails de la section",
+               "pt-PT": "Detalhes da secção"
+           },
+          "options": [
+            { 
+              "value": "collectionDetails", 
+              "label": {
+                "en": "Collection details",
+                "de": "Sammlungsdetails",
+                "es": "Detalles de la colección",
+                "fr": "Détails de la collection",
+                "pt-PT": "Detalhes da coleção"
+              }
+            },
+            { 
+              "value": "customDetails", 
+             "label": {
+              "en": "Custom details",
+              "de": "Benutzerdefinierte Details",
+              "es": "Detalles personalizados",
+              "fr": "Détails personnalisés",
+              "pt-PT": "Detalhes personalizados"
+             }
+            }
+           ],
+           "default":   "collectionDetails",
+           "info": {
+             "en": "Display the title and description from your collection or add in custom details below",
+             "de": "Zeigen Sie den Titel und die Beschreibung aus Ihrer Kollektion an oder fügen Sie weiter unten benutzerdefinierte Details hinzu.",
+             "es": "Muestre el título y la descripción de su colección o añada detalles personalizados a continuación",
+             "fr": "Affichez le titre et la description de votre collection ou ajoutez des détails personnalisés ci-dessous",
+             "pt-PT": "Exiba o título e a descrição da sua coleção ou adicione informação personalizada no campo abaixo"
+           }
+        },
+        {
+            "type": "text",
+            "id": "featuredSubheading",
+            "label": {
+                "en": "Subheading",
+                "de": "Unterüberschrift",
+                "es": "Subencabezado",
+                "fr": "Sous-rubrique",
+                "pt-PT": "Subtítulo"
+            }
+        },
+        {
+            "type": "text",
+            "id": "featuredTitle",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            },
+            "default": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            }
+        },
+        {
+            "type": "textarea",
+            "id": "featuredCustomDescription",
+            "label": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            },
+            "default": {
+              "en": "Write a short sentence about your collection and what makes it great",
+              "de": "Schreiben Sie einen kurzen Satz über Ihre Kollektion und darüber, was sie so großartig macht.",
+              "es": "Escriba una frase corta sobre su colección y qué la caracteriza",
+              "fr": "Écrivez une phrase courte à propos de votre collection et de ce qui la rend excellente",
+              "pt-PT": "Escreva uma frase curta sobre a sua coleção e o que a torna especial"
+            }
+        },
+        {
+          "type": "checkbox",
+          "id": "showViewAll",
+          "label": {
+              "en": "Show 'View all' button",
+              "de": "„Alle anzeigen“-Button einblenden",
+              "es": "Mostrar el botón \"Ver todo\"",
+              "fr": "Afficher le bouton « tout voir »",
+              "pt-PT": "Mostrar botão \"Ver tudo\""
+          }
+        },
+        {
+          "type": "header",
+          "content": "Grid",
+          "info": {
+              "en": "These settings only apply if the layout mode is set to 'Grid'.",
+              "de": "Diese Einstellungen greifen nur dann, wenn der Layoutmodus auf „Gitter“ gestellt wurde.",
+              "es": "Esta configuración solo se aplica si el modo de diseño está configurado en \"Cuadrícula\".",
+              "fr": "Ces paramètres s'appliquent uniquement si la mise en page est définie sur le mode « grille ».",
+              "pt-PT": "Estas definições aplicam-se apenas se o modo de apresentação estiver definido para \"Grade\"."
+          }
+        },
+        {
+          "type": "checkbox",
+          "id": "displayDetailsInGrid",
+          "default": false,
+          "label": {
+            "en": "Display details as grid item",
+            "de": "Details als Rasterobjekt anzeigen",
+            "es": "Mostrar detalles como elemento de cuadrícula",
+            "fr": "Afficher les détails sous forme de grille",
+            "pt-PT": "Exibir detalhes como item de grelha"
+          }
+        },
+        {
+          "type": "range",
+          "id": "numberOfRows",
+          "min": 1,
+          "max": 6,
+          "step": 1,
+          "default": 2,
+          "label": {
+              "en": "Number of rows",
+              "de": "Anzahl der Zeilen",
+              "es": "Número de filas",
+              "fr": "Nombre de lignes",
+              "pt-PT": "Número de filas"
+          }
+        }
+      ],
+    "presets": [
+        {
+            "name": {
+                "en": "Featured collection",
+                "de": "Vorgestellte Kollektionen",
+                "es": "Colecciones destacadas",
+                "fr": "Collections en vedette",
+                "pt-PT": "Coleções em destaque"
+            },
+            "category": {
+                "en": "Collection",
+                "de": "Kollektion",
+                "es": "Colección",
+                "fr": "Collection",
+                "pt-PT": "Coleção"
+            }
+        }
+    ]
+}
+{% endschema %}

@@ -1,0 +1,414 @@
+{% assign footer = false %}
+
+{% if section.blocks.size > 0 %}
+  {% assign footer = true %}
+{% endif %}
+
+{% if section.settings.paymentIcons %}
+  {% render "icons-payment.svg" %}
+{% endif %}
+
+<footer class="main-footer-wrapper" data-footer-wrapper data-section-id="{{ section.id }}" data-section-type="footer">
+  <div data-footer>
+
+    {% if footer %}
+      <div class="main-footer{% if section.settings.centerFooter %} centered{% endif %}">
+        <div class="main-footer-inner{% if section.settings.stretchFooter and section.blocks.size < 4 %} stretch{% else %} grid{% endif %}">
+
+          {% for block in section.blocks %}
+            {% case block.type %}
+              {% when "footer-text" %}
+                <div class="grid-item-25 footer-menu footer-text" {{ block.shopify_attributes }}>
+                  <h5 class="section-title">{{ block.settings.title | escape }}</h5>
+                  <div>
+                    {{ block.settings.text }}
+                  </div>
+                </div>
+
+              {% when "footer-menu" %}
+                {% assign menu = linklists[block.settings.menu] %}
+                {% if menu.links.size > 0 or block.settings.menu-title != blank %}
+                  <div class="grid-item-25 footer-menu footer-menu-links" {{ block.shopify_attributes }}>
+                    {% if block.settings.menu-title != blank %}<h5 class="section-title">{{ block.settings.menu-title }}</h5>{% endif %}
+                    <ul>
+                      {% for link in menu.links %}
+                        <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                {% endif %}
+
+              {% when "footer-contact" %}
+                <div class="grid-item-25 footer-menu footer-social-contact" {{ block.shopify_attributes }}>
+                  <div class="footer-contact-wrapper">
+                    <h5 class="section-title">{{ block.settings.contactTitle }}</h5>
+                    <div class="footer-contact">
+                      {{ block.settings.richtext }}
+                    </div>
+                  </div>
+                </div>
+
+              {% when "footer-social" %}
+
+                <div class="grid-item-25 footer-menu footer-social-contact" {{ block.shopify_attributes }}>
+                  <h5 class="section-title footer-social-header">{{ block.settings.socialTitle }}</h5>
+                  {% render 'social', settings: settings %}
+                </div>
+
+              {% when "mailing-list" %}
+                {% render 'mailing-list', block: block, context: "footer-menu" %}
+
+            {% endcase %}
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="footer-lower">
+      <p class="footer-copyright">
+        &copy; {{ "now" | date: "%Y" }} <span itemprop="name">{{ shop.name | link_to: shop.url }}</span><br>
+        {{ powered_by_link }}
+      </p>
+
+      <div class="footer-lower-right">
+        {% render 'localization-selectors', showLocaleSelector: section.settings.showLocaleSelector, showCurrencySelector: section.settings.showCurrencySelector, direction: "up" %}
+
+        {% if section.settings.paymentIcons and shop.enabled_payment_types.size > 0 %}
+          <div class="footer-payment">
+            <ul>
+              {% for type in shop.enabled_payment_types %}
+                <li>{{ type | payment_type_svg_tag }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+{
+    "name": {
+        "en": "Footer",
+        "de": "Fußzeile",
+        "es": "Pie de página",
+        "fr": "Pied de page",
+        "pt-PT": "Rodapé"
+    },
+    "max_blocks": 4,
+    "settings": [
+        {
+            "type": "checkbox",
+            "id": "paymentIcons",
+            "label": {
+                "en": "Show payment icons",
+                "de": "Zahlungssymbole anzeigen",
+                "es": "Mostrar iconos de pago",
+                "fr": "Afficher les icônes de paiement",
+                "pt-PT": "Mostrar ícones de pagamento"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "centerFooter",
+            "label": {
+                "en": "Center content",
+                "de": "Inhalt zentrieren",
+                "es": "Centrar el contenido",
+                "fr": "Centrer le contenu",
+                "pt-PT": "Centrar conteúdo"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "stretchFooter",
+            "label": {
+              "en": "Allow sections to always fill the width of the footer",
+              "de": "Den Abschnitten immer erlauben, die volle Breite der Fußzeile zu füllen.",
+              "es": "Dejar que las secciones ocupen siempre el ancho del pie de página",
+              "fr": "Autorisez les sections à toujours remplir la largeur du pied de page",
+              "pt-PT": "Permitir que as secções preencham sempre a largura do rodapé"
+            }
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Language Selector",
+                "de": "Sprachauswahl",
+                "es": "Selector de idioma",
+                "fr": "Sélecteur de langue",
+                "pt-PT": "Seletor de Idioma"
+            },
+            "info": {
+                "en": "To add a language, go to your [language settings.](/admin/settings/languages)",
+                "de": "Gehen Sie zu Ihren [Spracheinstellungen](/admin/settings/languages), um eine Sprache hinzuzufügen.",
+                "es": "Para agregar un idioma, ve a tu[configuración de idioma](/admin/settings/languages)",
+                "fr": "Pour ajouter une langue, allez dans vos [paramètres de langue.](/admin/settings/languages).",
+                "pt-PT": "Para adicionar um idioma, aceda a [definições de idioma.](/admin/settings/languages)"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "showLocaleSelector",
+            "label": {
+                "en": "Show language selector",
+                "de": "Sprachauswahl anzeigen",
+                "es": "Mostrar el selector de idioma",
+                "fr": "Afficher le sélecteur de langue",
+                "pt-PT": "Mostrar seletor de idioma"
+            },
+            "default": true
+        },
+        {
+            "type": "header",
+            "content": {
+                "en": "Currency Selector",
+                "de": "Währungsauswahl",
+                "es": "Selector de moneda",
+                "fr": "Sélecteur de devise",
+                "pt-PT": "Seletor de Moeda"
+            },
+            "info": {
+                "en": "To add a currency, go to your [payment settings.](/admin/settings/payments)",
+                "de": "Rufen Sie Ihre [Zahlungseinstellungen](/admin/settings/payments) auf, um eine Währung hinzuzufügen",
+                "es": "Para añadir una moneda, vaya a su [configuración de pago](/admin/settings/payments)",
+                "fr": "Pour ajouter une devise, accédez à vos [paramètres de paiement](/admin/settings/payments)",
+                "pt-PT": "Para adicionar uma divisa, vá às suas [definições de pagamento](/admin/settings/payments)"
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "showCurrencySelector",
+            "label": {
+                "en": "Show currency selector",
+                "de": "Währungsauswahl anzeigen",
+                "es": "Mostrar el selector de moneda",
+                "fr": "Afficher le sélecteur de devise",
+                "pt-PT": "Mostrar seletor de moeda"
+            },
+            "default": true
+        }
+    ],
+    "blocks": [
+        {
+            "name": {
+                "en": "Contact info",
+                "de": "Kontaktdaten",
+                "es": "Información de contacto",
+                "fr": "Coordonnées ",
+                "pt-PT": "Informações de contacto"
+            },
+            "type": "footer-contact",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "contactTitle",
+                    "label": {
+                        "en": "Title",
+                        "de": "Titel",
+                        "es": "Título",
+                        "fr": "Titre",
+                        "pt-PT": "Título"
+                    },
+                    "default": {
+                        "en": "Contact us",
+                        "de": "Kontaktieren Sie uns",
+                        "es": "Ponte en contacto con nosotros",
+                        "fr": "Nous contacter",
+                        "pt-PT": "Contacte-nos"
+                    }
+                },
+                {
+                    "type": "richtext",
+                    "id": "richtext",
+                    "label": {
+                        "en": "Text",
+                        "de": "Text",
+                        "es": "Texto",
+                        "fr": "Texte",
+                        "pt-PT": "Texto"
+                    },
+                    "default": {
+                        "en": "<p>Share store details, promotions, or brand content with your customers.</p>",
+                        "de": "<p>Teilen Sie Einzelheiten zum Store, Werbeaktionen oder Markeninhalte mit Ihren Kunden.</p>",
+                        "es": "<p>Comparta detalles de la tienda, promociones o contenido de la marca con sus clientes.</p>",
+                        "fr": "<p>Partagez les détails du magasin, les promotions ou le contenu de la marque avec vos clients. </p>",
+                        "pt-PT": "<p>Partilhe detalhes, promoções ou conteúdo da marca da loja com os seus clientes.</p>"
+                    }
+                }
+            ]
+        },
+        {
+            "name": {
+                "en": "Mailing list",
+                "de": "E-Mail-Verteiler",
+                "es": "Lista de correo",
+                "fr": "Liste de diffusion",
+                "pt-PT": "Lista de correio"
+            },
+            "type": "mailing-list",
+            "limit": 1,
+            "settings": [
+                {
+                   "type": "paragraph",
+                   "content": "Subscribers are added to the 'Customers' section in the admin under 'Email subscribers'."
+                },
+                {
+                    "type": "text",
+                    "id": "mailingTitle",
+                    "label": {
+                      "en": "Title",
+                      "de": "Titel",
+                      "es": "Título",
+                      "fr": "Titre",
+                      "pt-PT": "Título"
+                    },
+                    "default": {
+                        "en": "Get the newsletter",
+                        "de": "Newsletter erhalten",
+                        "es": "Recibe el boletín",
+                        "fr": "Recevez la newsletter",
+                        "pt-PT": "Receba o boletim informativo"
+                    }
+                },
+                {
+                    "type": "richtext",
+                    "id": "text",
+                    "label": {
+                        "en": "Text",
+                        "de": "Text",
+                        "es": "Texto",
+                        "fr": "Texte",
+                        "pt-PT": "Texto"
+                    }
+                }
+            ]
+        },
+        {
+            "name": {
+                "en": "Menu",
+                "de": "Menü",
+                "es": "Menú",
+                "fr": "Menu",
+                "pt-PT": "Menu"
+            },
+            "type": "footer-menu",
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "menu-title",
+                    "label": {
+                      "en": "Title",
+                      "de": "Titel",
+                      "es": "Título",
+                      "fr": "Titre",
+                      "pt-PT": "Título"
+                    },
+                    "default": {
+                        "en": "Quick links",
+                        "de": "Quick-Links",
+                        "es": "Enlaces rápidos",
+                        "fr": "Liens rapides",
+                        "pt-PT": "Hiperligações rápidas"
+                    }
+                },
+                {
+                    "type": "link_list",
+                    "id": "menu",
+                    "label": {
+                        "en": "Footer menu",
+                        "de": "Fußzeilenmenü",
+                        "es": "Menú de pie de página",
+                        "fr": "Menu du pied de page",
+                        "pt-PT": "Menu de rodapé"
+                    },
+                    "info": {
+                        "en": "This menu won't show drop-down items",
+                        "de": "Dieses Menü zeigt keine Drop-down-Elemente an",
+                        "es": "Este menú no mostrará elementos desplegables",
+                        "fr": "Ce menu n'affichera pas les éléments de la liste déroulante",
+                        "pt-PT": "Este menu não mostra artigos em lista pendente"
+                    }
+                }
+            ]
+        },
+        {
+            "name": {
+                "en": "Social media",
+                "de": "Social Media",
+                "es": "Redes sociales",
+                "fr": "Médias sociaux",
+                "pt-PT": "Redes sociais"
+            },
+            "type": "footer-social",
+            "limit": 1,
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "socialTitle",
+                    "label": {
+                      "en": "Title",
+                      "de": "Titel",
+                      "es": "Título",
+                      "fr": "Titre",
+                      "pt-PT": "Título"
+                    },
+                    "default": {
+                        "en": "Connect with us",
+                        "de": "Setzen Sie sich mit uns in Verbindung",
+                        "es": "Conéctate con nosotros",
+                        "fr": "Connectez-vous avec nous",
+                        "pt-PT": "Ligue-se a nós"
+                    }
+                },
+                {
+                    "type": "paragraph",
+                    "content": {
+                        "en": "Social links can be managed in General settings.",
+                        "de": "Links zu sozialen Medien können in den allgemeinen Einstellungen verwaltet werden.",
+                        "es": "Los enlaces sociales se pueden gestionar en ajustes generales.",
+                        "fr": "Les liens sociaux peuvent être gérés dans les paramètres généraux.",
+                        "pt-PT": "As ligações sociais podem ser geridas nas definições gerais"
+                    }
+                }
+            ]
+        },
+        {
+            "name": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            },
+            "type": "footer-text",
+            "settings": [
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": {
+                        "en": "Text title",
+                        "de": "Textüberschrift",
+                        "es": "Título del texto",
+                        "fr": "Titre du texte",
+                        "pt-PT": "Título do texto"
+                    }
+                },
+                {
+                    "type": "richtext",
+                    "id": "text",
+                    "label": {
+                        "en": "Text content",
+                        "de": "Textinhalt",
+                        "es": "Contenido del texto",
+                        "fr": "Contenu du texte",
+                        "pt-PT": "Conteúdo do texto"
+                    }
+                }
+            ]
+        }
+    ]
+}
+{% endschema %}

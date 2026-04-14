@@ -1,0 +1,239 @@
+{% paginate customer.addresses by 4 %}
+
+<div class="addresses-wrapper" data-account>
+  <section class="visible" data-addresses>
+
+    <h1 class="page-header">{{ 'customer.addresses.title' | t }}</h1>
+
+    <div class="page-wrapper">
+
+      <div class="address-items-wrapper grid">
+        {% for address in customer.addresses %}
+          <article class="address-item grid-item-25" data-address-item>
+            <h3 class="account-header address-name">
+              {{ address.first_name | capitalize }} {{ address.last_name | capitalize }}
+              {% if address == customer.default_address %}<span>{{ 'customer.addresses.default_address' | t }}</span>{% endif %}
+            </h3>
+
+            <p class="address-details">
+              {% render "customer-address", address: address %}
+            </p>
+
+            <div class="form-actions">
+              <button class="button hover-animation leader" type="button" data-address-edit-toggle data-address-id="{{ address.id }}"><span class="button-text">{{ 'customer.addresses.edit' | t }}</span></button>
+              <span class="button sidekick" data-address-delete data-address-id="{{ address.id }}">{{ 'customer.addresses.delete' | t | delete_customer_address_link: address.id }}</span>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+
+      {% if paginate.pages > 1 %}
+        {% render 'pagination', paginate: paginate, width: 'full-width' %}
+      {% endif %}
+
+      <div class="address-new">
+        <button class="button hover-animation" type="button" data-addresses-new-toggle><span class="button-text">{{ 'customer.addresses.add_new_address' | t }}</span></button>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="grid" data-addresses-edit>
+    {% for address in customer.addresses %}
+      {% form 'customer_address', address, class: 'form address-form address-edit-form' %}
+        <input type="hidden" data-address-id="{{ address.id }}" disabled>
+
+        <h2 class="page-header grid-item-100">{{ 'customer.addresses.edit_address' | t }}</h2>
+
+        <div class="form-field grid-item-50">
+          <label class="form-label" for="address-first-name-{{ form.id }}" aria-label="{{ 'customer.addresses.first_name' | t }}">
+            <span class="form-field-title">{{ 'customer.addresses.first_name' | t }}</span>
+            <input type="text" id="address-first-name-{{ form.id }}" class="form-input form-full" name="address[first_name]" value="{{ form.first_name }}" autocapitalize="words">
+          </label>
+        </div>
+
+        <div class="form-field grid-item-50">
+          <label class="form-label" for="address-last-name-{{ form.id }}" aria-label="{{ 'customer.addresses.last_name' | t }}">
+            <span class="form-field-title">{{ 'customer.addresses.last_name' | t }}</span>
+            <input type="text" id="address-last-name-{{ form.id }}" class="form-input form-full" name="address[last_name]" value="{{ form.last_name }}" autocapitalize="words">
+          </label>
+        </div>
+
+        <div class="form-field grid-item-100">
+          <label class="form-label" for="address-company-{{ form.id }}" aria-label="{{ 'customer.addresses.company' | t }}">
+            <span class="form-field-title">{{ 'customer.addresses.company' | t }}</span>
+            <input type="text" id="address-company-{{ form.id }}" class="form-input form-full" name="address[company]" value="{{ form.company }}" autocapitalize="words">
+          </label>
+        </div>
+
+        <div class="form-field grid-item-50">
+          <label class="form-label" for="address-address-1-{{ form.id }}" aria-label="{{ 'customer.addresses.address1' | t }}">
+            <span class="form-field-title">{{ 'customer.addresses.address1' | t }}</span>
+            <input type="text" id="address-address-1-{{ form.id }}" class="form-input form-full" name="address[address1]" value="{{ form.address1 }}" autocapitalize="words">
+          </label>
+        </div>
+
+        <div class="form-field grid-item-50">
+          <label class="form-label" for="address-address-2-{{ form.id }}" aria-label="{{ 'customer.addresses.address2' | t }}">
+            <span class="form-field-title">{{ 'customer.addresses.address2' | t }}</span>
+            <input type="text" id="address-address-2-{{ form.id }}" class="form-input form-full" name="address[address2]" value="{{ form.address2 }}" autocapitalize="words">
+          </label>
+        </div>
+
+        <div class="form-field grid-item-100">
+          <label class="form-label" for="address-city-{{ form.id }}" aria-label="{{ 'customer.addresses.city' | t }}">
+            <span class="form-field-title">{{ 'customer.addresses.city' | t }}</span>
+            <input type="text" id="address-city-{{ form.id }}" class="form-input form-full" name="address[city]" value="{{ form.city }}" autocapitalize="words">
+          </label>
+        </div>
+
+        <div>
+          <div class="form-field grid-item-50">
+            <label class="form-label" for="address-country-{{ address.id }}" aria-label="{{ 'customer.addresses.country' | t }}">
+              <span class="form-field-title">{{ 'customer.addresses.country' | t }}</span>
+              <span class="form-select-wrapper form-full">
+                <select id="address-country-{{ address.id }}" class="address-country form-select" name="address[country]" data-default="{{ form.country }}">{{ country_option_tags }}</select>
+              </span>
+            </label>
+          </div>
+
+          <div class="form-field grid-item-50" id="address-province-{{ address.id }}-wrapper">
+            <label class="form-label" for="address-province-{{ address.id }}" aria-label="{{ 'customer.addresses.state' | t }}">
+              <span class="form-field-title">{{ 'customer.addresses.state' | t }}</span>
+              <span class="form-select-wrapper form-full">
+                <select id="address-province-{{ address.id }}" class="address-province form-select" name="address[province]" data-default="{{ form.province }}"></select>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-field grid-item-50">
+          <label class="form-label" for="address-zip-{{ form.id }}" aria-label="{{ 'customer.addresses.zip' | t }}">
+            <span class="form-field-title">{{ 'customer.addresses.zip' | t }}</span>
+            <input type="text" class="form-input form-full" name="address[zip]" value="{{ form.zip }}" id="address-zip-{{ form.id }}" autocapitalize="characters">
+          </label>
+        </div>
+
+        <div class="form-field grid-item-50">
+          <label class="form-label" for="address-phone-{{ form.id }}" aria-label="{{ 'customer.addresses.phone' | t }}">
+            <span class="form-field-title">{{ 'customer.addresses.phone' | t }}</span>
+            <input type="tel" class="form-input form-full" name="address[phone]" value="{{ form.phone }}" id="address-phone-{{ form.id }}">
+          </label>
+        </div>
+
+        <div class="form-field form-field-checkbox grid-item-100">
+          {{ form.set_as_default_checkbox | replace: '>', ' class="form-input">' }}
+          <label class="form-label" for="address_default_address_{{ address.id }}" aria-label="{{ 'customer.addresses.set_default' | t }}">
+            <span class="form-label-text">{{ 'customer.addresses.set_default' | t }}</span>
+          </label>
+        </div>
+
+        <div class="form-actions grid-item-100">
+          <button class="button hover-animation leader" type="submit" value="{{ 'customer.addresses.submit' | t }}" aria-label="{{ 'customer.addresses.submit' | t }}"><span class="button-text">{{ 'customer.addresses.submit' | t }}</span></button>
+          <button class="button sidekick" type="button" aria-label="{{ 'customer.addresses.cancel' | t }}" data-address-edit-toggle data-address-id="{{ address.id }}">{{ 'customer.addresses.cancel' | t }}</button>
+        </div>
+
+      {% endform %}
+    {% endfor %}
+  </section>
+
+  <section class="grid" data-addresses-new>
+    {% form 'customer_address', customer.new_address, class: 'form address-form' %}
+
+      <h2 class="page-header grid-item-100">{{ 'customer.addresses.new_address' | t }}</h2>
+
+      <div class="form-field grid-item-50">
+        <label class="form-label" for="address-first-name" aria-label="{{ 'customer.addresses.first_name' | t }}">
+          <span class="form-field-title">{{ 'customer.addresses.first_name' | t }}</span>
+          <input type="text" id="address-first-name" class="form-input form-full" name="address[first_name]" value="{{ form.first_name }}" autocapitalize="words">
+        </label>
+      </div>
+
+      <div class="form-field grid-item-50">
+        <label class="form-label" for="address-last-name" aria-label="{{ 'customer.addresses.last_name' | t }}">
+          <span class="form-field-title">{{ 'customer.addresses.last_name' | t }}</span>
+          <input type="text" id="address-last-name" class="form-input form-full" name="address[last_name]" value="{{ form.last_name }}" autocapitalize="words">
+        </label>
+      </div>
+
+      <div class="form-field grid-item-100">
+        <label class="form-label" for="address-company" aria-label="{{ 'customer.addresses.company' | t }}">
+          <span class="form-field-title">{{ 'customer.addresses.company' | t }}</span>
+          <input type="text" id="address-company" class="form-input form-full" name="address[company]" value="{{ form.company }}" autocapitalize="words">
+        </label>
+      </div>
+
+      <div class="form-field grid-item-50">
+        <label class="form-label" for="address-address-1" aria-label="{{ 'customer.addresses.address1' | t }}">
+          <span class="form-field-title">{{ 'customer.addresses.address1' | t }}</span>
+          <input type="text" id="address-address-1" class="form-input form-full" name="address[address1]" value="{{ form.address1 }}" autocapitalize="words">
+        </label>
+      </div>
+
+      <div class="form-field grid-item-50">
+        <label class="form-label" for="address-address-2" aria-label="{{ 'customer.addresses.address2' | t }}">
+          <span class="form-field-title">{{ 'customer.addresses.address2' | t }}</span>
+          <input type="text" id="address-address-2" class="form-input form-full" name="address[address2]" value="{{ form.address2 }}" autocapitalize="words">
+        </label>
+      </div>
+
+      <div class="form-field grid-item-100">
+        <label class="form-label" for="address-city" aria-label="{{ 'customer.addresses.city' | t }}">
+          <span class="form-field-title">{{ 'customer.addresses.city' | t }}</span>
+          <input type="text" id="address-city" class="form-input form-full" name="address[city]" value="{{ form.city }}" autocapitalize="words">
+        </label>
+      </div>
+
+      <div>
+        <div class="form-field grid-item-50">
+          <label class="form-label" for="address-country-new" aria-label="{{ 'customer.addresses.country' | t }}">
+            <span class="form-field-title">{{ 'customer.addresses.country' | t }}</span>
+            <span class="form-select-wrapper form-full">
+              <span class="selected-text"></span>
+              <select id="address-country-new" class="address-country form-select" name="address[country]" data-default="{{ form.country }}">{{ country_option_tags }}</select>
+            </span>
+          </label>
+        </div>
+
+        <div class="form-field grid-item-50" id="address-province-new-wrapper">
+          <label class="form-label" for="address-province-new" aria-label="{{ 'customer.addresses.state' | t }}">
+            <span class="form-field-title">{{ 'customer.addresses.state' | t }}</span>
+            <span class="form-select-wrapper form-full">
+              <span class="selected-text"></span>
+              <select id="address-province-new" class="address-province form-select" name="address[province]" data-default="{{ form.province }}"></select>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-field grid-item-50">
+        <label class="form-label" for="address-zip" aria-label="{{ 'customer.addresses.zip' | t }}">
+          <span class="form-field-title">{{ 'customer.addresses.zip' | t }}</span>
+          <input type="text" id="address-zip" class="form-input form-full" name="address[zip]" value="{{ form.zip }}" autocapitalize="characters">
+        </label>
+      </div>
+
+      <div class="form-field grid-item-50">
+        <label class="form-label" for="address-phone" aria-label="{{ 'customer.addresses.phone' | t }}">
+          <span class="form-field-title">{{ 'customer.addresses.phone' | t }}</span>
+          <input type="tel" id="address-phone" class="form-input form-full" name="address[phone]" value="{{ form.phone }}">
+        </label>
+      </div>
+
+      <div class="form-field form-field-checkbox grid-item-100">
+        {{ form.set_as_default_checkbox | replace: '>', ' class="form-input">' }}
+        <label class="form-label" for="address_default_address_new" aria-label="{{ 'customer.addresses.set_default' | t }}">
+          <span class="form-label-text">{{ 'customer.addresses.set_default' | t }}</span>
+        </label>
+      </div>
+
+      <div class="form-actions grid-item-100">
+        <button class="button hover-animation leader" type="submit" value="{{ 'customer.addresses.submit' | t }}" aria-label="{{ 'customer.addresses.submit' | t }}"><span class="button-text">{{ 'customer.addresses.submit' | t }}</span></button>
+        <button class="button sidekick" type="button" aria-label="{{ 'customer.addresses.cancel' | t }}" data-addresses-new-toggle>{{ 'customer.addresses.cancel' | t }}</button>
+      </div>
+
+    {% endform %}
+  </section>
+</div>
+
+{% endpaginate %}

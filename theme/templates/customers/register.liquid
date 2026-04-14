@@ -1,0 +1,48 @@
+
+<div class="account-create-account-wrapper visible">
+  <h1 class="page-header">{{ 'customer.register.title' | t }}</h1>
+
+  {% form 'create_customer' %}
+
+    {% if form.errors %}
+      <div class="form-error">
+        {{ form.errors | default_errors }}
+      </div>
+    {% endif %}
+
+    <div class="form-field">
+      <label class="form-label" for="FirstName" aria-label="{{ 'customer.register.first_name' | t }}">
+        <span class="form-field-title">{{ 'customer.register.first_name' | t }}</span>
+        <input class="form-input form-full" type="text" name="customer[first_name]" id="FirstName" placeholder="{{ 'customer.register.first_name' | t }}" {% if form.first_name %}value="{{ form.first_name }}"{% endif %} autocapitalize="words" autofocus>
+      </label>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label" for="LastName" aria-label="{{ 'customer.register.last_name' | t }}">
+        <span class="form-field-title">{{ 'customer.register.last_name' | t }}</span>
+        <input class="form-input form-full" type="text" name="customer[last_name]" id="LastName" placeholder="{{ 'customer.register.last_name' | t }}" {% if form.last_name %}value="{{ form.last_name }}"{% endif %} autocapitalize="words">
+      </label>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label" for="Email" aria-label="{{ 'customer.register.email' | t }}">
+        <span class="form-field-title">{{ 'customer.register.email' | t }}</span>
+        <input class="form-input form-full {% if form.errors contains 'email' %}error{% endif %}" type="email" name="customer[email]" id="Email" placeholder="{{ 'customer.register.email' | t }}" {% if form.email %}value="{{ form.email }}"{% endif %} autocorrect="off" autocapitalize="off">
+      </label>
+    </div>
+
+    <div class="form-field">
+      <label class="form-label" for="CreatePassword" aria-label="{{ 'customer.register.password' | t }}">
+        <span class="form-field-title">{{ 'customer.register.password' | t }}</span>
+        <input class="form-input form-full {% if form.errors contains 'password' %}error{% endif %}" type="password" name="customer[password]" id="CreatePassword" placeholder="{{ 'customer.register.password' | t }}">
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button class="button hover-animation leader" type="submit" value="{{ 'customer.register.submit' | t }}" aria-label="{{ 'customer.register.submit' | t }}"><span class="button-text">{{ 'customer.register.submit' | t }}</span></button>
+      <a class="button sidekick" href="{{ shop.url }}" aria-label="{{ 'customer.register.cancel' | t }}"><span class="button-text">{{ 'customer.register.cancel' | t }}</span></a>
+    </div>
+
+  {% endform %}
+
+</div>

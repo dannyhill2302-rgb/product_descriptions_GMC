@@ -1,0 +1,116 @@
+<main class="cart-content grid-item-70">
+  <div class="cart-items">
+    {% for item in cart.items %}
+      <div class="cart-item-wrapper grid" data-cart-item-wrapper data-cart-item-title="{{ item.product.title }}">
+        <article class="cart-item grid">
+          <figure class="cart-item-image grid-item-16">
+            <a href="{{ item.url }}">
+              {%-
+                render 'image',
+                image_object: item.image,
+                image_widths: '340, 440, 680, 880, 1020, 1320',
+                image_noscript_width: '220x',
+                image_link: false,
+                image_additional_content: false,
+                image_class: false,
+                image_attributes: false
+              -%}
+            </a>
+          </figure>
+
+          <div class="cart-item-info-wrapper grid-item-83">
+            <div class="cart-item-info grid-item-50">
+              <div class="cart-item-title">
+                <h3>
+                  <a href="{{ item.url }}">{{ item.product.title }}</a>
+                </h3>
+
+                {% if settings.productBrand %}
+                  {%
+                    render 'helper-vendor-link',
+                    settings: settings,
+                    collection: collection,
+                    item: item,
+                  %}
+                  <span class="cart-item-brand">{{ vendorLink }}</span>
+                {% endif %}
+              </div>
+
+              {% assign variant_title = item.variant.title | downcase %}
+              {% unless variant_title == 'default title' %}
+                <div class="cart-item-variant">
+                  {{ item.variant.title }}
+                </div>
+              {% endunless %}
+
+              {% if item.selling_plan_allocation %}
+                <div class="cart-item-variant">
+                  <span>{{ item.selling_plan_allocation.selling_plan.name }}<span>
+                </div>
+              {% endif %}
+
+              <div class="cart-item-price">
+                <span class="money">{{ item.original_price | money }}</span>
+                <div class="qty-selector">
+                  <button class="qty-selector__btn qty-selector__btn--minus" type="button">{% render 'icon-minus' %}</button>
+                  <input class="form-input cart-item-quantity qty-selector__input" type="text" name="updates[]" id="updates_{{ item.id }}" value="{{ item.quantity }}" data-cart-quantity data-item-id="{{ item.id }}">
+                  <button class="qty-selector__btn qty-selector__btn--add" type="button">{% render 'icon-add' %}</button>
+                </div>
+                <button class="cart-item-quantity-edit" type="button" data-cart-item-quantity-edit="edit" data-text-edit="{{ 'cart.cart_item.edit' | t }}" data-text-update="{{ 'cart.cart_item.update' | t }}">
+                  {{- "cart.cart_item.edit" | t -}}
+                </button>
+              </div>
+
+              {% if item.properties != blank %}
+                <ul class="cart-item-properties">
+                  {% for p in item.properties %}
+                    {% unless p.last == blank %}
+                      <li>
+                        <span class="cart-item-properties__title">{{ p.first }}:</span>
+                        <span>{{ p.last }}</span>
+                      </li>
+                    {% endunless %}
+                  {% endfor %}
+                </ul>
+              {% endif %}
+
+            </div>
+
+            <div class="cart-item-total-wrapper grid-item-50">
+              {% if item.line_level_discount_allocations != blank %}
+                <div class="cart-item-total-line">
+                  <div class="cart-item-total-line__inner">
+                    <span>{{ 'cart.totals.subtotal' | t }}</span>
+                    <span class="money">{{ item.original_line_price | money }}</span>
+                  </div>
+                </div>
+
+                {% for discount_allocation in item.line_level_discount_allocations %}
+                  <div class="cart-item-total-line">
+                    <div class="cart-item-total-line__inner">
+                      <span>{{ 'cart.totals.discount' | t }}</span>
+                      <span>-<span class="money">{{ discount_allocation.amount | money }}</span></span>
+                    </div>
+                    <div class="cart-item-total-line__discount-name">
+                      {{ discount_allocation.discount_application.title }}
+                    </div>
+                  </div>
+                {% endfor %}
+              {% endif %}
+
+              <div class="cart-item-total-line">
+                <div class="cart-item-total-line__inner">
+                  <span>{{ 'cart.totals.total' | t }}</span>
+                  <span class="money">{{ item.final_line_price | money }}</span>
+                </div>
+                {% render 'unit-price-measurement-variant', variant: item.variant %}
+              </div>
+
+              <a class="cart-item-remove" href="{{ routes.cart_url }}/change?line={{ forloop.index }}&amp;quantity=0" data-cart-item-remove data-item-id="{{ item.variant.id }}">{{ "cart.cart_item.remove" | t }}</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    {% endfor %}
+  </div>
+</main>

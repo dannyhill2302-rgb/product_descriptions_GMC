@@ -1,0 +1,71 @@
+{% comment %} DO NOT EDIT! This snippet is automatically added by EasyStock app, all changes will be overwritten {% endcomment %}
+
+{%- capture easystockProduct -%}
+    {%- assign easystockProductId = product.id | default: 0 -%}
+    {%- assign easystockProductHandle = product.handle | url_encode | json -%}
+
+    {%- assign easystockProductDescription = product.description | slice : 0, 40 | json -%}
+    {%- assign easystockProductImages = product.images | json -%}
+    {%- assign easystockProductPrice = product.price | money | json -%}
+    {%- assign easystockProductTitle = product.title | json -%}
+
+    {%- capture easystockProductCollections -%}
+        {%- for collection in product.collections -%}
+            {{ collection.id }}{% unless forloop.last %},{% endunless %}
+        {%- endfor -%}
+    {%- endcapture -%}
+
+    {%- assign easystockProductQuantity = 0 -%}
+    {%- assign easystockProductInventoryManagment = false -%}
+    {%- assign easystockProductInventoryManagmentDisabledOnOneVariant = false -%}
+    {%- assign easystockProductInventoryPolicy = false -%}
+
+    {%- for variant in product.variants -%}
+        {%- if variant.inventory_management -%}
+            {%- assign easystockProductQuantity = easystockProductQuantity | plus: variant.inventory_quantity -%}
+            {%- assign easystockProductInventoryManagment = true -%}
+        {%- endif -%}
+
+        {%- if variant.inventory_policy != 'deny' -%}
+            {%- assign easystockProductInventoryPolicy = true -%}
+        {%- endif -%}
+        {%- if variant.inventory_management == null -%}
+			{%- assign easystockProductInventoryManagmentDisabledOnOneVariant = true -%}
+		{%- endif -%}
+    {%- endfor -%}
+
+    {% comment %} If total quantity is 0 and at least one variant have disabled inventory policy - then show it as in stock {% endcomment %}
+    {%- if easystockProductInventoryManagmentDisabledOnOneVariant and easystockProductQuantity == 0 -%}
+		{%- assign easystockProductInventoryManagment = false -%}
+	{%- endif -%}
+
+    {%- capture easystockProductVariants -%}
+        {%- for variant in product.variants -%}
+            {
+                "id": {{ variant.id | json }},
+                "default": {%- if variant == product.selected_or_first_available_variant -%}true{%- else -%}false{%- endif -%},
+                "inventory_management": {%- if variant.inventory_management -%}true{%- else -%}false{%- endif -%},
+                "inventory_policy": {%- if variant.inventory_policy != 'deny' -%}true{%- else -%}false{%- endif -%},
+                "price": "{% if variant.compare_at_price > 0 %}{{ variant.compare_at_price | divided_by: 100.0 | format: "%.2f" }}{% else %}{{ variant.price | divided_by: 100.0 | format: "%.2f" }}{% endif %}",
+                "quantity": {{ variant.inventory_quantity }},
+                "title": {{ variant.title | json }}
+                }{% unless forloop.last %},{% endunless %}
+        {%- endfor -%}
+    {%- endcapture -%}
+
+    {
+        "id": {{ easystockProductId }},
+        "collections": [{{ easystockProductCollections }}],
+        "description": {{ easystockProductDescription }},
+        "handle": {{ easystockProductHandle }},
+        "images": {{ easystockProductImages }},
+        "inventory_management": {{ easystockProductInventoryManagment }},
+        "inventory_policy": {{ easystockProductInventoryPolicy }},
+        "price": {{ easystockProductPrice }},
+        "quantity": {{ easystockProductQuantity }},
+        "title": {{ easystockProductTitle }},
+        "variants": [{{ easystockProductVariants }}]
+    }
+{%- endcapture -%}
+
+{{ easystockProduct }}

@@ -1,0 +1,32 @@
+{% comment  %}
+
+Use a cycle within an a for statement:
+{% capture delayAmount %}{% cycle '200', '400', '600', '800', '1000' %}{% endcapture %}
+{% render 'animations', type: 'fadeCycle', delay: delayAmount %}
+
+{% endcomment %}
+
+{% if type =='fadeCycle' %}data-aos-duration="600" data-aos-delay="{{ delay }}" data-aos="fade-up" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeUpAnim1' %}data-aos-duration="600" data-aos-delay="100" data-aos="fade-up" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeUpAnim2' %}data-aos-duration="600" data-aos-delay="400" data-aos="fade-up" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeUpAnim3' %}data-aos-duration="600" data-aos-delay="700" data-aos="fade-up" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeUpAnim4' %}data-aos-duration="600" data-aos-delay="1000" data-aos="fade-up" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeUpAnim5' %}data-aos-duration="600" data-aos-delay="1300" data-aos="fade-up" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeUpAnim6' %}data-aos-duration="600" data-aos-delay="1600" data-aos="fade-up" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeUpAnim7' %}data-aos-duration="600" data-aos-delay="1900" data-aos="fade-up" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeUpAnim8' %}data-aos-duration="600" data-aos-delay="2200" data-aos="fade-up" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeUpAnim9' %}data-aos-duration="600" data-aos-delay="2500" data-aos="fade-up" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeUpAnim10' %}data-aos-duration="600" data-aos-delay="2800" data-aos="fade-up" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeUpAnim11' %}data-aos-duration="600" data-aos-delay="3100" data-aos="fade-up" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeUpAnim12' %}data-aos-duration="600" data-aos-delay="3400" data-aos="fade-up" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeUpAnim13' %}data-aos-duration="600" data-aos-delay="3700" data-aos="fade-up" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeUpAnim14' %}data-aos-duration="600" data-aos-delay="4000" data-aos="fade-up" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeUpAnim15' %}data-aos-duration="600" data-aos-delay="4300" data-aos="fade-up" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeUpAnim16' %}data-aos-duration="600" data-aos-delay="4600" data-aos="fade-up" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeRightAnim1' %}data-aos-duration="600" data-aos-delay="100" data-aos="fade-right" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeRightAnim2' %}data-aos-duration="600" data-aos-delay="400" data-aos="fade-right" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeLeftAnim1' %}data-aos-duration="600" data-aos-delay="100" data-aos="fade-left" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeLeftAnim2' %}data-aos-duration="600" data-aos-delay="400" data-aos="fade-left" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeLeftAnim3' %}data-aos-duration="600" data-aos-delay="700" data-aos="fade-left" data-aos-easing="capital-easing"{% endif %}
+{% if type =='fadeDownAnim1' %}data-aos-duration="600" data-aos-delay="100" data-aos="fade-down" data-aos-easing="capital-easing"{% endif %}
+{% if type =='zoomInAnim1' %}data-aos-duration="600" data-aos-delay="100" data-aos="zoom-in" data-aos-easing="capital-easing"{% endif %}

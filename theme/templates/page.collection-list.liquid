@@ -1,0 +1,78 @@
+{% case settings.collectionsPerRow %}
+	{% when 1 %}
+		{% assign itemSize = "100" %}
+	{% when 2 %}
+		{% assign itemSize = "50" %}
+	{% else %}
+		{% assign itemSize = "33" %}
+{% endcase %}
+
+{% assign image_widths = '335, 460, 680, 920, 1020, 1100, 1360, 1840, 2040, 2200, 2760, 3300' %}
+{% assign image_noscript_width = '1100x' %}
+{% assign delayAmount = 0 %}
+
+{% assign collageLayoutEnabled = false %}
+{% if settings.collageLayoutEnabled %}
+  {% assign collageLayoutEnabled = true %}
+{% endif %}
+
+{% assign colorText = settings.sectionColorText %}
+
+{% assign colorOverlay = settings.sectionColorOverlay | color_to_rgb | remove: 'rgb(' | remove: ')' %}
+{% assign overlayOpacity = settings.sectionOverlayOpacity %}
+
+{% capture page_title %}<strong>{{ page.title }}</strong>{% endcapture %}
+<h1 class="page-header with-context">{{ 'collection.list.title_html' | t: page_title: page_title }}</h1>
+
+<main class="page-wrapper grid collection-list-wrapper{% if settings.expandCollections %} expand--collections{% endif %}{% if collageLayoutEnabled %} collage--layout{% endif %}">
+	{% assign linklist = page.title | handle %}
+	{% for link in linklists[linklist].links %}
+		{% if link.type == "collection_link" %}
+			{% if link.object.image %}
+				{% assign image = link.object.image %}
+			{% else %}
+				{% assign image = link.object.products.first.featured_media.preview_image %}
+			{% endif %}
+
+			<article class="{% if collageLayoutEnabled %}{% cycle 'row-1', 'row-1', 'row-2', 'row-2', 'row-2', 'row-3' %}{% endif %} collection__list-item grid-item-{{ itemSize }}" {% assign delayAmount = delayAmount | plus: 200 %} {% render 'animations', type: 'fadeCycle', delay: delayAmount %}>
+
+				{% if image %}
+					<figure>
+						{%
+							render 'image',
+							image_object: image,
+							image_widths: image_widths,
+							image_noscript_width: image_noscript_width,
+							image_class: 'collection__list--image',
+							image_link: false,
+							image_additional_content: false,
+							image_attributes: false
+						%}
+					</figure>
+				{% endif %}
+
+				{% if settings.sectionBtnLabel == blank %}
+					<a href="{{ link.object.url }}" aria-label="{{ link.object.title }}">
+				{% endif %}
+
+				<div class="collection__list-item-content {{ settings.sectionTextAlignment }}"{% if settings.sectionColorOverlay %} style="background-color: rgba({{ colorOverlay }}, {{ overlayOpacity | times: 1.0 | divided_by: 100 }});"{% endif %}>
+					<div class="collection__list-item-content--inner">
+						<span class="collection__list--title"{% if settings.sectionColorText != "rgba(0,0,0,0)" %} style="color:{{ colorText }}"{% else %} style="color:{{ settings.colorBody }}"{% endif %}>{{ link.object.title }}</span>
+
+						{% if settings.sectionBtnLabel != blank %}
+							<div>
+								<a href="{{ link.object.url }}" class="button" aria-label="{{ settings.sectionBtnLabel }} {{ link.object.title }}">{{ settings.sectionBtnLabel }}</a>
+							</div>
+						{% endif %}
+
+					</div>
+				</div>
+
+				{% if settings.sectionBtnLabel == blank %}
+					</a>
+				{% endif %}
+			</article>
+
+		{% endif %}
+	{% endfor %}
+</main>

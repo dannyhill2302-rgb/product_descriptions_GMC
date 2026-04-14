@@ -1,0 +1,171 @@
+{% assign collectionsToShow = section.settings.collectionsToShow %}
+{% assign sectionBtnLabel = settings.sectionBtnLabel %}
+{% assign sectionTextAlignment = settings.sectionTextAlignment %}
+{% assign sectionColorText = settings.sectionColorText %}
+{% assign sectionColorOverlay = settings.sectionColorOverlay | color_to_rgb | remove: 'rgb(' | remove: ')' %}
+{% assign sectionOverlayOpacity = settings.sectionOverlayOpacity %}
+
+{% assign collageLayoutEnabled = false %}
+{% if settings.collageLayoutEnabled %}
+  {% assign collageLayoutEnabled = true %}
+{% endif %}
+
+{% case settings.collectionsPerRow %}
+	{% when 1 %}
+		{% assign itemSize = "100" %}
+	{% when 2 %}
+		{% assign itemSize = "50" %}
+	{% else %}
+		{% assign itemSize = "33" %}
+{% endcase %}
+
+{% assign expandCollections = settings.expandCollections %}
+
+{% assign image_widths = '335, 460, 680, 920, 1020, 1100, 1360, 1840, 2040, 2200, 2760, 3300' %}
+{% assign image_noscript_width = '1100x' %}
+{% assign delayAmount = 0 %}
+
+{% assign collageLayoutEnabled = false %}
+{% if settings.collageLayoutEnabled %}
+  {% assign collageLayoutEnabled = true %}
+{% endif %}
+
+{% if collectionsToShow == "all-collections" %}
+	{% assign all_collections = collections %}
+{% elsif collectionsToShow == "selected-collections" %}
+	{% assign all_collections =  section.blocks %}
+{% endif %}
+
+{% capture page_title %}<strong>{{ page.title }}</strong>{% endcapture %}
+
+{% if page.title != blank %}
+	<h1 class="page-header with-context">{{ 'collection.list.title_html' | t: page_title: page_title }}</h1>
+{% else %}
+	<h1 class="page-header with-context">{{ "collection.list.title_all_html" | t }}</h1>
+{% endif %}
+
+<main class="page-wrapper grid collection-list-wrapper{% if expandCollections %} expand--collections{% endif %}{% if collageLayoutEnabled %} collage--layout{% endif %}">
+	{% for item in all_collections %}
+		{% if collectionsToShow == "all-collections" %}
+			{% if item.image %}
+				{% assign image = item.image %}
+			{% else %}
+				{% assign image = item.products.first.featured_media.preview_image %}
+			{% endif %}
+
+			{% assign item_title = item.title %}
+			{% assign url = item.url %}
+		{% elsif collectionsToShow == "selected-collections" %}
+			{% assign collection = collections[item.settings.collection] %}
+
+			{% if collection.image %}
+				{% assign image = collection.image %}
+			{% else %}
+				{% assign image = collection.products.first.featured_media.preview_image %}
+			{% endif %}
+
+			{% assign item_title = collection.title %}
+			{% assign url = collection.url %}
+		{% endif %}
+
+		<article class="{% if collageLayoutEnabled %}{% cycle 'row-1', 'row-1', 'row-2', 'row-2', 'row-2', 'row-3' %}{% endif %} collection__list-item grid-item-{{ itemSize }}" {% assign delayAmount = delayAmount | plus: 200 %} {% render 'animations', type: 'fadeCycle', delay: delayAmount %}>
+			{% if image %}
+				<figure>
+					{%
+						render 'image',
+						image_object: image,
+						image_widths: image_widths,
+						image_noscript_width: image_noscript_width,
+						image_class: 'collection__list--image',
+						image_link: false,
+						image_additional_content: false,
+						image_attributes: false
+					%}
+				</figure>
+			{% endif %}
+
+			{% if sectionBtnLabel == blank and url %}
+				<a href="{{ url }}" aria-label="{{ item.title }}">
+			{% endif %}
+
+			<div class="collection__list-item-content {{ sectionTextAlignment }}"{% if sectionColorOverlay %} style="background-color: rgba({{ sectionColorOverlay }}, {{ sectionOverlayOpacity | times: 1.0 | divided_by: 100 }});"{% endif %}>
+				<div class="collection__list-item-content--inner">
+					<span class="collection__list--title"{% if sectionColorText != "rgba(0,0,0,0)" %} style="color:{{ sectionColorText }}"{% else %} style="color:{{ settings.colorBody }}"{% endif %}>{{ item_title }}</span>
+
+					{% if sectionBtnLabel != blank %}
+						<div>
+							<a href="{{ url }}" class="button hover-animation" aria-label="{{ sectionBtnLabel }} {{ item.title }}"><span class="button-text">{{ sectionBtnLabel }}</span></a>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+
+			{% if sectionBtnLabel == blank and url %}
+				</a>
+			{% endif %}
+		</article>
+	{% endfor %}
+</main>
+
+{% schema %}
+{
+	"name": {
+			"en": "Collection list",
+			"de": "Kollektionsliste",
+			"es": "Lista de colecciones",
+			"fr": "Liste des collections",
+			"pt-PT": "Lista da coleção"
+	},
+	"class": "section-index-collectionlist",
+	"settings": [
+		{
+			"type": "radio",
+			"id": "collectionsToShow",
+			"label": "Collections to show",
+			"options": [
+				{
+					"value": "all-collections",
+					"label": "All"
+				},
+				{
+					"value": "selected-collections",
+					"label": "Selected"
+				}
+			],
+			"default": "all-collections",
+			"info": {
+				"en": "All of your collections are listed by default. To customize your list, choose 'Selected' and add collections.",
+				"de": "Standardmäßig werden alle Ihre Zusammenstellungen aufgeführt. Wählen Sie 'Ausgewählt' aus und fügen Sie Zusammenstellungen hinzu, um Ihre Liste individuell anzupassen",
+				"es": "Todas las colecciones aparecen de forma predeterminada. Para personalizar la lista, elige 'Seleccionado' y añade colecciones",
+				"fr": "Toutes vos collections sont répertoriées par défaut. Pour personnaliser votre liste, choisissez « Sélectionné » et ajoutez des collections",
+				"pt-PT": "Todas as suas coleções são listadas por predefinição. Para personalizar a sua lista, escolha 'Selecionado' e adicione coleções"
+			}
+		}
+	],
+	"blocks": [
+		{
+			"name": {
+					"en": "Collection",
+					"de": "Kollektion",
+					"es": "Colección",
+					"fr": "Collection",
+					"pt-PT": "Coleção"
+			},
+			"type": "collection-item",
+			"settings": [
+				{
+					"type": "collection",
+					"id": "collection",
+					"label": {
+							"en": "Collection",
+							"de": "Kollektion",
+							"es": "Colección",
+							"fr": "Collection",
+							"pt-PT": "Coleção"
+					}
+				}
+			]
+		}
+	]
+}
+{% endschema %}

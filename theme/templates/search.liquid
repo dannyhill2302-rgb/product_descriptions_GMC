@@ -1,0 +1,140 @@
+{% if search.terms != blank %}
+  <h1 class="page-header">{{ 'search.general.title_query' | t: query: search.terms | remove: '*' }}</h1>
+{% else %}
+  <h1 class="page-header">{{ 'search.general.title' | t }}</h1>
+{% endif %}
+
+<div data-sectionId="{% if section.id %}{{section.id}}{% endif %}" data-settings='{% if section.settings %}{{section.settings | json}}{% endif %}' id="gf-products" class="collection-main-wrapper" data-product-item-wrapper>
+
+  {% if search.performed %}
+    {% assign isPage = false %}
+    {% assign isArticle = false %}
+    {% assign hasProducts = false %}
+    {% for item in search.results %}
+      {% if item.object_type == "page" %}
+        {% assign isPage = true %}
+      {% endif %}
+
+      {% if item.object_type == "article" %}
+        {% assign isArticle = true %}
+      {% endif %}
+
+      {% if item.object_type == "product" %}
+        {% assign hasProducts = true %}
+      {% endif %}
+    {% endfor %}
+
+    {% if isPage == false and isArticle == false and hasProducts == false %}
+      <p class="search-empty">
+        {{ 'search.general.empty' | t }}
+      </p>
+
+      <form id="search-page-form" action="{{ routes.search_url }}">
+          <div id="search-wrapper">
+              <input type="hidden" name="type" value="{{ article_search }}{{ product_search }}{{  page_search }}" />
+              <input class="form-input form-full" id="search_text" name="q" type="text" size="20" onblur="if(this.value=='')this.value=this.defaultValue;" onfocus="if(this.value==this.defaultValue)this.value='';" value="{{ 'search.general.title' | t }}"/>
+              <div class="form-actions">
+                <button class="button hover-animation" id="search_submit" type="submit">
+                  <span class="button-text">{{ 'search.general.title' | t }}</span>
+                </button>
+              </div>
+          </div>
+      </form>
+
+    {% endif %}
+
+    {% paginate search.results by 50 %}
+      <main class="collection-main grid">
+
+        {% if hasProducts %}
+          <div class="category-header">
+            <h3>{{ "search.general.products" | t }}</h3>
+          </div>
+
+          <div data-sectionId="{% if section.id %}{{section.id}}{% endif %}" data-settings='{% if section.settings %}{{section.settings | json}}{% endif %}' id="gf-products" class="collection grid">
+            {% for item in search.results %}
+              {% if item.object_type == "product" %}
+                {% render 'product-item', item: item, grid: "grid-item-25", productsPerRow: productsPerRow, image_default_width: '1024x', additionalInfo: true, productInfoSetting: section.settings.product-info, isSearch: true %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+
+          {% if search.results_count > 0 %}
+            {% if isPage %}
+
+              <div class="category-header">
+                <h3>{{ "search.general.pages" | t }}</h3>
+              </div>
+
+              <article class="search-departments">
+                <div data-sectionId="{% if section.id %}{{section.id}}{% endif %}" data-settings='{% if section.settings %}{{section.settings | json}}{% endif %}' id="gf-products" class="search-departments__inner">
+                  {% for item in search.results %}
+                    {% if item.object_type == "page" %}
+                      <span class="search-departments--result grid-item-25 h4">{{ item.title | link_to: item.url }}</span>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </article>
+
+            {% endif %}
+          {% endif %}
+
+          {% if search.results_count > 0 %}
+            {% if isArticle %}
+
+              <div class="category-header">
+                <h3>{{ "search.general.articles" | t }}</h3>
+              </div>
+
+              <article class="search-departments">
+                <div data-sectionId="{% if section.id %}{{section.id}}{% endif %}" data-settings='{% if section.settings %}{{section.settings | json}}{% endif %}' id="gf-products" class="search-departments__inner">
+                  {% for item in search.results %}
+                    {% if item.object_type == "article" %}
+                    <div class="search-departments--article grid-item-25">
+                      {% if item.image != blank %}
+                        <figure>
+                          {%
+                            render 'image',
+                            image_object: item.image,
+                            image_widths: '340, 440, 680, 880, 1020, 1320',
+                            image_noscript_width: '220x',
+                            image_link: false,
+                            image_additional_content: false,
+                            image_class: false,
+                            image_attributes: false
+                          %}
+                          <a class="index-blog-link" href="{{ item.url }}"></a>
+                        </figure>
+                      {% endif %}
+                      <span class="search-departments--result h4">{{ item.title | link_to: item.url }}</span>
+                      <time class="index-blog-published">{{ item.published_at | date: format: 'month_day_year' }}</time>
+                    </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </article>
+            {% endif %}
+          {% endif %}
+        </div>
+
+        {% render 'pagination', paginate: paginate  %}
+      </main>
+    {% endpaginate %}
+  {% else %}
+
+    {% unless search.performed %}
+      <form id="search-page-form" action="{{ routes.search_url }}">
+          <div id="search-wrapper">
+              <input type="hidden" name="type" value="{{ article_search }}{{ product_search }}{{  page_search }}" />
+              <input class="form-input form-full" id="search_text" name="q" type="text" size="20" onblur="if(this.value=='')this.value=this.defaultValue;" onfocus="if(this.value==this.defaultValue)this.value='';" value="{{ 'search.general.title' | t }}"/>
+              <div class="form-actions">
+                <button class="button hover-animation" id="search_submit" type="submit">
+                  <span class="button-text">{{ 'search.general.title' | t }}</span>
+                </button>
+              </div>
+          </div>
+      </form>
+    {% endunless %}
+
+  {% endif %}
+</div>

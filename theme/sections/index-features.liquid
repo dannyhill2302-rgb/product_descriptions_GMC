@@ -1,0 +1,493 @@
+{% if section.settings.remove-spacing %}
+  {% assign no-spacing = ' no-spacing' %}
+{% else %}
+  {% assign no-spacing = '' %}
+{% endif %}
+
+<section
+  class="index-features{{ no-spacing }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="home"
+  data-section-child="index-features">
+
+  {% if section.settings.subheading != blank or section.settings.heading != blank or section.settings.text != blank %}
+    <header class="index-header">
+
+      {% if section.settings.subheading != blank %}
+        <h3 class="index-subheading">{{ section.settings.subheading | escape }}</h3>
+      {% endif %}
+
+      {% if section.settings.heading != blank %}
+        <h2>{{ section.settings.heading | escape }}</h2>
+      {% endif %}
+
+      {% if section.settings.text != blank %}
+        <div class="homepage-subheader h4">{{ section.settings.text }}</div>
+      {% endif %}
+
+    </header>
+  {% endif %}
+
+  <div class="grid">
+
+    {% case section.settings.indexItemsPerRow %}
+      {% when 1 %}
+        {% assign itemSize = "100" %}
+      {% when 2 %}
+        {% assign itemSize = "50" %}
+      {% when 3 %}
+        {% assign itemSize = "33" %}
+      {% else %}
+      {% assign itemSize = "25" %}
+    {% endcase %}
+
+    {% assign image_widths = '335, 460, 680, 920, 1020, 1100, 1360, 1840, 2040, 2200, 2760, 3300' %}
+    {% assign image_noscript_width = '1100x' %}
+    {% assign delayAmount = 0 %}
+
+    {% for block in section.blocks %}
+      {% assign image = false %}
+      {% assign blockHeading = false %}
+      {% assign text = false %}
+      {% assign url = false %}
+      {% assign buttonText = false %}
+      {% assign button = false %}
+
+      {% if block.settings.image %}
+        {% assign image = block.settings.image %}
+      {% endif %}
+
+      {% if block.settings.title != blank %}
+        {% assign blockHeading = block.settings.title | escape %}
+      {% endif %}
+
+      {% if block.settings.text != blank %}
+        {% assign text = block.settings.text %}
+      {% endif %}
+
+      {% if block.settings.url %}
+        {% assign url = block.settings.url %}
+      {% elsif blockHeading == "Add a feature" %}
+        {% assign url = "/collections/all" %}
+      {% endif %}
+
+      {% if block.settings.buttonText != blank %}
+        {% assign buttonText = block.settings.buttonText | escape %}
+      {% endif %}
+
+      {% if buttonText %}
+        {% assign button = true %}
+      {% endif %}
+
+      {% assign colorText = block.settings.colorText %}
+      {% assign colorOverlay = block.settings.colorOverlay | color_to_rgb | remove: 'rgb(' | remove: ')' %}
+      {% assign overlayOpacity = block.settings.overlayOpacity %}
+
+      {% capture itemContent %}
+        <div>
+          {% if blockHeading %}
+            <h3 class="index-features-block-heading" {% if block.settings.colorText != 'rgba(0,0,0,0)' %}style="color: {{ colorText }}"{% endif %}>{{ blockHeading }}</h3>
+          {% endif %}
+
+          {% if text %}
+            <div class="index-features-text" {% if block.settings.colorText != 'rgba(0,0,0,0)' %}style="color: {{ colorText }}"{% endif %}>{{ text }}</div>
+          {% endif %}
+
+          {% if button %}
+            <a class="button hover-animation" href="{{ url }}"><span class="button-text">{{ buttonText }}</span></a>
+          {% endif %}
+        </div>
+      {% endcapture %}
+
+      <article
+        class="index-features-item grid-item-{{ itemSize }}
+               {%- if image %} image-content {% else %} text-content {% endif -%}
+               index-features-item-{{ block.id }}"
+        data-block-id="{{ block.id }}"
+        {{ block.shopify_attributes }}
+        {% assign delayAmount = delayAmount | plus: 200 %}
+        {% render 'animations', type: 'fadeCycle', delay: delayAmount %}>
+
+        {% if image %}
+
+          <figure>
+            {%-
+              render 'image',
+              image_object: image,
+              image_widths: image_widths,
+              image_noscript_width: image_noscript_width,
+              image_class: 'object-stretch',
+              image_link: false,
+              image_additional_content: false,
+              image_attributes: false
+            -%}
+          </figure>
+
+          {% if blockHeading or text or button %}
+            <div class="index-features-item-content {{ block.settings.textAlignment }}">
+              <span class="overlay-{{ block.settings.overlayOpacity }}"></span>
+              {{ itemContent }}
+            </div>
+          {% endif %}
+
+        {% elsif blockHeading or text or button %}
+          <div class="index-features-item-content {{ block.settings.textAlignment }}" style="background-color: rgba({{ colorOverlay }}, {{ overlayOpacity | times: 1.0 | divided_by: 10 }});">
+            {{ itemContent }}
+          </div>
+        {% else %}
+          <figure class="svg-placeholder">
+            {% capture index %}{% cycle '1', '2', '3', '4', '5', '6' %}{% endcapture %}
+            {{ 'collection-' | append: index | placeholder_svg_tag }}
+          </figure>
+        {% endif %}
+      </article>
+    {% endfor %}
+
+  </div>
+
+</section>
+
+<style type="text/css">
+  {%- for block in section.blocks -%}
+      {% assign opacity = block.settings.overlayOpacity | times: 1.0 | divided_by: 100 %}
+      #shopify-section-{{ section.id }} .index-features-item-{{ block.id }} .index-features-item-content > span {
+        {% if block.settings.colorOverlay != 'rgba(0,0,0,0)' %}
+        	background-color: {{ block.settings.colorOverlay | hex_to_rgba: opacity }};
+        {% endif %}
+      }
+
+      #shopify-section-{{ section.id }} .index-features-item-{{ block.id }} .index-features-item-content > div {
+        {% if block.settings.colorText != 'rgba(0,0,0,0)' %}
+        	color: {{ block.settings.colorText }};
+        {% endif %}
+      }
+  {%- endfor -%}
+</style>
+
+{% schema %}
+{
+    "name": {
+        "en": "Features",
+        "de": "Highlights",
+        "es": "Características",
+        "fr": "Caractéristiques",
+        "pt-PT": "Características"
+    },
+    "class": "section-index-features",
+    "settings": [
+        {
+            "type": "text",
+            "id": "subheading",
+            "label": {
+                "en": "Subheading",
+                "de": "Unterüberschrift",
+                "es": "Subencabezado",
+                "fr": "Sous-rubrique",
+                "pt-PT": "Subtítulo"
+            }
+        },
+        {
+            "type": "text",
+            "id": "heading",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            }
+        },
+        {
+            "type": "richtext",
+            "id": "text",
+            "label": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            }
+        },
+        {
+            "type": "range",
+            "id": "indexItemsPerRow",
+            "label": {
+                "en": "Items per row on desktop",
+                "de": "Artikel pro Zeile auf dem Desktop",
+                "es": "Elementos por fila en el escritorio",
+                "fr": "Éléments par ligne sur le bureau",
+                "pt-PT": "Itens por linha no ambiente de trabalho de PC"
+            },
+            "min": 1,
+            "max": 4,
+            "step": 1,
+            "default": 3
+        },
+        {
+            "type": "checkbox",
+            "id": "remove-spacing",
+            "default": true,
+            "label": {
+              "en": "Remove spacing",
+              "de":"Abstände entfernen",
+              "es": "Eliminar espacio",
+              "fr": "Supprimer l'espacement",
+              "pt-PT": "Remover o espaçamento"
+            }
+        }
+    ],
+    "blocks": [
+        {
+            "name": {
+                "en": "Feature item",
+                "de": "Element als Highlight hervorheben",
+                "es": "Elemento de la característica",
+                "fr": "Élément de caractéristique",
+                "pt-PT": "Incluir artigo"
+            },
+            "type": "feature-item",
+            "settings": [
+                {
+                    "type": "image_picker",
+                    "id": "image",
+                    "label": {
+                        "en": "Image",
+                        "de": "Bild",
+                        "es": "Imagen",
+                        "fr": "Image",
+                        "pt-PT": "Imagem"
+                    },
+                    "info": {
+                        "en": "1000 x 1000px recommended",
+                        "de": "Empfohlen: 1000 x 1000 Pixel",
+                        "es": "1000 x 1000 píxeles recomendados",
+                        "fr": "1000 x 1000 pixels recommandés",
+                        "pt-PT": "1000 x 1000 px, recomendado"
+                    }
+                },
+                {
+                    "type": "text",
+                    "id": "title",
+                    "label": {
+                        "en": "Heading",
+                        "de": "Überschrift",
+                        "es": "Encabezado",
+                        "fr": "Rubrique",
+                        "pt-PT": "Título"
+                    }
+                },
+                {
+                    "type": "richtext",
+                    "id": "text",
+                    "label": {
+                        "en": "Text",
+                        "de": "Text",
+                        "es": "Texto",
+                        "fr": "Texte",
+                        "pt-PT": "Texto"
+                    }
+                },
+                {
+                    "type": "text",
+                    "id": "buttonText",
+                    "label": {
+                        "en": "Button label",
+                        "de": "Button-Bezeichnung",
+                        "es": "Etiqueta del botón",
+                        "fr": "Étiquette du bouton",
+                        "pt-PT": "Etiqueta do botão"
+                    }
+                },
+                {
+                    "type": "url",
+                    "id": "url",
+                    "label": {
+                        "en": "Link",
+                        "de": "Link",
+                        "es": "Enlace",
+                        "fr": "Lien",
+                        "pt-PT": "Ligação"
+                    }
+                },
+                {
+                    "type": "select",
+                    "id": "textAlignment",
+                    "label": {
+                        "en": "Text alignment",
+                        "de": "Textausrichtung",
+                        "es": "Alineación del texto",
+                        "fr": "Alignement du texte",
+                        "pt-PT": "Alinhamento do texto"
+                    },
+                    "options": [
+                        {
+                            "value": "top left",
+                            "label": {
+                                "en": "Top left",
+                                "de": "Oben links",
+                                "es": "Arriba a la izquierda",
+                                "fr": "En haut à gauche",
+                                "pt-PT": "Canto superior esquerdo"
+                            }
+                        },
+                        {
+                            "value": "top right",
+                            "label": {
+                                "en": "Top right",
+                                "de": "Oben rechts",
+                                "es": "Arriba a la derecha",
+                                "fr": "En haut à droite",
+                                "pt-PT": "Canto superior direito"
+                            }
+                        },
+                        {
+                            "value": "center",
+                            "label": {
+                                "en": "Center",
+                                "de": "Mitte",
+                                "es": "Centro",
+                                "fr": "Centre",
+                                "pt-PT": "Centro"
+                            }
+                        },
+                        {
+                            "value": "bottom left",
+                            "label": {
+                                "en": "Bottom left",
+                                "de": "Unten links",
+                                "es": "Abajo a la izquierda",
+                                "fr": "En bas à gauche",
+                                "pt-PT": "Canto inferior esquerdo"
+                            }
+                        },
+                        {
+                            "value": "bottom right",
+                            "label": {
+                                "en": "Bottom right",
+                                "de": "Unten rechts",
+                                "es": "Abajo derecha",
+                                "fr": "En bas à droite",
+                                "pt-PT": "Canto inferior direito"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "color",
+                    "id": "colorText",
+                    "default": "#333333",
+                    "label": {
+                        "en": "Text color",
+                        "de": "Textfarbe",
+                        "es": "Color del texto",
+                        "fr": "Couleur du texte",
+                        "pt-PT": "Cor do texto"
+                    }
+                },
+                {
+                    "type": "color",
+                    "id": "colorOverlay",
+                    "default": "#F5F5F5",
+                    "label": {
+                        "en": "Background / overlay color",
+                        "de": "Hintergrundfarbe / Farbe des Overlays",
+                        "es": "Color de fondo / superposición",
+                        "fr": "Couleur d'arrière-plan / superposée",
+                        "pt-PT": "Cor de fundo / sobrepor cor"
+                    }
+                },
+                {
+                    "type": "range",
+                    "id": "overlayOpacity",
+                    "label": {
+                        "en": "Overlay opacity",
+                        "de": "Überlagerungsdeckkraft",
+                        "es": "Capacidad de sobrexposición",
+                        "fr": "Opacité de superposition",
+                        "pt-PT": "Opacidade de sobreposição"
+                    },
+                    "min": 0,
+                    "max": 100,
+                    "step": 10,
+                    "default": 80,
+                    "unit": {
+                        "en": "%",
+                        "de": "%",
+                        "es": "%",
+                        "fr": "%",
+                        "pt-PT": "%"
+                    }
+                }
+            ]
+        }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Features",
+                "de": "Highlights",
+                "es": "Características",
+                "fr": "Caractéristiques",
+                "pt-PT": "Características"
+            },
+            "category": {
+                "en": "Image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            },
+            "settings": {
+                "indexItemsPerRow": 3
+            },
+            "blocks": [
+                {
+                    "type": "feature-item",
+                    "settings": {
+                        "textAlignment": "center"
+                    }
+                },
+                {
+                    "type": "feature-item",
+                    "settings": {
+                        "title": "Add a feature",
+                        "text": "<p>Tell us something cool about your brand</p>",
+                        "buttonText": "Shop all",
+                        "textAlignment": "center"
+                    }
+                },
+                {
+                    "type": "feature-item",
+                    "settings": {
+                        "textAlignment": "center"
+                    }
+                },
+                {
+                    "type": "feature-item",
+                    "settings": {
+                        "title": "Add a feature",
+                        "text": "<p>Tell us something cool about your brand</p>",
+                        "buttonText": "Shop all",
+                        "textAlignment": "center"
+                    }
+                },
+                {
+                    "type": "feature-item",
+                    "settings": {
+                        "textAlignment": "center"
+                    }
+                },
+                {
+                    "type": "feature-item",
+                    "settings": {
+                        "title": "Add a feature",
+                        "text": "<p>Tell us something cool about your brand</p>",
+                        "buttonText": "Shop all",
+                        "textAlignment": "center"
+                    }
+                }
+            ]
+        }
+    ]
+}
+{% endschema %}

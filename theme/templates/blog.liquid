@@ -1,0 +1,70 @@
+<div class="page-header-wrapper">
+  <h1 class="page-header">
+    {{ blog.title }}
+    <a class="blog-rss" href="{{ blog.url }}.atom">
+      <svg><use xlink:href="#social-rss"></use></svg>
+    </a>
+  </h1>
+
+  {% if current_tags %}
+    <div class="blog-tags">
+      {{ "blogs.blog.tagged" | t }}
+      {% for tag in current_tags %}
+        {{ tag }}{% unless forloop.last %},{% endunless %}
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+{% paginate blog.articles by 25 %}
+
+  <main class="page-wrapper">
+    <div class="blog-wrapper grid" data-blog>
+      {% for item in blog.articles %}
+        <article class="blog-item-wrapper grid-item-33" data-blog-item>
+          <div class="blog-item ">
+            {% if item.image %}
+              <figure>
+                <a href="{{ item.url }}">
+                  {% assign image_widths = '315, 630, 945' %}
+                  {% assign image_noscript_width = '315x' %}
+
+                  {%-
+                    render 'image',
+                    image_object: item.image,
+                    image_widths: image_widths,
+                    image_noscript_width: image_noscript_width,
+                    image_link: false,
+                    image_additional_content: false,
+                    image_class: false,
+                    image_attributes: false
+                  -%}
+
+                </a>
+              </figure>
+            {% endif %}
+            <div class="blog-item-info {% if item.image %}has-image{% endif %}">
+              {% if item.tags.size > 0 %}
+                <span class="blog-item-tag">
+                  {{ item.tags.first | link_to_tag: item.tags.first }}
+                </span>
+              {% endif %}
+              <h2><a href="{{ item.url }}">{{ item.title }}</a></h2>
+              <time>{{ item.published_at | date: format: 'month_day_year' }}</time>
+              <p>{{ item.excerpt_or_content | strip_html | truncatewords: 20 }}</p>
+              <a href="{{ item.url }}">{{ "blogs.blog.read_more" | t }}</a>
+            </div>
+          </div>
+        </article>
+      {% else %}
+        <span class="empty">{{ 'blogs.blog.empty' | t }}</span>
+      {% endfor %}
+    </div>
+
+    {% if paginate.previous or paginate.next %}
+      {% render "pagination", paginate: paginate, width: "full-width" %}
+    {% endif %}
+
+  </main>
+
+{% endpaginate %}

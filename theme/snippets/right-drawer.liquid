@@ -1,0 +1,182 @@
+<aside id="cartSlideoutAside">
+  <form
+    action="{{ routes.cart_url }}"
+    method="post"
+    novalidate
+    class="cart-drawer-form"
+  >
+    <div
+      id="cartSlideoutWrapper"
+      class="capital-shopping-right slideout-panel-hidden cart-drawer-right"
+      role="dialog"
+      aria-labelledby="cart_dialog_label"
+      aria-describedby="cart_dialog_status"
+      aria-modal="true"
+    >
+      <div class="cart-drawer__top">
+        <h3 class="type-subheading type-subheading--1 wow fadeIn" id="cart_dialog_label">
+          <span class="cart-drawer--title">{{ 'cart.general.title' | t }}</span>
+        </h3>
+
+        <div class="cart-close-icon-wrapper">
+          <button
+            type="button"
+            class="slide-menu cart-close-icon cart-menu-close alt-focus"
+          >
+            <svg
+              width="28"
+              height="28"
+              aria-label="{{ 'cart.general.close_cart' | t }}"
+              xmlns="http://www.w3.org/2000/svg"
+              tabindex="-1"
+            >
+              <g stroke="#330" fill="none" fill-rule="evenodd">
+                <circle cx="14" cy="14" r="13.5"/>
+                <path stroke-linecap="square" d="M12.158 8.474L17.684 14M12.158 19.527L17.684 14"/>
+              </g>
+            </svg>
+            <span class="sr-only">{{ 'cart.general.close_cart' | t }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="cart-drawer__empty-div"></div>
+      <div class="cart-error-box"></div>
+
+      <div aria-live="polite" class="cart-empty-box">
+        {{ 'cart.content.empty' | t }}
+      </div>
+
+      <script type="application/template" id="cart-item-template">
+        <li>
+          <article class="cart-item">
+            <div class="cart-item-image--wrapper">
+              <a class="cart-item-link" href="/product" tabindex="-1">
+                <img
+                  class="cart-item-image"
+                  src="/product/image.jpg"
+                  alt=""
+                />
+              </a>
+            </div>
+            <div class="cart-item-details--wrapper">
+              <h3 class="cart-item__title">
+                <a href="/product" class="cart-item-link cart-item-details--product-title-wrapper">
+                  <span class="cart-item-product-title"></span>
+                  <span class="cart-item-variant-title hide"></span>
+                  <span class="cart-item-selling-plan hide"></span>
+                </a>
+              </h3>
+
+              <div class="cart-item-price-wrapper">
+                <span class="sr-only">{{ 'products.general.now_price' | t }}</span>
+                <span class="cart-item-price"></span>
+                <span class="sr-only">{{ 'products.general.was_price' | t }}</span>
+                <span class="cart-item-price-original"></span>
+                <span class="cart-item-price-per-unit"></span>
+              </div>
+
+              <ul class="order-discount--cart-list" aria-label="{{ 'customer.order.discount' | t }}"></ul>
+
+              <div class="cart-item--qtys">
+                <div class="cart-item--quantity-remove-wrapper">
+                  <div class="cart-item--quantity-wrapper">
+                    <button
+                      type="button"
+                      class="alt-focus cart-item-quantity-button cart-item-decrease"
+                      data-amount="-1"
+                      aria-label="Reduce item quantity by one"
+                    >{% render 'icon-minus' %}</button>
+                    <input
+                      type="text"
+                      class="cart-item-quantity"
+                      min="1"
+                      pattern="[0-9]*"
+                      aria-label="Quantity"
+                    >
+                    <button
+                      type="button"
+                      class="alt-focus cart-item-quantity-button cart-item-increase"
+                      data-amount="1"
+                      aria-label="Increase item quantity by one"
+                    >{% render 'icon-add' %}</button>
+                  </div>
+                </div>
+                <div class="cart-item-remove-button-container">
+                  <button type="button" id="cart-item-remove-button" class="alt-focus" aria-label="Remove product">{{ 'cart.cart_item.remove' | t }}</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </li>
+      </script>
+      <script type="application/json" id="initial-cart">
+        {{ cart | json }}
+      </script>
+
+      <ul class="cart-items"></ul>
+
+      {%- comment -%}Cart drawer recommendations{%- endcomment -%}
+      <div class="cart-drawer-recommendations" id="cartDrawerRecommendations" aria-live="polite">
+        {%- render 'cart-drawer-recommendations' -%}
+      </div>
+
+      <div class="ajax-cart--bottom-wrapper">
+
+        <div class="ajax-cart--cart-discount">
+          <div class="cart--order-discount-wrapper custom-font ajax-cart-discount-wrapper"></div>
+        </div>
+
+        <div class="cart--subtotals">
+          <span class="cart-price-text">{{ 'cart.totals.subtotal' | t }}</span>
+
+          <div class="cart--subtotals_figures">
+            <div class="ajax-cart--cart-original-price">
+              <span class="cart-item-original-total-price"><span class="money">{{ cart.original_total_price | money }}</span></span>
+            </div>
+
+            <div class="ajax-cart--total-price">
+              <h2
+                id="cart_dialog_status"
+                role="status"
+                class="js-cart-drawer-status sr-only"
+              ></h2>
+
+              <h5 id="cart_drawer_subtotal">
+                <span class="cart-total-price" id="cart-price">
+                  <span class="money">{{ cart.total_price | money }}</span>
+                </span>
+              </h5>
+            </div>
+          </div>
+        </div>
+
+        {%- capture taxes_shipping_checkout -%}
+          {%- if shop.taxes_included and shop.shipping_policy.body != blank -%}
+            {{ 'cart.totals.taxes_included_and_shipping_policy_html' | t: link: shop.shipping_policy.url }}
+          {%- elsif shop.taxes_included -%}
+            {{ 'cart.totals.taxes_included_but_shipping_at_checkout' | t }}
+          {%- elsif shop.shipping_policy.body != blank -%}
+            {{ 'cart.totals.taxes_and_shipping_policy_at_checkout_html' | t: link: shop.shipping_policy.url }}
+          {%- else -%}
+            {{ 'cart.totals.taxes_and_shipping_at_checkout' | t }}
+          {%- endif -%}
+        {%- endcapture -%}
+
+        <div class="cart--shipping-message">{{ taxes_shipping_checkout }}</div>
+
+        <div class="slide-checkout-buttons">
+          <button type="submit" name="checkout" class="btn hover-animation cart-button-checkout cart-button-checkout--sale">
+            <span class="button-text cart-button-checkout-text">{{ 'cart.totals.check_out' | t }}</span>
+            <div class="cart-button-checkout-spinner lds-dual-ring hide"></div>
+          </button>
+          {% if additional_checkout_buttons %}
+            <div class="additional-checkout-buttons">
+              {{ content_for_additional_checkout_buttons }}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </form>
+</aside>

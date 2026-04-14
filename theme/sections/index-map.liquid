@@ -1,0 +1,304 @@
+{% assign address = false %}
+{% assign apiKey = false %}
+{% assign image = false %}
+
+{% if section.settings.address != blank %}
+  {% assign address = true %}
+{% endif %}
+{% if section.settings.apiKey != blank %}
+  {% assign apiKey = true %}
+{% endif %}
+{% if section.settings.image != blank %}
+  {% assign image = true %}
+{% endif %}
+
+{% assign loadMap = false %}
+
+{% if address and apiKey %}
+  {% assign loadMap = true %}
+{% endif %}
+
+<section
+  class="index-map-wrapper{% if section.settings.fullWidth %} is-fullwidth{% endif %}{% unless section.settings.subheading != blank or section.settings.heading != blank or section.settings.text != blank %} is-fullwidth--nopadding{% endunless %}"
+  data-section-id="{{ section.id }}"
+  data-section-type="home"
+  data-section-child="map"
+  {% if loadMap %}
+    data-map-loadMap
+    data-map-api="{{ section.settings.apiKey | escape }}"
+    data-map-address="{{ section.settings.address | escape }}"
+    data-map-hours="{{ section.settings.hours | escape }}"
+    data-map-style="{% render 'map-json', section: section %}"
+    {% if section.settings.image != blank %}
+      data-map-image="{{ section.settings.image | img_url: '1600x' }}"
+    {% endif %}
+  {% endif %}
+  {% render 'animations', type: 'fadeUpAnim1' %}
+>
+
+  {% if section.settings.subheading != blank or section.settings.heading != blank or section.settings.text != blank %}
+    <header class="index-header">
+
+      {% if section.settings.subheading != blank %}
+        <h3 class="index-subheading">{{ section.settings.subheading | escape }}</h3>
+      {% endif %}
+
+      {% if section.settings.heading != blank %}
+        <h2>{{ section.settings.heading | escape }}</h2>
+      {% endif %}
+
+      {% if section.settings.text != blank %}
+        <div class="homepage-subheader h4">{{ section.settings.text }}</div>
+      {% endif %}
+
+    </header>
+  {% endif %}
+
+  <div class="index-map" data-map-content {% if section.settings.heading != blank or section.settings.subheading != blank %}{% render 'animations', type: 'fadeUpAnim2' %}{% else %}{% render 'animations', type: 'fadeUpAnim1' %}{% endif %}>
+    {% if loadMap %}
+      <div class="index-map-inner" id="index-map-{{ section.id }}"></div>
+      <div class="index-map--placeholder-wrap">
+        <div class="svg-placeholder">
+          {{ 'image' | placeholder_svg_tag }}
+        </div>
+      </div>
+    {% elsif image %}
+      {% assign image = section.settings.image %}
+      {% assign image_noscript_width = '1280x' %}
+      {%-
+        render 'image',
+        image_object: image,
+        image_widths: '375, 750, 500, 1000, 720, 960, 1060, 1280, 1440, 1920, 2120, 2560',
+        image_noscript_width: image_noscript_width,
+        image_link: false,
+        image_additional_content: false,
+        image_class: false,
+        image_attributes: false
+      -%}
+    {% else %}
+      <div class="index-map--placeholder-wrap">
+        <div class="svg-placeholder">
+          <div class="index-map--api-message">
+            <span>{{ 'modules.map.api_message' | t }}</span>
+          </div>
+          {{ 'image' | placeholder_svg_tag }}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{% if section.settings.fullWidth %}
+  <style type="text/css">
+    #shopify-section-{{ section.id }} {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  </style>
+{% endif %}
+
+{% schema %}
+{
+    "name": {
+        "en": "Map",
+        "de": "Karte",
+        "es": "Mapa",
+        "fr": "Carte",
+        "pt-PT": "Mapa"
+    },
+    "class": "section-index-map",
+    "settings": [
+        {
+            "type": "text",
+            "id": "subheading",
+            "label": {
+                "en": "Subheading",
+                "de": "Unterüberschrift",
+                "es": "Subencabezado",
+                "fr": "Sous-rubrique",
+                "pt-PT": "Subtítulo"
+            }
+        },
+        {
+            "type": "text",
+            "id": "heading",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            }
+        },
+        {
+            "type": "richtext",
+            "id": "text",
+            "label": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            }
+        },
+        {
+            "type": "text",
+            "id": "address",
+            "label": {
+                "en": "Map address",
+                "de": "Kartenadresse",
+                "es": "Dirección en el mapa",
+                "fr": "Adresse de la carte",
+                "pt-PT": "Endereço do mapa"
+            },
+            "info": {
+                "en": "Google Maps will find the exact location",
+                "de": "Google Maps wird den genauen Standort finden",
+                "es": "Google Maps encontrará la ubicación exacta",
+                "fr": "Google Maps trouvera l'emplacement exact",
+                "pt-PT": "O Google Maps irá encontrar a localização exata"
+            }
+        },
+        {
+            "type": "text",
+            "id": "apiKey",
+            "label": {
+                "en": "Google Maps API key",
+                "de": "Google Maps API-Schlüssel",
+                "es": "Llave API Google Maps",
+                "fr": "Clé API de Google Maps",
+                "pt-PT": "Chave API do Google Maps"
+            },
+            "info": {
+                "en": "You’ll need to register a [Google Maps API Key](https://help.shopify.com/manual/using-themes/troubleshooting/map-section-api-key) to display the map.",
+                "de": "Sie müssen einen [Google Maps API Key](https://help.shopify.com/manual/using-themes/troubleshooting/map-section-api-key) registrieren, um die Karte anzuzeigen.",
+                "es": "Deberá registrar una[clave de API de Google Maps] (https://help.shopify.com/manual/using-themes/troubleshooting/map-section-api-key) para mostrar el mapa.",
+                "fr": "Vous devrez enregistrer une [clé d'API de Google Maps](https://help.shopify.com/manual/using-themes/troubleshooting/map-section-api-key) pour afficher la carte.",
+                "pt-PT": "Tem de registar uma [Chave API do Google Maps](https://help.shopify.com/manual/using-themes/troubleshooting/map-section-api-key) para exibir o mapa."
+            }
+        },
+        {
+            "type": "checkbox",
+            "id": "fullWidth",
+            "label": {
+                "en": "Wide display",
+                "de": "Breite Anzeige",
+                "es": "Amplia pantalla",
+                "fr": "Affichage large",
+                "pt-PT": "Apresentação larga"
+            },
+            "default": true
+        },
+        {
+            "type": "image_picker",
+            "id": "image",
+            "label": {
+                "en": "Image",
+                "de": "Bild",
+                "es": "Imagen",
+                "fr": "Image",
+                "pt-PT": "Imagem"
+            },
+            "info": {
+                "en": "Displayed if the map isn't loaded",
+                "de": "Wird angezeigt, wenn die Karte nicht geladen ist",
+                "es": "Se muestra si el mapa no está cargado",
+                "fr": "Affiché si la carte n'est pas chargée",
+                "pt-PT": "Exibir se o mapa não estiver carregado"
+            }
+        },
+        {
+           "type":      "select",
+           "id":        "mapStyle",
+           "label":     {
+             "en": "Map style",
+             "de": "Kartenstil",
+             "es": "Estilo de mapa",
+             "fr": "Style de carte",
+             "pt-PT": "Estilo do mapa"
+           },
+           "options": [
+             {
+               "value": "standard",
+               "label":     {
+                 "en": "Standard",
+                 "de": "Standard",
+                 "es": "Estándar",
+                 "fr": "Norme",
+                 "pt-PT": "Padrão"
+               }
+             },
+             {
+               "value": "silver",
+               "label":     {
+                 "en": "Silver",
+                 "de": "Silber",
+                 "es": "Plata",
+                 "fr": "Argent",
+                 "pt-PT": "Prata"
+               }
+             },
+             {
+               "value": "retro",
+               "label":     {
+                 "en": "Retro",
+                 "de": "Retro",
+                 "es": "Retro",
+                 "fr": "Rétro",
+                 "pt-PT": "Retro"
+               }
+             },
+             {
+               "value": "dark",
+               "label":     {
+                 "en": "Dark",
+                 "de": "Dunkel",
+                 "es": "Oscuro",
+                 "fr": "Foncé",
+                 "pt-PT": "Sombrio"
+               }
+             },
+             {
+               "value": "night",
+               "label":     {
+                 "en": "Night",
+                 "de": "Nacht",
+                 "es": "Noche",
+                 "fr": "Nuit",
+                 "pt-PT": "Noite"
+               }
+             },
+             {
+               "value": "aubergine",
+               "label":     {
+                 "en": "Aubergine",
+                 "de": "Aubergine",
+                 "es": "Berenjena",
+                 "fr": "Aubergine",
+                 "pt-PT": "Beringela"
+               }
+             }
+           ],
+           "default":   "standard"
+        }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Map",
+                "de": "Karte",
+                "es": "Mapa",
+                "fr": "Carte",
+                "pt-PT": "Mapa"
+            },
+            "category": {
+                "en": "Store information",
+                "de": "Store-Informationen",
+                "es": "Información de la tienda",
+                "fr": "Informations sur le magasin",
+                "pt-PT": "Informação sobre a loja"
+            }
+        }
+    ]
+}
+{% endschema %}

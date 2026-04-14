@@ -1,0 +1,87 @@
+{%- comment -%}
+  Inline recommendations for the full cart page sidebar.
+  Seeded from the first cart item using Shopify's recommendations API.
+{%- endcomment -%}
+{% if cart.items.size > 0 %}
+  <div
+    class="cart-rec-inline"
+    data-cart-rec-inline
+    data-seed-id="{{ cart.items.first.product_id }}"
+    data-rec-url="{{ routes.product_recommendations_url }}"
+  >
+    <div class="cart-rec-inline__inner" style="display:none;">
+      <h4 class="cart-rec-inline__heading">Complete your order</h4>
+      <div class="cart-rec-inline__grid" data-cart-rec-inline-grid></div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    var el = document.querySelector('[data-cart-rec-inline]');
+    if (!el) return;
+    var seedId = el.dataset.seedId;
+    var url = el.dataset.recUrl;
+    var inner = el.querySelector('.cart-rec-inline__inner');
+    var grid = el.querySelector('[data-cart-rec-inline-grid]');
+    if (!seedId || !url) return;
+
+    function buildCards(products) {
+      return products.slice(0,4).map(function(p) {
+        var img = p.featured_image
+          ? '<img src="' + p.featured_image + '&width=200" alt="' + p.title.replace(/"/g,'&quot;') + '" loading="lazy">'
+          : '';
+        var price = p.price_min
+          ? (p.price_min / 100).toLocaleString('nl-NL', {style:'currency', currency:'EUR'})
+          : '';
+        var singleVariant = p.variants && p.variants.length === 1;
+        var btn = singleVariant
+          ? '<button class="cart-rec-atc" type="button" data-vid="' + p.variants[0].id + '" data-avail="' + p.variants[0].available + '">'
+            + (p.variants[0].available ? 'Add' : 'Sold out')
+            + '</button>'
+          : '<a class="cart-rec-atc cart-rec-atc--select" href="' + p.url + '">Select</a>';
+
+        return '<div class="cart-rec-card">'
+          + '<a href="' + p.url + '" class="cart-rec-card__img">' + img + '</a>'
+          + '<div class="cart-rec-card__info">'
+          + '<a href="' + p.url + '" class="cart-rec-card__name">' + p.title + '</a>'
+          + '<span class="cart-rec-card__price">' + price + '</span>'
+          + btn
+          + '</div></div>';
+      }).join('');
+    }
+
+    fetch(url + '?product_id=' + seedId + '&limit=4&intent=complementary')
+      .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+      .then(function(d){
+        if (!d.products || !d.products.length) throw new Error('none');
+        return d;
+      })
+      .catch(function(){
+        return fetch(url + '?product_id=' + seedId + '&limit=4').then(function(r){ return r.json(); });
+      })
+      .then(function(d){
+        if (!d.products || !d.products.length) return;
+        grid.innerHTML = buildCards(d.products);
+        inner.style.display = '';
+
+        grid.querySelectorAll('.cart-rec-atc[data-vid]').forEach(function(btn){
+          if (btn.dataset.avail === 'false') { btn.disabled = true; return; }
+          btn.addEventListener('click', function(){
+            btn.textContent = '...'; btn.disabled = true;
+            fetch('/cart/add.js', {
+              method: 'POST',
+              headers: {'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},
+              body: JSON.stringify({id: btn.dataset.vid, quantity: 1})
+            }).then(function(r){ return r.json(); }).then(function(){
+              btn.textContent = '✓ Added';
+              setTimeout(function(){ location.reload(); }, 800);
+            }).catch(function(){
+              btn.textContent = 'Add'; btn.disabled = false;
+            });
+          });
+        });
+      })
+      .catch(function(){});
+  })();
+  </script>
+{% endif %}

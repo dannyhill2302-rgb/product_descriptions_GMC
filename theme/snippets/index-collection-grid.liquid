@@ -1,0 +1,178 @@
+{% assign collection = collections[section.settings.collection] %}
+{% assign numberOfRows = section.settings.numberOfRows %}
+{% assign productsPerRow = section.settings.productsPerRow %}
+{% assign displayDetailsInGrid = section.settings.displayDetailsInGrid %}
+{% assign noDetails = false %}
+{% assign useCustomDetails = false %}
+
+{% if section.settings.displayDetails == 'customDetails' and
+section.settings.featuredSubheading == blank and
+section.settings.featuredTitle == blank and
+section.settings.featuredCustomDescription == blank and
+section.settings.showViewAll == false %}
+  {% assign noDetails = true %}
+{% endif %}
+
+{% if section.settings.displayDetails == 'customDetails' %}
+  {% assign useCustomDetails = true %}
+{% endif %}
+
+{% if noDetails == true or displayDetailsInGrid == false %}
+  {% assign numImgs = section.settings.productsPerRow | times: numberOfRows %}
+{% else %}
+  {% assign numImgs = section.settings.productsPerRow | times: numberOfRows | minus: 1 %}
+{% endif %}
+
+{% if productsPerRow == 2 %}
+  {% assign perRowClass = 'grid-item-50' %}
+{% elsif productsPerRow == 3 %}
+  {% assign perRowClass = 'grid-item-33' %}
+{% elsif productsPerRow == 4 %}
+  {% assign perRowClass = 'grid-item-25' %}
+{% elsif productsPerRow == 5 %}
+  {% assign perRowClass = 'grid-item-20' %}
+{% elsif productsPerRow == 6 %}
+  {% assign perRowClass = 'grid-item-16' %}
+{% endif %}
+
+{% unless displayDetailsInGrid == true %}
+  {% render 'index-collection-header', section: section %}
+{% endunless %}
+
+{% capture onboarding %}
+  <div class="grid featured-collection-grid onboarding">
+
+    {% if displayDetailsInGrid and noDetails == false %}
+    <div class="{{ perRowClass }} header-panel-wrapper" {% render 'animations', type: 'fadeRightAnim1' %}>
+      <div class="header-panel">
+        {% if useCustomDetails %}
+          {% if section.settings.featuredSubheading != empty %}
+            <h3 class="index-subheading">{{ section.settings.featuredSubheading | escape }}</h3>
+          {% endif %}
+
+          {% if section.settings.featuredTitle != empty %}
+            <h2 {% if productsPerRow > 5 %}class="header-panel__heading--small"{% endif %}>{{ section.settings.featuredTitle | escape }}</h2>
+          {% endif %}
+
+          {% if section.settings.featuredCustomDescription != blank %}
+            <p>{{ section.settings.featuredCustomDescription | truncatewords: 20 | strip_html }}</p>
+          {% endif %}
+        {% else %}
+          <h2 {% if productsPerRow > 5 %}class="header-panel__heading--small"{% endif %}>{{ 'layout.onboarding.collection_title' | t }}</h2>
+          <p>{{ 'layout.onboarding.collection_description' | t }}</p>
+        {% endif %}
+
+        {% if section.settings.showViewAll %}
+          <div class="view-all view-all--grid">
+            <a class="button" href="{{ routes.all_products_collection_url }}">
+              {{ 'modules.featured_products.view_collection' | t: collection: collection.title }}
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% assign loopNum = 1 %}
+    {% assign itemCount = 0 %}
+    {% assign delayAmount = 0 %}
+    {% for i in (1..numImgs) %}
+
+      {% assign itemCount = itemCount | plus: 1 %}
+      {% assign delayAmount = delayAmount | plus: 100 %}
+
+      <article class="{{ perRowClass }}"
+      data-aos-duration="600"
+      data-aos-delay="{{ delayAmount }}"
+      data-aos="fade-up"
+      data-aos-easing="capital-easing">
+
+        <div class="item-wrapper">
+          <figure>
+            <div class="svg-placeholder">
+              {% if loopNum == 6 %}
+                {% assign loopNum = 1 %}
+              {% else %}
+                {% assign loopNum = loopNum | plus: 1 %}
+              {% endif %}
+              {% capture placeholder %}product-{{ loopNum }}{% endcapture %}
+              {{ placeholder | placeholder_svg_tag }}
+            </div>
+          </figure>
+          <div class="item-content {{ section.settings.product-info }}">
+            {% if settings.productBrand %}
+              {% if settings.productItemVendorCollection %}<a href="{{ routes.all_products_collection_url }}">{% endif %}
+                <span class="item-brand">{{ 'layout.onboarding.brand' | t }}</span>
+              {% if settings.productItemVendorCollection %}</a>{% endif %}
+            {% endif %}
+            <h3 class="item-title">{{ 'layout.onboarding.product_title' | t }}</h3>
+            <span class="item-price">
+              <span class="money">{{ 10000 | money }}</span>
+            </span>
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+
+  </div>
+{% endcapture %}
+
+{% if section.settings.collection != blank %}
+  {% if collection and collection.products != blank %}
+    <div class="grid featured-collection-grid rows-{{ numberOfRows }} products-per-row-{{ productsPerRow }}" data-featured-products>
+
+      {% if displayDetailsInGrid and noDetails == false %}
+        <div class="{{ perRowClass }} header-panel-wrapper">
+          <div class="header-panel">
+            {% if useCustomDetails %}
+              {% if section.settings.featuredSubheading != empty %}
+                <h3 class="index-subheading">{{ section.settings.featuredSubheading }}</h3>
+              {% endif %}
+              {% if section.settings.featuredTitle != empty %}
+                <h2{% if productsPerRow > 5 %} class="header-panel__heading--small"{% endif %}>{{ section.settings.featuredTitle }}</h2>
+              {% endif %}
+            {% else %}
+              <h2{% if productsPerRow > 5 %} class="header-panel__heading--small"{% endif %}>{{ collection.title }}</h2>
+            {% endif %}
+
+            {% if useCustomDetails %}
+              {% if section.settings.featuredCustomDescription != empty %}
+                <p>{{ section.settings.featuredCustomDescription | newline_to_br }}</p>
+              {% endif %}
+            {% else %}
+              <p>{{ collection.description | truncatewords: 20 | strip_html }}</p>
+            {% endif %}
+
+            {% if section.settings.showViewAll %}
+              <div class="view-all view-all--grid">
+                {% render 'index-collection-view-all', section: section %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% assign itemCount = 0 %}
+      {% assign delayAmount = 0 %}
+      {% for item in collection.products limit: numImgs %}
+
+      {% assign itemCount = itemCount | plus: 1 %}
+      {% assign delayAmount = delayAmount | plus: 100 %}
+        {% render 'product-item', item: item, grid: perRowClass, productsPerRow: productsPerRow, image_default_width: '1024x', additionalInfo: true, productInfoSetting: section.settings.product-info, isSearch: false, delayAmount: delayAmount %}
+      {% endfor %}
+
+    </div>
+  {% else %}
+    {{ onboarding }}
+  {% endif %}
+{% else %}
+  {{ onboarding }}
+{% endif %}
+
+{% if section.settings.showViewAll and displayDetailsInGrid == false %}
+  <div class="featured-products-item-more" {% render 'animations', type: 'fadeUpAnim1' %}>
+    {% render 'index-collection-view-all', section: section, collection: collection %}
+  </div>
+{% endif %}
+
+

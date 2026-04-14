@@ -1,0 +1,71 @@
+{% comment %}
+This is a duplicate of product-recent.liquid, for use specifically on the cart page
+{% endcomment %}
+
+{% if section.settings.show_recently_viewed %}
+  <section class="page-wrapper page-wrapper--swiper">
+    <div
+      class="products-recent js-dependent swiper-container"
+      data-products-recent-wrapper
+      data-products-recent-handle="{% if product %}{{ product.handle }}{% endif %}"
+      data-product-url="{% if routes.root_url != '/' %}{{ routes.root_url }}{% endif %}/products/PLACEHOLDER/?view=grid"
+      data-product-item-wrapper
+    >
+      <h2>{{ section.settings.recently_viewed_heading }}</h2>
+      <div
+        class="grid swiper-wrapper"
+        data-products-recent
+      >
+      </div>
+      <div style="display:none;">
+        <div class="icon-arrow">
+          {% render 'icon-arrow' %}
+        </div>        
+      </div>
+    </div>
+  </section>
+{% endif %}
+
+{% schema %}
+{
+    "name": {
+        "en": "Recently viewed products",
+        "de": "Zuletzt angesehene Produkte",
+        "es": "Productos visitados recientemente",
+        "fr": "Produits récemment consultés",
+        "pt-PT": "Produtos recentemente visualizados"
+    },
+    "settings": [
+        {
+            "type": "checkbox",
+            "id": "show_recently_viewed",
+            "label": {
+                "en": "Show recently viewed",
+                "de": "Zuletzt Angesehenes anzeigen",
+                "es": "Mostrar los últimos vistos",
+                "fr": "Afficher les résultats récemment consultés",
+                "pt-PT": "Mostrar vistos recentemente"
+            },
+            "default": true
+        },
+        {
+            "type": "text",
+            "id": "recently_viewed_heading",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            },
+            "default": {
+                "en": "Recently viewed",
+                "de": "Zuletzt angesehen",
+                "es": "Visitado recientemente",
+                "fr": "Récemment consulté",
+                "pt-PT": "Recentemente visualizado"
+            }
+        }
+    ]
+}
+{% endschema %}

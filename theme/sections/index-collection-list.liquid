@@ -1,0 +1,307 @@
+<section class="index-features index-collectionlist" data-section-id="{{ section.id }}" data-section-type="home" data-section-child="index-collectionlist">
+
+  {% if section.settings.subheading != blank or section.settings.heading != blank or section.settings.text != blank %}
+    <header class="index-header">
+
+      {% if section.settings.subheading != blank %}
+        <h3 class="index-subheading">{{ section.settings.subheading | escape }}</h3>
+      {% endif %}
+
+      {% if section.settings.heading != blank %}
+        <h2>{{ section.settings.heading | escape }}</h2>
+      {% endif %}
+
+      {% if section.settings.text != blank %}
+        <div class="homepage-subheader h4">{{ section.settings.text }}</div>
+      {% endif %}
+
+    </header>
+  {% endif %}
+
+  <div class="grid items-row-{{ section.settings.indexItemsPerRow }} blocks-{{ section.blocks.size }}">
+
+    {% case section.settings.indexItemsPerRow %}
+      {% when 1 %}
+        {% assign itemSize = "100" %}
+      {% when 2 %}
+        {% assign itemSize = "50" %}
+      {% else %}
+        {% assign itemSize = "33" %}
+    {% endcase %}
+
+    {% assign image_widths = '335, 460, 680, 920, 1020, 1100, 1360, 1840, 2040, 2200, 2760, 3300' %}
+    {% assign image_noscript_width = '1100x' %}
+    {% assign delayAmount = 0 %}
+
+    {% for block in section.blocks %}
+      {% assign image = false %}
+      {% assign title = false %}
+      {% assign buttonText = false %}
+      {% assign button = false %}
+      {% assign collection = collections[block.settings.collection] %}
+
+      {% if block.settings.collection != blank %}
+        {% if collection.image %}
+          {% assign image = collection.image %}
+        {% else %}
+          {% assign image = collection.products.first.featured_media.preview_image %}
+        {% endif %}
+
+        {% assign title = true %}
+        {% assign url = collection.url %}
+      {% else %}
+        {% assign url = "/collections/all" %}
+      {% endif %}
+
+      {% if block.settings.heading != blank %}
+        {% assign title = block.settings.heading | escape %}
+      {% endif %}
+
+      {% if settings.sectionBtnLabel != blank %}
+        {% assign buttonText = settings.sectionBtnLabel | escape %}
+      {% endif %}
+
+      {% if buttonText and url %}
+        {% assign button = true %}
+      {% endif %}
+
+      {% assign colorText = settings.sectionColorText %}
+      {% assign colorOverlay = settings.sectionColorOverlay | color_to_rgb | remove: 'rgb(' | remove: ')' %}
+      {% assign overlayOpacity = settings.sectionOverlayOpacity %}
+
+      {% capture itemContent %}
+        <div>
+          {% if title %}
+            <h3 class="index-features-title" {% if settings.sectionColorText != '' %}style="color: {{ colorText }}"{% else %}style="color:{{ settings.colorBackground }}"{% endif %}>
+              {%- if block.settings.heading != blank -%}
+                {{- block.settings.heading | escape -}}
+              {%- else -%}
+                {{- collection.title | escape -}}
+              {%- endif -%}
+            </h3>
+          {% endif %}
+
+          {% if button %}
+            <a class="button hover-animation" href="{{ url }}"><span class="button-text">{{ buttonText }}</span></a>
+          {% endif %}
+        </div>
+      {% endcapture %}
+
+      <article
+        class="index-features-item grid-item-{{ itemSize }}{%- if image %} image-content{% else %} text-content{% endif -%}"
+        data-block-id="{{ block.id }}"
+        {{ block.shopify_attributes }}
+        {% assign delayAmount = delayAmount | plus: 200 %}
+        {% render 'animations', type: 'fadeCycle', delay: delayAmount %}>
+
+        {% if image %}
+          <figure>
+            {%
+              render 'image',
+              image_object: image,
+              image_widths: image_widths,
+              image_noscript_width: image_noscript_width,
+              image_class: 'object-stretch',
+              image_link: false,
+              image_additional_content: false,
+              image_attributes: false
+            %}
+          </figure>
+
+          {% if title or button %}
+
+            {% unless button %}
+              <a href="{{ url }}" aria-label="{{ collection.title }}">
+            {% endunless %}
+
+            <div class="index-features-item-content {{ settings.sectionTextAlignment }}"{% if settings.sectionColorOverlay %} style="background-color: rgba({{ colorOverlay }}, {{ overlayOpacity | times: 1.0 | divided_by: 100 }});"{% endif %}>
+              <span class="overlay-{{ settings.sectionOverlayOpacity }}"></span>
+              {{ itemContent }}
+            </div>
+
+            {% unless button %}
+              </a>
+            {% endunless %}
+
+          {% endif %}
+
+          {% if url %}
+            <a class="index-features-link" href="{{ url }}"></a>
+          {% endif %}
+
+        {% elsif title or button %}
+
+          {% unless button %}
+            <a href="{{ url }}" aria-label="{{ collection.title }}">
+          {% endunless %}      
+
+          <div class="index-features-item-content {{ settings.sectionTextAlignment }}" {% if settings.sectionColorOverlay %} style="background-color: rgba({{ colorOverlay }}, {{ overlayOpacity | times: 1.0 | divided_by: 100 }});"{% endif %}>
+            {{ itemContent }}
+          </div>
+
+          {% unless button %}
+            </a>
+          {% endunless %}
+
+        {% else %}
+
+          <figure class="svg-placeholder">
+            {% capture index %}{% cycle '1', '2', '3', '4', '5', '6' %}{% endcapture %}
+            {{ 'collection-' | append: index | placeholder_svg_tag }}
+          </figure>
+
+        {% endif %}
+      </article>
+    {% endfor %}
+
+  </div>
+
+</section>
+
+<style type="text/css">
+  {%- for block in section.blocks -%}
+      {% assign opacity = settings.sectionOverlayOpacity | times: 1.0 | divided_by: 100 %}
+      #shopify-section-{{ section.id }} .index-features-item-{{ block.id }} .index-features-item-content > span {
+        	background-color: {{ settings.sectionColorOverlay | color_to_rgb: opacity }};
+      }
+      .index-collectionlist .index-features-item figure div:before { background: {% if settings.sectionColorOverlay != "rgba(0,0,0,0)" %}{{ settings.sectionColorOverlay }}{% else %}#000{% endif %}; }
+
+  {% if colorText %}
+      #shopify-section-{{ section.id }} .index-features-item-{{ block.id }} .index-features-item-content > div {
+        color: {{ settings.sectionColorText }};
+      }
+  {% endif %}
+  {%- endfor -%}
+</style>
+
+{% schema %}
+{
+    "name": {
+        "en": "Collection list",
+        "de": "Kollektionsliste",
+        "es": "Lista de colecciones",
+        "fr": "Liste des collections",
+        "pt-PT": "Lista da coleção"
+    },
+    "class": "section-index-collectionlist",
+    "settings": [
+        {
+            "type": "text",
+            "id": "subheading",
+            "label": {
+                "en": "Subheading",
+                "de": "Unterüberschrift",
+                "es": "Subencabezado",
+                "fr": "Sous-rubrique",
+                "pt-PT": "Subtítulo"
+            }
+        },
+        {
+            "type": "text",
+            "id": "heading",
+            "label": {
+                "en": "Heading",
+                "de": "Überschrift",
+                "es": "Encabezado",
+                "fr": "Rubrique",
+                "pt-PT": "Título"
+            }
+        },
+        {
+            "type": "richtext",
+            "id": "text",
+            "label": {
+                "en": "Text",
+                "de": "Text",
+                "es": "Texto",
+                "fr": "Texte",
+                "pt-PT": "Texto"
+            }
+        },
+        {
+            "type": "range",
+            "id": "indexItemsPerRow",
+            "label": {
+                "en": "Collections per row",
+                "de": "Kollektionen pro Zeile",
+                "es": "Colecciones por filas",
+                "fr": "Collections par rangée",
+                "pt-PT": "Coleções por linha"
+            },
+            "min": 1,
+            "max": 3,
+            "step": 1,
+            "default": 3
+        }
+    ],
+    "blocks": [
+        {
+            "name": {
+                "en": "Collection",
+                "de": "Kollektion",
+                "es": "Colección",
+                "fr": "Collection",
+                "pt-PT": "Coleção"
+            },
+            "limit": 6,
+            "type": "collection-item",
+            "settings": [
+                {
+                    "type": "collection",
+                    "id": "collection",
+                    "label": {
+                        "en": "Collection",
+                        "de": "Kollektion",
+                        "es": "Colección",
+                        "fr": "Collection",
+                        "pt-PT": "Coleção"
+                    }
+                },
+                {
+                    "type": "text",
+                    "id": "heading",
+                    "label": {
+                        "en": "Heading",
+                        "de": "Überschrift",
+                        "es": "Encabezado",
+                        "fr": "Rubrique",
+                        "pt-PT": "Título"
+                    }
+                }
+            ]
+        }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Collection list",
+                "de": "Kollektionsliste",
+                "es": "Lista de colecciones",
+                "fr": "Liste des collections",
+                "pt-PT": "Lista da coleção"
+            },
+            "category": {
+                "en": "Collection",
+                "de": "Kollektion",
+                "es": "Colección",
+                "fr": "Collection",
+                "pt-PT": "Coleção"
+            },
+            "settings": {
+                "indexItemsPerRow": 3
+            },
+            "blocks": [
+                {
+                    "type": "collection-item"
+                },
+                {
+                    "type": "collection-item"
+                },
+                {
+                    "type": "collection-item"
+                }
+            ]
+        }
+    ]
+}
+{% endschema %}

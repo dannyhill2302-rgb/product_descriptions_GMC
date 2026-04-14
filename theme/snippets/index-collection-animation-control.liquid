@@ -1,0 +1,86 @@
+{% assign styleSlider = false %}
+{% if section.settings.style == 'slider' %}
+  {% assign styleSlider = true %}
+{% endif %}
+
+{% assign fullGrid = false %}
+{% if useCustomDetails and noDetails or styleSlider %}
+  {% assign fullGrid = true %}
+{% endif %}
+
+{% case productsPerRow %}
+  {% when 2 %}
+    {% if fullGrid %}
+      {%- capture delay -%}
+        {%- cycle '100', '400' -%}
+      {%- endcapture -%}
+    {% else %}
+      {% if itemCount == 1 %}
+        {% assign delay = 300 | times: itemCount | minus: 200 %}
+      {% else %}
+        {%- capture delay -%}
+          {%- cycle '100', '400' -%}
+        {%- endcapture -%}
+      {% endif %}
+    {% endif %}
+
+    {% when 3 %}
+      {% if fullGrid %}
+        {%- capture delay -%}
+          {%- cycle '100', '400', '700' -%}
+        {%- endcapture -%}
+      {% else %}
+        {% if itemCount == 1 or itemCount == 2 %}
+          {% assign delay = 300 | times: itemCount | minus: 200 %}
+        {% else %}
+          {%- capture delay -%}
+          {%- cycle '100', '400', '700' -%}
+          {%- endcapture -%}
+        {% endif %}
+      {% endif %}
+
+      {% when 4 %}
+        {% if fullGrid %}
+          {%- capture delay -%}
+            {%- cycle '100', '400', '700', '1000' -%}
+          {%- endcapture -%}
+        {% else %}
+          {% if itemCount == 1 or itemCount == 2 or itemCount == 3 %}
+            {% assign delay = 300 | times: itemCount | minus: 200 %}
+          {% else %}
+            {%- capture delay -%}
+            {%- cycle '100', '400', '700', '1000' -%}
+            {%- endcapture -%}
+          {% endif %}
+        {% endif %}
+
+        {% when 5 %}
+          {% if fullGrid %}
+            {%- capture delay -%}
+              {%- cycle '100', '400', '700', '1000', '1300' -%}
+            {%- endcapture -%}
+          {% else %}
+            {% if itemCount == 1 or itemCount == 2 or itemCount == 3 or itemCount == 4 %}
+              {% assign delay = 300 | times: itemCount | minus: 200 %}
+            {% else %}
+              {%- capture delay -%}
+              {%- cycle '100', '400', '700', '1000', '1300' -%}
+              {%- endcapture -%}
+            {% endif %}
+          {% endif %}
+
+          {% when 6 %}
+            {% if fullGrid %}
+              {%- capture delay -%}
+                {%- cycle '100', '400', '700', '1000', '1300', '1600' -%}
+              {%- endcapture -%}
+            {% else %}
+              {% if itemCount == 1 or itemCount == 2 or itemCount == 3 or itemCount == 4 or itemCount == 5 %}
+                {% assign delay = 300 | times: itemCount | minus: 200 %}
+              {% else %}
+                {%- capture delay -%}
+                {%- cycle '100', '400', '700', '1000', '1300', '1600' -%}
+                {%- endcapture -%}
+              {% endif %}
+            {% endif %}
+{% endcase %}

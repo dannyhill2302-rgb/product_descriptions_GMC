@@ -1,0 +1,285 @@
+<style>
+
+{% assign primary_font = settings.primaryFont %}
+{% assign secondary_font = settings.secondaryFont %}
+
+{{ primary_font | font_face: font_display: 'swap' }}
+{{ secondary_font | font_face: font_display: 'swap' }}
+
+{%- assign primary_font_bold = primary_font | font_modify: 'weight', 'bolder' -%}
+{%- assign primary_font_italic = primary_font | font_modify: 'style', 'italic' -%}
+{%- assign primary_font_bold_italic = primary_font_bold | font_modify: 'style', 'italic' -%}
+
+{%- assign secondary_font_bold = secondary_font | font_modify: 'weight', 'bolder' -%}
+{%- assign secondary_font_italic = secondary_font | font_modify: 'style', 'italic' -%}
+{%- assign secondary_font_bold_italic = secondary_font_bold | font_modify: 'style', 'italic' -%}
+
+{% if primary_font_bold %}
+  {{ primary_font_bold | font_face: font_display: 'swap' }}
+{% endif %}
+
+{% if primary_font_italic %}
+  {{ primary_font_italic | font_face: font_display: 'swap' }}
+{% endif %}
+
+{% if primary_font_bold_italic %}
+  {{ primary_font_bold_italic | font_face: font_display: 'swap' }}
+{% endif %}
+
+{% if secondary_font_bold %}
+  {{ secondary_font_bold | font_face: font_display: 'swap' }}
+{% endif %}
+
+{% if secondary_font_italic %}
+  {{ secondary_font_italic | font_face: font_display: 'swap' }}
+{% endif %}
+
+{% if secondary_font_bold_italic %}
+  {{ secondary_font_bold_italic | font_face: font_display: 'swap' }}
+{% endif %}
+
+:root {
+  --link-color: {{ settings.colorLinks }};
+  --link-color-opacity-90: {{ settings.colorLinks | color_modify: 'alpha', 0.9 | downcase }};
+  --link-color-opacity-50: {{ settings.colorLinks | color_modify: 'alpha', 0.5 | downcase }};
+  --link-color-opacity-30: {{ settings.colorLinks | color_modify: 'alpha', 0.3 | downcase }};
+  --link-color-opacity-10: {{ settings.colorLinks | color_modify: 'alpha', 0.1 | downcase }};
+  --link-color-2: {{ settings.colorLinks }};
+
+  --background-color: {{ settings.colorBackground }};
+  --background-color-opacity-0: {{ settings.colorBackground | color_modify: 'alpha', 0 | downcase }};
+  --background-color-opacity-90: {{ settings.colorBackground | color_modify: 'alpha', 0.9 | downcase }};
+
+  --body-color: {{ settings.colorBody }};
+  --body-color-opacity-10: {{ settings.colorBody | color_modify: 'alpha', 0.1 | downcase }};
+  --body-color-opacity-20: {{ settings.colorBody | color_modify: 'alpha', 0.2 | downcase }};
+  --body-color-opacity-80: {{ settings.colorBody | color_modify: 'alpha', 0.8 | downcase }};
+
+  --border-color: {{ settings.colorBorder }};
+  --border-color-opacity-80: {{ settings.colorBorder | color_modify: 'alpha', 0.8 | downcase }};
+  
+  --header-color: {{ settings.colorHeader }};
+  --header-text-color-opacity-80: {{ settings.colorHeaderText | color_modify: 'alpha', 0.8 | downcase }};
+  --header-color-opacity-90: {{ settings.colorHeader | color_modify: 'alpha', 0.9 | downcase }};
+  --header-color-opacity-80: {{ settings.colorHeader | color_modify: 'alpha', 0.8 | downcase }};
+  --header-color-opacity-70: {{ settings.colorHeader | color_modify: 'alpha', 0.7 | downcase }};
+  --header-color-opacity-60: {{ settings.colorHeader | color_modify: 'alpha', 0.6 | downcase }};
+  --header-color-opacity-50: {{ settings.colorHeader | color_modify: 'alpha', 0.5 | downcase }};
+  --header-color-opacity-40: {{ settings.colorHeader | color_modify: 'alpha', 0.4 | downcase }};
+  --header-color-opacity-30: {{ settings.colorHeader | color_modify: 'alpha', 0.3 | downcase }};
+  --header-color-opacity-20: {{ settings.colorHeader | color_modify: 'alpha', 0.2 | downcase }};
+  --header-color-opacity-10: {{ settings.colorHeader | color_modify: 'alpha', 0.1 | downcase }};
+  --meta-color: {{ settings.colorBody | color_mix: settings.colorBackground, 75 | downcase }};
+  --outline-color: Highlight;
+
+  {% assign buttons_color_lightness = settings.colorButtons | color_extract: 'lightness' %}
+  {% if buttons_color_lightness > 50 %}
+    --button-background-hover: {{ settings.colorButtons | color_darken: 7 | color_saturate: 7 | downcase }};
+    --button-svg-hover-fill: {{ settings.colorButtons | color_darken: 7 | color_saturate: 7 | downcase }};
+  {% else %}
+    --button-svg-hover-fill: {{ settings.colorButtons | color_lighten: 5 | color_desaturate: 5 | downcase }};
+    --button-background-hover: {{ settings.colorButtons | color_lighten: 5 | color_desaturate: 5 | downcase }};
+  {% endif %}
+
+  {% assign links_color_lightness = settings.colorLinks | color_extract: 'lightness' %}
+  {% if links_color_lightness > 50 %}
+    --link-hover-color: {{ settings.colorLinks | color_darken: 7 | color_saturate: 7 | downcase }};
+  {% else %}
+    --link-hover-color: {{ settings.colorLinks | color_lighten: 5 | color_desaturate: 5 | downcase }};
+  {% endif %}
+
+  --primary-weight-normal: {{ primary_font.weight | default: 400 }};
+  --primary-weight-bold: {{ primary_font_bold.weight | default: 700 }};
+
+  --primary-font: {{ primary_font.family }}, {{ primary_font.fallback_families }};
+  --primary-font-weight: {{ primary_font.weight }};
+  --primary-font-style: {{ primary_font.style }};
+
+  --secondary-weight-normal: {{ secondary_font.weight | default: 400 }};
+  --secondary-weight-bold: {{ secondary_font_bold.weight | default: 700 }};
+
+  --secondary-font: {{ secondary_font.family }}, {{ secondary_font.fallback_families }};
+  --secondary-font-weight: {{ secondary_font.weight }};
+  --secondary-font-style: {{ secondary_font.style }};
+
+  --body-font: var(--primary-font);
+  --body-font-weight: var(--primary-font-weight);
+  --body-font-style: var(--primary-font-style);
+  --body-size: {{ settings.bodySize }}px;
+  --body-size-mobile: {{ settings.bodySize | plus: 2 }}px;
+
+  --header-font: var(--secondary-font);
+  --header-font-weight: var(--secondary-font-weight);
+  --header-font-style: var(--secondary-font-style);
+  --heading-size: {{ settings.headingSize }};
+
+  {% case settings.headingSize %}
+  {% when '20px' %}
+    --subheading-size: 12px;
+  {% when '22px' %}
+    --subheading-size: 13px;
+  {% when '24px' %}
+    --subheading-size: 14px;
+  {% endcase %}
+
+  --navigation-font-size: {{ settings.navigationFontSize }}px;
+  --navigation-letter-spacing: {{ settings.navigationSpacing }}px;
+
+  --meta-font: var(--primary-font);
+  --meta-weight: var(--body-font-weight);
+
+  {% assign links_lightness = settings.colorLinks | color_extract: 'lightness' %}
+  {% assign links_saturation = settings.colorLinks | color_extract: 'saturation' %}
+
+  {% if links_lightness < 55 %}
+    --lightness: 55%;
+  {% else %}
+    --lightness: {{ links_lightness }}%;
+  {% endif %}
+
+  {% if links_saturation < 55 %}
+    --saturation: 55%;
+  {% else %}
+    --saturation: {{ links_saturation }}%;
+  {% endif %}
+
+  --sale-color: hsl(0, var(--saturation), var(--lightness));
+  --error-color: #DE3618;
+  --success-color: #108043;
+  --button-color: {{ settings.colorButtonsText }};
+  --button-background: {{ settings.colorButtons }};
+  --button-disabled-color: #EEEEEE;
+  --button-disabled-background: gray;
+  --input-background: var(--background-color);
+  --input-border: var(--border-color);
+  --input-color: var(--body-color);
+  --input-placeholder-color: var(--meta-color);
+  --custom-badge-background: {{ settings.customBadgeBackground | downcase }};
+
+  {% assign custom_badge_lightness = settings.customBadgeBackground | color_extract: 'lightness' %}
+  {% if custom_badge_lightness > 40 %}
+    --custom-badge-background-alt: {{ settings.customBadgeBackground | color_darken: 8 | downcase }};
+  {% else %}
+    --custom-badge-background-alt:  {{ settings.customBadgeBackground | color_lighten: 40 | downcase }};
+  {% endif %}
+
+  {% if custom_badge_lightness > 30 %}
+    --custom-badge-text-alt: {{ settings.colorBackground | color_darken: 10 | downcase }};
+  {% else %}
+    --custom-badge-text-alt: {{ settings.colorBackground | downcase }};
+  {% endif %}
+
+  --dropdown-background-hover: {{ settings.colorBackground | color_darken: 10 | downcase }};
+
+  --new-border-color: {{ settings.colorBorder | color_darken: 4 | downcase }};
+  --new-background-color: {{ settings.colorBackground | color_darken: 4 | downcase }};
+
+  --new-border-color2: {{ settings.colorBorder | color_darken: 8 | downcase }};
+  --new-background-color2: {{ settings.colorBackground | color_darken: 8 | downcase }};
+
+  --new-border-color3: {{ settings.colorBorder | color_darken: 12 | downcase }};
+  --new-background-color3: {{ settings.colorBackground | color_darken: 12 | downcase }};
+
+  {% assign button_font = primary_font | font_modify: 'weight', settings.buttonFontWeight %}
+  {% if button_font != blank %}
+    --button-font: {{ button_font.family }}, {{ button_font.fallback_families }};
+  {% else %}
+    --button-font: {{ primary_font.family }}, {{ primary_font.fallback_families }};
+  {% endif %}
+
+  --button-weight: {{ button_font.weight | default: 700 }};
+  --button-letter-spacing: {{ settings.buttonLetterSpacing }}px;
+
+  --header-background-color: {{ settings.colorHeaderBackground }};
+  --header-text-color: {{ settings.colorHeaderText }};
+  --header-hover-background-color: {{ settings.colorHeaderText | color_modify: 'alpha', 0.1 }};
+  --header-fullbleed-color: {{ settings.fullBleedColor }};
+  --header-scroll-arrow-color: {{ settings.fullBleedColor | color_darken: 20 | downcase }};
+  --header-scroll-background-alt: {{ settings.fullBleedColor | color_modify: 'alpha', 0.2 }};
+
+  --footer-hover-background-color: {{ settings.colorBody | color_modify: 'alpha', 0.1 | downcase }};
+
+  --popup-background-color: {{ settings.colorPopupBackground }};
+  --popup-text-color: {{ settings.colorPopupText }};
+
+  --sold-out-background: {{ settings.soldOutBackground }};
+  --sale-background: {{ settings.saleBackground }};
+  --low-stock-background: {{ settings.lowStockBackground }};
+  --new-product-background: {{ settings.newProductBackground }};
+  --best-selling-background: {{ settings.bestSellingBackground }};
+
+  --product-grid-placeholder-background: {{ settings.colorBackground | color_darken: 3 | downcase }};
+  --product-item-highlight-background: {{ settings.colorBackground | color_mix: settings.colorLinks, 75 | downcase }};
+
+  --module-sale-color: {{ settings.colorBackground | color_mix: settings.colorLinks, 75 | downcase }};
+
+  --border-background-color-mix-lighter: {{ settings.colorBorder | color_mix: settings.colorBackground, 20 | downcase }};
+  --border-background-color-mix: {{ settings.colorBorder | color_mix: settings.colorBackground, 30 | downcase }};
+  --border-background-color-mix: {{ settings.colorBorder | color_mix: settings.colorBackground, 40 | downcase }};
+  --border-background-color-mix: {{ settings.colorBorder | color_mix: settings.colorBackground, 50 | downcase }};
+
+  --header-letter-spacing: normal;
+  {% case settings.headingCase %}
+  {% when 'lowercase' %}
+      --header-text-transform: lowercase;
+  {% when 'uppercase' %}
+    --header-text-transform: uppercase;
+    --header-letter-spacing: 0.2em;
+  {% endcase %}
+
+  {% case settings.navigationCase %}
+  {% when 'lowercase' %}
+      --navigation-text-transform: lowercase;
+  {% when 'uppercase' %}
+    --navigation-text-transform: uppercase;
+  {% endcase %}
+
+  {% case settings.buttonCase %}
+  {% when 'lowercase' %}
+      --button-text-transform: lowercase;
+  {% when 'uppercase' %}
+    --button-text-transform: uppercase;
+  {% endcase %}
+
+  --form-success-background: {{ settings.colorLinks | color_mix: settings.colorBackground, 20 | downcase }};
+  --form-link-before: {{ settings.colorBody | color_modify: 'alpha', 0.3 }};
+  --select-background: {{ settings.colorBody | color_mix: settings.colorBackground, 4 | downcase }};
+  --error-background: {{ settings.colorBody | color_mix: settings.colorBackground, 20 | downcase }};
+
+  
+  {% if settings.colorBackground == 'rgba(0,0,0,0)' %}
+    {% assign colorBackground = '#ffffff' %}
+  {% else %}
+    {% assign colorBackground = settings.colorBackground %}
+  {% endif %}
+  {% assign background_lightness = colorBackground | color_extract: 'lightness' %}
+  {% if background_lightness > 50 %}
+    --hover-background-color: {{ settings.colorBackground | color_darken: 7 | color_saturate: 7 | downcase }};
+    --badge-text: {{ settings.colorBackground | color_darken: 2 | color_desaturate: 5 | downcase }};
+
+    --slider-scroller-drag: {{ colorBackground | color_darken: 15 | color_saturate: 7 | downcase }};
+    --slider-arrows-svg: {{ colorBackground | color_darken: 25 | color_saturate: 10 | downcase }};
+    --slider-scroller-background: {{ colorBackground | color_darken: 6 | downcase }};
+  {% else %}
+    --hover-background-color: {{ settings.colorBackground | color_lighten: 5 | color_desaturate: 5 | downcase }};
+    --badge-text: {{ settings.colorBackground | downcase }};
+
+    --slider-scroller-drag: {{ colorBackground | color_lighten: 40 | color_desaturate: 10 | downcase }};
+    --slider-arrows-svg: {{ colorBackground | color_lighten: 60 | color_desaturate: 20 | downcase }};
+    --slider-scroller-background: {{ colorBackground | color_lighten: 18 | color_desaturate: 8 | downcase }};
+  {% endif %}
+
+  --box-shadow: 0 2px 3px rgba(0,0,0,0.02), 0 3px 5px rgba(0,0,0,0.12), 0 6px 20px rgba(0,0,0,0.06);
+  --box-shadow-reverse: 0 -2px 3px rgba(0,0,0,0.02), 0 -3px 5px rgba(0,0,0,0.12), 0 -6px 20px rgba(0,0,0,0.06);
+
+  --video-wrapper-svg-background: {{ settings.colorBorder | color_mix: #696969, 30 | downcase }};
+  --blog-item-background: {{ settings.colorBackground | color_mix: settings.colorBody, 98 }};
+
+  --image-preloader: url({{ "capitalPreloadImage.svg" | asset_url }});
+
+  /* Shop Pay Installments variables */
+  --color-body: {{ settings.colorBackground }};
+  --color-bg: {{ settings.colorBackground }};
+}
+
+</style>

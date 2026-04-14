@@ -1,0 +1,30 @@
+<div class="collection-sort form-field {% if collection.products.first.vendor == collection.title %}vendor-page{% endif %}">
+  <label class="form-label" for="collection-sort" aria-label="{{ 'collection.sort.title' | t }}">
+    <span class="form-select-wrapper">
+
+      {% assign sortHandles = 'manual|price-ascending|price-descending|title-ascending|title-descending|created-ascending|created-descending|best-selling' | split: '|' %}
+      {% capture sortTitles %}{{ 'collection.sort.manual' | t }}|{{ 'collection.sort.price_ascending' | t }}|{{ 'collection.sort.price_descending' | t }}|{{ 'collection.sort.title_ascending' | t }}|{{ 'collection.sort.title_descending' | t }}|{{ 'collection.sort.created_ascending' | t }}|{{ 'collection.sort.created_descending' | t }}|{{ 'collection.sort.best_selling' | t }}{% endcapture %}
+      {% assign sortTitles = sortTitles | split: '|' %}
+
+      {% for handle in sortHandles %}
+        {% if collection.sort_by == blank and collection.default_sort_by == handle %}
+          {% assign currentTitle = sortTitles[forloop.index0] %}
+        {% elsif collection.sort_by == handle %}
+          {% assign currentTitle = sortTitles[forloop.index0] %}
+        {% endif %}
+      {% endfor %}
+
+      <select id="collection-sort">
+        {% for handle in sortHandles %}
+          {% if collection.sort_by == blank and collection.default_sort_by == handle %}
+            <option value="{{ handle }}" selected>{{ sortTitles[forloop.index0] }}</option>
+          {% elsif collection.sort_by == handle %}
+            <option value="{{ handle }}" selected>{{ sortTitles[forloop.index0] }}</option>
+          {% else %}
+            <option value="{{ handle }}">{{ sortTitles[forloop.index0] }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </span>
+  </label>
+</div>

@@ -1,0 +1,8 @@
+{% assign linklist = linklists["brands"] %}
+{% assign collections_per_row = settings.frontpage_collections_per_row %}
+
+<div class="twelve columns collection-list">
+  <h1 class="page-title">{{page.title | escape}}</h1>
+    {{ page.content }}
+    {% include 'collection-within-collection' %}
+</div>

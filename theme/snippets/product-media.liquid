@@ -1,0 +1,173 @@
+{% comment %}
+Render all media of a product
+
+Parameters:
+* product: Shopify Product
+* section_id: id of a section
+* featured_media_id: id of a featured media
+* enable_video_loop: if loop should be on for videos
+* enable_lightbox: print the lightbox divs
+{% endcomment %}
+
+<div id="product-media">
+  <div class="product-media-inner js-dependent" data-product-images>
+    {% if product.media != blank %}
+
+      {% assign load_models = true %}
+      {% assign models = product.media | where: "media_type", "model" %}
+      {% if models.size > 0 %}
+        {% assign first_model_id = models[0].id %}
+      {% else %}
+        {% assign first_model_id = null %}
+      {% endif %}
+
+      {% for media in product.media %}
+
+        {% if media.media_type == 'image' %}
+          {% assign media_img_src = media.src %}
+        {% else %}
+          {% assign media_img_src = media.preview_image.src %}
+        {% endif %}
+
+        {% capture view_in_space_button %}
+          {% if models %}
+            <div class="button-wrap">
+              <button
+                aria-label="{{ 'products.product.view_in_space_label' | t }}"
+                class="btn product-single__view-in-space"
+                type="button"
+                data-shopify-xr
+                data-shopify-model3d-id="{% if media.media_type == 'model' %}{{ media.id }}{% else %}{{ first_model_id }}{% endif %}"
+                data-shopify-title="{{ product.title | escape }}"
+                data-shopify-xr-hidden
+                tabindex="-1"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30pt" height="30pt" viewBox="0 0 30 30" version="1.1">
+                  <rect x="0" y="0" width="30" height="30"/>
+                  <path class="icon" d="M 15 8.425781 L 8.871094 11.960938 L 8.871094 19.039062 L 15 22.574219 L 21.128906 19.035156 L 21.128906 11.960938 Z M 9.871094 18.460938 L 9.871094 12.539062 L 15 9.574219 L 20.066406 12.5 L 15 15.441406 L 15 21.441406 Z M 9.871094 18.460938 "/>
+                  </svg>
+                <span>{{ 'products.product.view_in_space' | t }}</span>
+              </button>
+            </div>
+          {% endif %}
+        {% endcapture %}
+
+        <div
+          class="product-media-item{% if forloop.first %} product-media-first{% else %} product-media-other{% endif %}{% if media.id == featured_media_id %} product-single__media--selected{% endif %}"
+          data-product-image-src="{{ media_img_src }}"
+          data-media-id="media-template-{{ section_id }}-{{ media.id }}"
+          data-media-type="{{ media.media_type }}"
+          {% if media.aspect_ratio %}
+              data-media-aspect="{{ media.aspect_ratio }}"
+          {% else %}
+              data-media-aspect="{{ media.preview_image.aspect_ratio }}"
+          {% endif %}
+          {% for variant in product.variants %}
+              {% if variant.featured_media.id == media.id %}
+                  data-variant="{{ variant.id }}"
+              {% endif %}
+          {% endfor %}
+        >
+          {% case media.media_type %}
+
+            {% when 'image' %}
+              {%- capture image_attributes -%}
+                data-high-res="{{ media | img_url: '1600x' }}"
+              {%- endcapture -%}
+              {%-
+                render 'image',
+                image_object: media,
+                image_widths: '335, 420, 460, 670, 840, 920, 1005, 1260, 1380',
+                image_attributes: image_attributes,
+                image_link: false,
+                image_additional_content: false,
+                image_class: false
+              -%}
+
+            {% when 'external_video' %}
+              <div style="padding-top: {{ 1 | divided_by: media.aspect_ratio | times: 100}}%; position: relative" data-video-loop="{% if enable_video_loop %}true{% else %}false{% endif %}">
+                  <div class="swipe-target">
+                    <button class="external-video-button" aria-label="Play YouTube video">
+                      <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="60" height="60" fill="none"/>
+                        <path class="icon" fill-rule="evenodd" clip-rule="evenodd" d="M24.5075 20.888C23.8409 20.4953 23 20.976 23 21.7496V38.1404C23 38.9373 23.8866 39.414 24.5514 38.9746L37.664 30.3078C38.2808 29.9001 38.2572 28.9872 37.6201 28.6119L24.5075 20.888Z" fill="#323232"/>
+                      </svg>
+                    </button>
+                  </div>
+                  {{ media | external_video_tag }}
+              </div>
+
+            {% when 'model' %}
+                <div class="responsive-embed ratio-{{ media.preview_image.aspect_ratio | replace: '.', '-' }} media-model-{{ section.id }}-{{ media.id }} ">
+                    {{ media | model_viewer_tag: reveal: 'interaction', toggleable: true, image_size: "1024x", data-model-id: media.id }}
+                </div>
+
+
+            {% when 'video' %}
+                <div data-video-loop="{% if enable_video_loop %}true{% else %}false{% endif %}">
+                    {{ media | video_tag: controls: true }}
+                </div>
+
+            {% else %}
+                {{ media | media_tag }}
+
+          {% endcase %}
+          {{ view_in_space_button }}
+
+          {% if media.media_type == 'model' and load_models %}
+              {% assign load_models = false %}
+              <script>
+                  window.ShopifyXR=window.ShopifyXR||function(){(ShopifyXR.q=ShopifyXR.q||[]).push(arguments)}
+                  var models = {{ models | json }};
+                  if (window.ShopifyXR.addModels) {
+                      window.ShopifyXR.addModels(models);
+                  } else {
+                      window.ShopifyXR('addModels', models);
+                  }
+              </script>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% else %}
+      {{ 'product-1' | placeholder_svg_tag }}
+    {% endif %}
+  </div>
+
+  <noscript>
+    <div class="product-images-inner">
+      {% for media in product.media %}
+        {% assign imageSize = '560x' %}
+        <img
+          src="{{ media | img_url: imageSize }}"
+          srcset="{{ media | img_url: imageSize }} 1x, {{ media | img_url: imageSize, scale: 2 }} 2x, {{ media | img_url: imageSize, scale: 3 }} 3x"
+          alt="{{ media.alt | escape }}"
+        >
+      {% endfor %}
+    </div>
+  </noscript>
+
+  {% if enable_lightbox %}
+  <div
+    class="product-images-lightbox"
+    data-product-images-lightbox-wrapper
+    role="dialog"
+    aria-modal="true"
+  >
+    <div data-product-images-lightbox>
+      <button
+        class="product-images-lightbox-close"
+        id="product_images_lightbox_close"
+        aria-label="Close"
+        type="button" 
+        data-product-images-lightbox-close
+      >
+        <svg><use xlink:href="#icon-close"></use></svg>
+      </button>
+      <span class="products-images-lightbox-spinner">
+          {% render 'spinner' %}
+      </span>
+      <img src="{{ routes.root_url }}" alt="">
+    </div>
+  </div>
+  {% endif %}
+</div>

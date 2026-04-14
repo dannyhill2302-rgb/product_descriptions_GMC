@@ -1,0 +1,495 @@
+<section class="departments-wrapper" data-section-id="{{ section.id }}" data-section-type="home" data-section-child="departments">
+  <h2 class="screen-reader">{{ "modules.departments.title" | t }}</h2>
+  {% assign isSlideshow = false %}
+  {% assign count = 0 %}
+  {% for block in section.blocks %}
+    {% assign count = count | plus: 1 %}
+  {% endfor %}
+
+  {% if count > 4 %}
+    {% assign isSlideshow = true %}
+  {% endif %}
+
+  {% assign slideCount = 0 %}
+
+  {% if section.settings.subheading != blank or section.settings.heading != blank or section.settings.text != blank %}
+    <header class="index-header">
+
+      {% if section.settings.subheading != blank %}
+        <h3 class="index-subheading">{{ section.settings.subheading | escape }}</h3>
+      {% endif %}
+
+      {% if section.settings.heading != blank %}
+        <h2>{{ section.settings.heading | escape }}</h2>
+      {% endif %}
+
+      {% if section.settings.text != blank %}
+        <div class="homepage-subheader h4">{{ section.settings.text }}</div>
+      {% endif %}
+
+    </header>
+  {% endif %}
+
+  <div> <!-- Wrapped in addtional div to prevent pagination from being misinterpreted and removed -->
+
+    {% capture delayAmount %}{% cycle '200', '400', '600', '800', '1000' %}{% endcapture %}
+    <div class="departments grid" {% if isSlideshow %}data-departments-slideshow{% endif %} {% render 'animations', type: 'fadeCycle', delay: delayAmount %}>
+      {% for block in section.blocks %}
+
+        {% assign open = false %}
+        {% if forloop.first %}
+          {% assign open = true %}
+        {% endif %}
+
+        {% if forloop.last or section.blocks.size > 4 %}
+          {% assign close = true %}
+        {% else %}
+          {% assign prevIndex = forloop.index0 | minus: 1 %}
+          {% assign nextIndex = forloop.index0 | plus: 1 %}
+        {% endif %}
+
+        {% if section.blocks.size == 1 %}
+          {% assign isWide = true %}
+        {% endif %}
+
+        {% if open or section.blocks.size > 4 %}
+          <div class="departments-slide">
+        {% endif %}
+
+          <div class="grid-item-{% if section.blocks.size == 1 or section.blocks.size > 4 %}100{% else %}50{% endif %}">
+
+            {% capture delayAmount %}{% cycle '200', '400', '600', '800', '1000' %}{% endcapture %}
+
+            <article
+              class="department-item department-item-{{ block.id }}
+                {%- if isWide %} department-item-wide{%- endif -%}"
+              data-block-id="{{ block.id }}"
+              data-department-slide="{{ slideCount }}"
+              {{ block.shopify_attributes }}
+              {% render 'animations', type: 'fadeCycle', delay: delayAmount %}>
+
+              {% assign image = false %}
+              {% assign title = false %}
+              {% assign text = false %}
+              {% assign button = false %}
+              {% assign url = false %}
+
+              {% if block.settings.departmentImage %}
+                {% assign image = block.settings.departmentImage %}
+              {% endif %}
+
+              {% if block.settings.departmentTitle != blank %}
+                {% assign title = true %}
+              {% endif %}
+
+              {% if block.settings.text != blank %}
+                {% assign text = true %}
+              {% endif %}
+
+              {% if block.settings.departmentUrl != blank %}
+                {% assign url = true %}
+              {% endif %}
+
+              {% if block.settings.buttonText != blank and url %}
+                {% assign button = true %}
+              {% endif %}
+
+              {% if image or title or button or text %}
+
+                {%- capture image_additional_content -%}
+                  {% if title or button or text %}
+                    <figcaption class="{{ block.settings.textAlignment }} title-{{ block.settings.departmentTitleSize }}">
+                      {% if title %}
+                        <h3>{{ block.settings.departmentTitle | escape }}</h3>
+                      {% endif %}
+                      {% if text %}
+                        {{ block.settings.text }}
+                      {% endif %}
+                      {% if button %}
+                        <a class="button hover-animation" href="{{ block.settings.departmentUrl }}">
+                          <span class="button-text">{{- block.settings.buttonText | escape -}}</span>
+                        </a>
+                      {% endif %}
+                    </figcaption>
+                  {% endif %}
+                {%- endcapture -%}
+
+                {%- capture image_class -%}
+                  department-figure
+                {%- endcapture -%}
+
+                {% if image %}
+
+                  {% assign image_widths = '335, 460, 680, 920, 1020, 1100, 1360, 1840, 2040, 2200' %}
+                  {% assign image_noscript_width = '1100x' %}
+
+                  <figure class="overlay-{{ block.settings.overlayOpacity }}">
+                    {%-
+                      render 'image',
+                      image_object: image,
+                      image_class: image_class,
+                      image_additional_content: image_additional_content,
+                      image_widths: image_widths,
+                      image_noscript_width: image_noscript_width,
+                      image_link: false,
+                      image_attributes: false
+                    -%}
+                  </figure>
+
+                {% else %}
+
+                  <figure class="svg-placeholder">
+                    {% capture index %}{% cycle '1', '2', '3', '4', '5', '6' %}{% endcapture %}
+                    {{ 'collection-' | append: index | placeholder_svg_tag }}
+                  </figure>
+                  {{ image_additional_content }}
+
+                {% endif %}
+
+                {% if url and button %}
+                {% elsif url %}
+                  <a class="link-overlay" href="{{ block.settings.departmentUrl }}"></a>
+                {% endif %}
+
+              {% else %}
+
+                {% capture settingsLink %}
+                  <a href="{{ shop.url }}/admin/themes/{{ theme.id }}/editor" target="_blank"></a>
+                {% endcapture %}
+                <figure class="svg-placeholder">
+                  {% capture index %}{% cycle '1', '2', '3', '4', '5', '6' %}{% endcapture %}
+                  {{ 'collection-' | append: index | placeholder_svg_tag }}
+                  <figcaption class="{{ block.settings.textAlignment }} title-{{ block.settings.departmentTitleSize }}">
+                    <h3 {% if block.settings.departmentColor %}class="invert-color"{% endif %}>{{ block.settings.departmentTitle | escape }}</h3></figcaption>
+                </figure>
+                {{ settingsLink }}
+
+              {% endif %}
+
+            </article>
+
+          </div>
+
+        {% if close %}
+          </div>
+          {% assign slideCount = slideCount | plus: 1 %}
+        {% endif %}
+
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if isSlideshow %}
+    <div class="departments-slideshow-navigation">
+      <button data-departments-slideshow-previous>
+        {% render 'icon-arrow' %}
+      </button>
+      <button data-departments-slideshow-next>
+        {% render 'icon-arrow' %}
+      </button>
+    </div>
+  {% endif %}
+</section>
+
+<style type="text/css">
+  {% for block in section.blocks %}
+      {% assign opacity = block.settings.overlayOpacity | times: 1.0 | divided_by: 100 %}
+      #shopify-section-{{ section.id }} .department-item-{{ block.id }} figure::before {
+        background-color: {{ block.settings.colorOverlay | hex_to_rgba: opacity }};
+      }
+
+      #shopify-section-{{ section.id }} .department-item-{{ block.id }} figcaption h3,
+      #shopify-section-{{ section.id }} .department-item-{{ block.id }} figcaption p {
+        {% if block.settings.colorText != 'rgba(0,0,0,0)' %}
+        	color: {{ block.settings.colorText }};
+        {% endif %}
+      }
+  {% endfor %}
+</style>
+
+{% schema %}
+{
+    "name": {
+        "en": "Promotional grid",
+        "de": "Werbenetzwerk",
+        "es": "Parrilla promocional",
+        "fr": "Grille promotionnelle",
+        "pt-PT": "Grelha promocional"
+    },
+    "class": "section-index-departments",
+    "settings": [
+      {
+          "type": "text",
+          "id": "subheading",
+          "label": {
+              "en": "Subheading",
+              "de": "Unterüberschrift",
+              "es": "Subencabezado",
+              "fr": "Sous-rubrique",
+              "pt-PT": "Subtítulo"
+          }
+      },
+      {
+          "type": "text",
+          "id": "heading",
+          "label": {
+              "en": "Heading",
+              "de": "Überschrift",
+              "es": "Encabezado",
+              "fr": "Rubrique",
+              "pt-PT": "Título"
+          }
+      },
+      {
+          "type": "richtext",
+          "id": "text",
+          "label": {
+              "en": "Text",
+              "de": "Text",
+              "es": "Texto",
+              "fr": "Texte",
+              "pt-PT": "Texto"
+          }
+      }
+    ],
+    "max_blocks": 8,
+    "blocks": [
+        {
+            "name": {
+                "en": "Promotional grid",
+                "de": "Bild mit Textüberlagerung",
+                "es": "Imagen con texto superpuesto",
+                "fr": "Image avec texte superposé",
+                "pt-PT": "Imagem com sobreposição de texto"
+            },
+            "type": "image",
+            "settings": [
+                {
+                    "type": "image_picker",
+                    "id": "departmentImage",
+                    "label": {
+                        "en": "Image",
+                        "de": "Bild",
+                        "es": "Imagen",
+                        "fr": "Image",
+                        "pt-PT": "Imagem"
+                    }
+                },
+                {
+                  "type": "text",
+                  "id": "departmentTitle",
+                  "label": {
+                      "en": "Heading",
+                      "de": "Überschrift",
+                      "es": "Encabezado",
+                      "fr": "Rubrique",
+                      "pt-PT": "Título"
+                  },
+                  "default": {
+                    "en": "Title",
+                    "de": "Titel",
+                    "es": "Título",
+                    "fr": "Titre",
+                    "pt-PT": "Título"
+                  }
+                },
+                {
+                    "type": "richtext",
+                    "id": "text",
+                    "label": {
+                        "en": "Text",
+                        "de": "Text",
+                        "es": "Texto",
+                        "fr": "Texte",
+                        "pt-PT": "Texto"
+                    }
+                },
+                {
+                    "type": "text",
+                    "id": "buttonText",
+                    "label": {
+                        "en": "Button label",
+                        "de": "Button-Bezeichnung",
+                        "es": "Etiqueta del botón",
+                        "fr": "Étiquette du bouton",
+                        "pt-PT": "Etiqueta do botão"
+                    }
+                },
+                {
+                    "type": "url",
+                    "id": "departmentUrl",
+                    "label": {
+                        "en": "Button link",
+                        "de": "Buttonlink",
+                        "es": "Enlace del botón",
+                        "fr": "Lien du bouton",
+                        "pt-PT": "Ligação do botão"
+                    }
+                },
+                {
+                    "type": "select",
+                    "id": "textAlignment",
+                    "label": {
+                        "en": "Title alignment",
+                        "de": "Titelausrichtung",
+                        "es": "Alineación de títulos",
+                        "fr": "Alignement du titre",
+                        "pt-PT": "Alinhamento do título"
+                    },
+                    "options": [
+                        {
+                            "value": "top left",
+                            "label": {
+                                "en": "Top left",
+                                "de": "Oben links",
+                                "es": "Arriba a la izquierda",
+                                "fr": "En haut à gauche",
+                                "pt-PT": "Canto superior esquerdo"
+                            }
+                        },
+                        {
+                            "value": "top right",
+                            "label": {
+                                "en": "Top right",
+                                "de": "Oben rechts",
+                                "es": "Arriba a la derecha",
+                                "fr": "En haut à droite",
+                                "pt-PT": "Canto superior direito"
+                            }
+                        },
+                        {
+                            "value": "center",
+                            "label": {
+                                "en": "Center",
+                                "de": "Mitte",
+                                "es": "Centro",
+                                "fr": "Centre",
+                                "pt-PT": "Centro"
+                            }
+                        },
+                        {
+                            "value": "bottom left",
+                            "label": {
+                                "en": "Bottom left",
+                                "de": "Unten links",
+                                "es": "Abajo a la izquierda",
+                                "fr": "En bas à gauche",
+                                "pt-PT": "Canto inferior esquerdo"
+                            }
+                        },
+                        {
+                            "value": "bottom right",
+                            "label": {
+                                "en": "Bottom right",
+                                "de": "Unten rechts",
+                                "es": "Abajo derecha",
+                                "fr": "En bas à droite",
+                                "pt-PT": "Canto inferior direito"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "range",
+                    "id": "departmentTitleSize",
+                    "label": {
+                        "en": "Heading text size",
+                        "de": "Größe der Überschrift",
+                        "es": "Tamaño del texto del encabezado",
+                        "fr": "Taille du texte de l'en-tête",
+                        "pt-PT": "Tamanho do texto do cabeçalho"
+                    },
+                    "min": 16,
+                    "max": 22,
+                    "step": 2,
+                    "default": 20,
+                    "unit": {
+                        "en": "px",
+                        "de": "px",
+                        "es": "px",
+                        "fr": "px",
+                        "pt-PT": "px"
+                    }
+                },
+                {
+                    "type": "color",
+                    "id": "colorText",
+                    "label": {
+                        "en": "Text color",
+                        "de": "Textfarbe",
+                        "es": "Color del texto",
+                        "fr": "Couleur du texte",
+                        "pt-PT": "Cor do texto"
+                    }
+                },
+                {
+                    "type": "color",
+                    "id": "colorOverlay",
+                    "label": {
+                        "en": "Overlay color",
+                        "de": "Farbe des Overlays",
+                        "es": "Color de superposición",
+                        "fr": "Couleur superposée",
+                        "pt-PT": "Sobrepor cor"
+                    },
+					"default": "#1a1a1a"
+                },
+                {
+                    "type": "range",
+                    "id": "overlayOpacity",
+                    "label": {
+                        "en": "Overlay opacity",
+                        "de": "Überlagerungsdeckkraft",
+                        "es": "Capacidad de sobrexposición",
+                        "fr": "Opacité de superposition",
+                        "pt-PT": "Opacidade de sobreposição"
+                    },
+                    "min": 0,
+                    "max": 100,
+                    "step": 10,
+                    "default": 70,
+                    "unit": {
+                        "en": "%",
+                        "de": "%",
+                        "es": "%",
+                        "fr": "%",
+                        "pt-PT": "%"
+                    }
+                }
+            ]
+        }
+    ],
+    "presets": [
+        {
+            "name": {
+                "en": "Promotional grid",
+                "de": "Bild mit Textüberlagerung",
+                "es": "Imagen con texto superpuesto",
+                "fr": "Image avec texte superposé",
+                "pt-PT": "Imagem com sobreposição de texto"
+            },
+            "category": {
+                "en": "Promotional",
+                "de": "für Werbezwecke",
+                "es": "Promocional",
+                "fr": "Promotionnel",
+                "pt-PT": "Promocional"
+            },
+            "blocks": [
+                {
+                    "type": "image"
+                },
+                {
+                    "type": "image"
+                },
+                {
+                    "type": "image"
+                },
+                {
+                    "type": "image"
+                }
+            ]
+        }
+    ]
+}
+{% endschema %}

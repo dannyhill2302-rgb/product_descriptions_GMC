@@ -1,0 +1,7 @@
+<h1 class="page-header">{{ page.title }}</h1>
+
+<div class="page page-wrapper grid">
+  <main class="rich-text grid-item-66">
+    {% assign content = page.content | replace: '&lt;!-- acsplit --&gt;', '<!-- acsplit -->' | split: '<!-- acsplit -->' %}{% for c in content %}{% render 'product-description-slider-page' with c %}{% endfor %}
+  </main>
+</div>
