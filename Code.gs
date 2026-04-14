@@ -44,7 +44,7 @@ const MODEL_PRIORITY = [
 function startProcessing() {
   clearAllTriggers_();
   setSheetHeaders_();
-  processNextBatch_();
+  processNextBatch();
 }
 
 /**
@@ -122,11 +122,13 @@ function registerGCPProject() {
 // ── CORE BATCH PROCESSOR ─────────────────────────────────────
 
 /**
- * Internal: processes as many rows as possible within 5 minutes,
- * then schedules itself to resume. Called by startProcessing()
- * and by the time-based trigger it creates.
+ * Processes as many rows as possible within 5 minutes, then
+ * schedules itself to resume via a time-based trigger.
+ * Called by startProcessing() and directly by triggers.
+ * NOTE: must NOT have a trailing underscore — Apps Script
+ * cannot trigger private (underscore-suffixed) functions.
  */
-function processNextBatch_() {
+function processNextBatch() {
   const sheet     = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   const totalRows = sheet.getLastRow();          // last row with any data
   const startTime = Date.now();
@@ -347,13 +349,14 @@ function setSheetHeaders_() {
 
 function clearAllTriggers_() {
   ScriptApp.getProjectTriggers()
-    .filter(t => ['processNextBatch_', 'startProcessing'].includes(t.getHandlerFunction()))
+    .filter(t => ['processNextBatch', 'startProcessing'].includes(t.getHandlerFunction()))
     .forEach(t => ScriptApp.deleteTrigger(t));
 }
 
 function scheduleResume_() {
   clearAllTriggers_();
-  ScriptApp.newTrigger('processNextBatch_')
+  // 'processNextBatch' has no trailing underscore so triggers can call it
+  ScriptApp.newTrigger('processNextBatch')
     .timeBased()
     .after(2 * 60 * 1000)   // resume in 2 minutes
     .create();
